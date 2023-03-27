@@ -1,4 +1,6 @@
 DROP TABLE IF EXISTS dispo_tailles;
+DROP TABLE IF EXISTS accessoires;
+DROP TABLE IF EXISTS produits_accessoires;
 DROP TABLE IF EXISTS tailles;
 DROP TABLE IF EXISTS clients;
 DROP TABLE IF EXISTS produits;
@@ -19,6 +21,20 @@ CREATE TABLE produits(
     marque VARCHAR(255) NOT NULL,
     genre VARCHAR(255) NOT NULL,
     prix DECIMAL(10,2) NOT NULL
+);
+
+CREATE TABLE accessoires(
+    id_accessoire SERIAL PRIMARY KEY,
+    nom_accessoire VARCHAR(255) NOT NULL,
+    type_accessoire VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE produits_accessoires(
+    id_produit INT NOT NULL,
+    id_accessoire INT NOT NULL,
+    PRIMARY KEY (id_produit, id_accessoire),
+    FOREIGN KEY (id_produit) REFERENCES produits(id_produit),
+    FOREIGN KEY (id_accessoire) REFERENCES accessoires(id_accessoire)
 );
 
 CREATE TABLE tailles(
