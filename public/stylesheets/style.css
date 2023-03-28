@@ -1,0 +1,28 @@
+header {
+    background-color: rgb(114, 218, 246);
+	position: fixed;
+	height: 105px;
+	position: absolute;
+	width: 100%;
+	top: 0px;
+	bottom: 0px;
+    left: 0px;
+    display: flex;
+    justify-content: center;
+}
+
+#logo {
+    font-size: 30px;
+    font-weight: bold;
+    color: #353c65;
+}
+
+#search {
+    margin : auto;
+}
+#panier {
+    margin : auto;
+    width: 50px;
+    margin-top: 2em;
+    margin-right: 4em;
+}
