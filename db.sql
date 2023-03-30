@@ -1,9 +1,10 @@
-DROP TABLE IF EXISTS dispo_tailles;
-DROP TABLE IF EXISTS accessoires;
-DROP TABLE IF EXISTS produits_accessoires;
-DROP TABLE IF EXISTS tailles;
-DROP TABLE IF EXISTS clients;
-DROP TABLE IF EXISTS produits;
+DROP TABLE IF EXISTS dispo_tailles cascade;
+DROP TABLE IF EXISTS accessoires cascade;
+DROP TABLE IF EXISTS produits_accessoires cascade;
+DROP TABLE IF EXISTS tailles cascade;
+DROP TABLE IF EXISTS clients cascade;
+DROP TABLE IF EXISTS produits cascade;
+DROP TABLE IF EXISTS gerants;
 
 CREATE TABLE clients(
     id_client SERIAL PRIMARY KEY,
@@ -11,7 +12,13 @@ CREATE TABLE clients(
     prenom VARCHAR(50) NOT NULL,
     adresse VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
-    mdp VARCHAR(255) NOT NULL
+    mdp TEXT NOT NULL
+);
+
+CREATE TABLE gerants(
+    id_gerant SERIAL PRIMARY KEY,
+    login VARCHAR(255) NOT NULL,
+    mdp TEXT NOT NULL
 );
 
 CREATE TABLE produits(
