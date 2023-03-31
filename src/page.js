@@ -6,40 +6,54 @@ server.get('/', (req, res) => {
     res.render('page.ejs');
 });
 
-server.get('/gerant', (req, res) => {
-    res.render('gerant.ejs');
+server.get('/login', (req, res) => {
+    res.render('login_page.ejs', {failed: false, login_type_val: "client"});
 });
 
-server.post('/verify', (req, res) => {
+server.get('/gerant', (req, res) => {
+    res.render('login_page.ejs', {failed: false, login_type_val: "gerant"});
+});
+
+// Verify login/password
+server.post('/verify_login', (req, res) => {
     const login = (req.body.username);
     const mdp = (req.body.password);
-    const request = `SELECT * FROM gerants WHERE login = '${login}'`;
-    db.query(request, (err, result) => {
+    const login_type = (req.body.login_type);
+    console.log(login_type);
+    let request;
+    if (login_type==="gerant"){
+        request = `SELECT *
+                         FROM gerants
+                         WHERE login = '${login}'`;
+    }
+    else if (login_type==="client"){
+        request = `SELECT *
+                         FROM clients
+                         WHERE login = '${login}'`;
+    }
+    db.query(request,(err,result)=>{
         if (err) {
             console.log(err);
-        }
-        else if (result.rows.length === 1) {
+        } else if (result.rows.length === 1) {
             const hashed_db_mdp = result.rows[0].mdp;
             const hashed_mdp = crypto.createHash('sha256').update(mdp).digest();
-            console.log(hashed_db_mdp);
-            console.log(hashed_mdp);
 
-// remove the \x prefix and convert the hexadecimal string to binary data
-            /*
-            const binaryHash = Buffer.from(hashedPasswordFromDatabase.slice(2), 'hex');
+            // remove the first '\x'
+            const hexString = hashed_db_mdp.substring(2);
+            // splits the string into groups of two characters each, using a regular expression and converts each group of two hexadecimal characters into a decimal number
+            const byteArray = hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16));
+            const hashed_db_mdp_buff = Buffer.from(byteArray);
 
+            // console.log(hashed_db_mdp_buff);
+            // console.log(hashed_mdp);
 
-
-            if (hashedPassword.equals(binaryHash)) {
-                // passwords match
+            if (hashed_mdp.equals(hashed_db_mdp_buff)) {
+                res.redirect("http://localhost:8080/");
             } else {
-                // passwords do not match
+                res.render('login_page.ejs', {failed: true,login_type_val: login_type});
             }
-             */
-            res.send("Succeed!");
         } else {
-            // TODO remettre le form avec une erreur
-            res.send("Failed to login");
+            res.render('login_page.ejs', {failed: true,login_type_val: login_type});
         }
     });
 });

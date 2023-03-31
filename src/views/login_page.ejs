@@ -10,8 +10,13 @@
     <h1 id="logo">Le grenier de mamie</h1>
 </header>
 <div id="login-form">
-    <form method="post" action="http://localhost:8080/verify">
+    <% if(failed){ %>
+        <h3>Mauvais login ou mot de passe</h3>
+    <%}%>
+    <form method="post" action="http://localhost:8080/verify_login">
         <label for="username">Username:</label>
+        <input type="hidden" name="login_type" value=<%=login_type_val%>>
+
         <input type="text" id="username" name="username" required>
 
         <label for="password">Password:</label>

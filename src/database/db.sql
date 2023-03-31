@@ -11,7 +11,7 @@ CREATE TABLE clients(
     nom VARCHAR(50) NOT NULL,
     prenom VARCHAR(50) NOT NULL,
     adresse VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL,
+    login VARCHAR(255) NOT NULL,
     mdp TEXT NOT NULL
 );
 
