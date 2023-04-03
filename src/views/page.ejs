@@ -1,17 +1,57 @@
 <!DOCTYPE HTML>
 <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>Le grenier de mamie</title>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+        <link href="/stylesheets/style.css" rel="stylesheet" type="text/css">
+    </head>    
     <body>
-        <header>
-            <h1 id="logo">Le grenier de mamie</h1>
-            <div id="search">
-                <form method="post" action="http://localhost:8080">
-                    <input type="text" id="recherche" placeholder="Rechercher des produits">
-                    <button type="submit">Rechercher</button>
-                </form>
+        <div class="container-fluid">
+            <div class="row">
+                <nav class="navbar navbar-expand-md navbar-light">
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a class="nav-link" href="/"><h1 id="logo">Le grenier de mamie</h1></a></li>
+                        <li class="nav-item">
+                            <form class="form-inline" method="post" action="http://localhost:8080">       
+                                <div class="input-group">  
+                                    <input id="search-input" type="text" id="search" placeholder="Rechercher" class="form-control" />
+                                    <div class="input-group-append">
+                                        <button id="search-button" type="button" class="btn bg-light">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </li>
+                        <li class="nav-item"><a href="panier"><img id="panier" src="/ressources/panier.png"></a></li>
+                    </ul>
+                </nav>
             </div>
-            <a href="panier"><img id="panier" src="/ressources/panier.png"></a>
-        </header>
-        <script>
-        </script>
+            <div class="row">
+                <nav class="navbar navbar-expand-md navbar-light" id="categ">
+                    <button class="navbar-toggler bg-light" type="button" data-toggle="collapse" data-target="#navArticles" aria-controls="navArticles" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                      </button>
+                    <div class="collapse navbar-collapse" id="navArticles">
+                        <ul class="navbar-nav">
+                            <li class="nav-item"><a class="nav-link categorie" href="/pantalons">pantalons</a></li>
+                            <li class="nav-item"><a class="nav-link categorie" href="/shorts">shorts</a></li>
+                            <li class="nav-item"><a class="nav-link categorie" href="/chemises">chemises</a></li>
+                            <li class="nav-item"><a class="nav-link categorie" href="/vestes">vestes</a></li>
+                            <li class="nav-item"><a class="nav-link categorie" href="/pulls">pulls</a></li>
+                            <li class="nav-item"><a class="nav-link categorie" href="/costumes">costumes</a></li>
+                            <li class="nav-item"><a class="nav-link categorie" href="/manteaux">manteaux</a></li>
+                            <li class="nav-item"><a class="nav-link categorie" href="/robes">robes</a></li>
+                            <li class="nav-item"><a class="nav-link categorie" href="/chaussettes">chaussettes</a></li>
+                        </ul>
+                    </div>
+                </nav>
+            </div>
+        </div>
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     </body>
 </html>

@@ -1,14 +1,23 @@
-header {
-    background-color: rgb(114, 218, 246);
-	position: fixed;
-	height: 105px;
-	position: absolute;
-	width: 100%;
-	top: 0px;
-	bottom: 0px;
-    left: 0px;
+body{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+}
+
+.navbar {
     display: flex;
     justify-content: center;
+    align-items: center;
+    background-color: rgb(114, 218, 246);
+    width: 100%;
+}
+
+.categorie {
+    font-weight: bold;
+    font-size: large;
+    text-transform: uppercase;
 }
 
 #logo {
