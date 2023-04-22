@@ -20,6 +20,22 @@ body{
     text-transform: uppercase;
 }
 
+@media (min-width: 1200px) {
+    .col-xl-5 {
+      flex: 0 0 20%;
+      max-width: 20%;
+    }
+}
+
+.row-centered{
+    justify-content: center;
+}
+
+#logo_tmp {
+    height: 70px;
+    width: 70px;
+}
+
 #logo {
     font-size: 30px;
     font-weight: bold;

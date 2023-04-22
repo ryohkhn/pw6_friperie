@@ -3,7 +3,38 @@ const db = require('./db');
 const crypto = require('crypto');
 
 server.get('/', (req, res) => {
-    res.render('page.ejs');
+    let request = `SELECT * FROM produits`;
+    db.query(request,(err,result)=> {
+        if (err){
+            console.log(err);
+            res.render('error.ejs',{errorcode: err});
+        }
+        console.log(result.rows);
+        res.render('page.ejs',{elements:result.rows});
+        /*
+        else if(result.rows.length === 1) {
+            const hashed_db_mdp = result.rows[0].mdp;
+            const hashed_mdp = crypto.createHash('sha256').update(mdp).digest();
+
+            // remove the first '\x'
+            const hexString = hashed_db_mdp.substring(2);
+            // splits the string into groups of two characters each, using a regular expression and converts each group of two hexadecimal characters into a decimal number
+            const byteArray = hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16));
+            const hashed_db_mdp_buff = Buffer.from(byteArray);
+
+            // console.log(hashed_db_mdp_buff);
+            // console.log(hashed_mdp);
+
+            if (hashed_mdp.equals(hashed_db_mdp_buff)) {
+                res.redirect("http://localhost:8080/");
+            } else {
+                res.render('login_page.ejs', {failed: true, login_type_val: login_type});
+            }
+        } else {
+            res.render('login_page.ejs', {failed: true, login_type_val: login_type});
+        }
+         */
+    });
 });
 
 server.get('/login', (req, res) => {
@@ -12,6 +43,10 @@ server.get('/login', (req, res) => {
 
 server.get('/gerant', (req, res) => {
     res.render('login_page.ejs', {failed: false, login_type_val: "gerant"});
+});
+
+server.get('/search',(req, res) => {
+
 });
 
 // Verify login/password
@@ -34,7 +69,9 @@ server.post('/verify_login', (req, res) => {
     db.query(request,(err,result)=>{
         if (err) {
             console.log(err);
-        } else if (result.rows.length === 1) {
+            res.render('error.ejs',{errorcode: err});
+        }
+        else if (result.rows.length === 1) {
             const hashed_db_mdp = result.rows[0].mdp;
             const hashed_mdp = crypto.createHash('sha256').update(mdp).digest();
 

@@ -27,7 +27,8 @@ CREATE TABLE produits(
     type_produit VARCHAR(255) NOT NULL,
     marque VARCHAR(255) NOT NULL,
     genre VARCHAR(255) NOT NULL,
-    prix DECIMAL(10,2) NOT NULL
+    prix DECIMAL(10,2) NOT NULL,
+    createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE accessoires(
