@@ -37,8 +37,33 @@ server.get('/', (req, res) => {
     });
 });
 
+server.get('/panier', (req, res) => {
+    var valeursDesProduits = getAllBasketCookies();
+    let request = `SELECT * FROM produits WHERE `;
+    if(valeursDesProduits.length > 0){
+        request += `id_produit=` + valeursDesProduits[0];
+        for(var i = 1; i<valeursDesProduits.length();i++){
+            request += `OR id_produit=` + valeursDesProduits[i];
+        }
+    }else{
+        res.render('panier.ejs',{vide:true, elements:[]});
+    }
+    db.query(request,(err,result)=> {
+        if (err){
+            console.log(err);
+            res.render('error.ejs',{errorcode: err});
+        }
+        console.log(result.rows);
+        res.render('panier.ejs',{vide : false, elements:result.rows});
+    });
+});
+
 server.get('/login', (req, res) => {
     res.render('login_page.ejs', {failed: false, login_type_val: "client"});
+});
+
+server.get('/register', (req, res) => {
+    res.render('register_page.ejs', {failed: false});
 });
 
 server.get('/gerant', (req, res) => {
