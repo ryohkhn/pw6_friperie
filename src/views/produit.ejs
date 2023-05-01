@@ -6,7 +6,6 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <link href="/stylesheets/style.css" rel="stylesheet" type="text/css">
-    <script src="cookies.js"></script>
 </head>
     <body>
         <div class="container-fluid">
@@ -49,30 +48,29 @@
             </div>
         </div>
         <div class="container-fluid">
-            <div class="container">
-                <table id="table"class="table table-image">
-
-                <% 
-                <!--var panier = getAllBasketCookies(); 
-                if(panier.length()===0){%>
-                    <p class="w-25 text-center">Aucun produit dans le panier</p>
-                    <%
-                }else{
-                -->    
-                    for (let i = 0; i < elements.length; i++) {
-                        <!--if(panier.includes(elements[i].id_produit)){-->
-                        %>
-                        <tr class="text-center">
-                            <td><img src="/src" class="" alt="product's image"></td>
-                            <td class="w-25 align-middle"><h5><%= elements[i].nom_produit %></h5></td>
-                            <td class="w-25 align-middle"><%= elements[i].prix %> €</td>
-                            <td class="w-25 align-middle"><a href="#" class="btn btn-primary">Supprimer</a></td>
-                        </tr>
-                    <%  }
-                    <!--} 
-                }-->%>
-                </table>
-                <a href="#" class="w-25 text-center btn btn-primary">Payer</a>
+            <div class="container">  
+                        <img src="/src" class="card-img-top" alt="product's image">
+                        <div class="card mb-6">
+                            <div class="card-body text-left">
+                                <h5 class="card-title"><%= elements[0].nom_produit %></h5>
+                                <h6 class="card-subtitle mb-2 text-muted"><%= elements[0].prix %> €</h6>
+                                <p class="card-text"><%= elements[0].marque %></p>
+                                <select>
+                                    <option value="XS">XS</option>
+                                    <option value="S">S</option>
+                                    <option value="M">M</option>
+                                    <option value="L">L</option>
+                                    <option value="XL">XL</option>
+                                    <option value="XXL">XXL</option>
+                                </select>
+                                <select>
+                                    <% for(let i = 0; i < accessoires.length ; i++){%>
+                                        <option value=<%=accessoires[i].id_accessoire %>> <%= accessoires[i].nom_accessoire %></option>
+                                        <% }%>
+                                </select>
+                                <a href="#" class="btn btn-primary">Ajouter au panier</a>
+                            </div>
+                        </div>
             </div>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>

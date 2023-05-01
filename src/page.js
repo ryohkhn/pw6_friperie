@@ -38,25 +38,36 @@ server.get('/', (req, res) => {
 });
 
 server.get('/panier', (req, res) => {
-    var valeursDesProduits = getAllBasketCookies();
-    let request = `SELECT * FROM produits WHERE `;
-    if(valeursDesProduits.length > 0){
-        request += `id_produit=` + valeursDesProduits[0];
-        for(var i = 1; i<valeursDesProduits.length();i++){
-            request += `OR id_produit=` + valeursDesProduits[i];
-        }
-    }else{
-        res.render('panier.ejs',{vide:true, elements:[]});
-    }
+    let request = `SELECT * FROM produits `;
     db.query(request,(err,result)=> {
         if (err){
             console.log(err);
             res.render('error.ejs',{errorcode: err});
         }
         console.log(result.rows);
-        res.render('panier.ejs',{vide : false, elements:result.rows});
+        res.render('panier.ejs',{elements:result.rows});
     });
 });
+
+server.get('/produit/:num', (req, res) => {
+    let request = `SELECT * FROM produits WHERE id_produit = ` + req.params.num;
+    db.query(request, (err, result) => {
+        if (err) {
+            console.log(err);
+            res.render('error.ejs',{errorcode: err});
+        }
+
+        let accessoiresReq = `SELECT * FROM accessoires`;
+        db.query(accessoiresReq, (err, result2) => {
+            if (err) {
+                console.log(err);
+                res.render('error.ejs',{errorcode: err});
+            }
+            res.render('produit.ejs',{idprod:req.params.num,elements:result.rows,accessoires:result2.rows});
+        });
+    });
+});
+
 
 server.get('/login', (req, res) => {
     res.render('login_page.ejs', {failed: false, login_type_val: "client"});
