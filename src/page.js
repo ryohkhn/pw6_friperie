@@ -1,5 +1,5 @@
 const server = require('./express')
-const db = require('./db');
+const db = require('./database_pool');
 const crypto = require('crypto');
 
 server.get('/', (req, res) => {
