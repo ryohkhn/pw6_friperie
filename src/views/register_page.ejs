@@ -10,46 +10,126 @@
 <header>
     <h1 id="logo">Le grenier de mamie</h1>
 </header>
-    <form>
+    <form method="post" action="http://localhost:8080/verify_register">
         <div class="form-row">
             <div class="form-group col-md-6">
                 <label for="inputPrenom">Prénom</label>
-                <input type="text" class="form-control" id="inputPrenom" placeholder="Prénom" required="required">
+                <input type="text" class="form-control" id="inputPrenom" name="inputPrenom" placeholder="Prénom" required="required">
             </div>
             <div class="form-group col-md-6">
                 <label for="inputNom">Nom</label>
-                <input type="text" class="form-control" id="inputNom" placeholder="Nom" required="required">
+                <input type="text" class="form-control" id="inputNom" name="inputNom" placeholder="Nom" required="required">
             </div>
         </div>
-        <div class="form-row">
-        <div class="form-group col-md-6">
+        <% if (erreurs.prenom) { %>
+            <div class="alert alert-danger">
+              <%= erreurs.prenom %>
+            </div>
+        <% } %>
+        <% if (erreurs.nom) { %>
+            <div class="alert alert-danger">
+              <%= erreurs.nom %>
+            </div>
+        <% } %>
+        <div class="form-group">
+            <label for="inputLogin">Pseudo</label>
+            <input type="text" class="form-control" id="inputLogin" name="inputLogin" placeholder="Pseudo" required="required">
+        </div>
+        <% if (erreurs.loginLetters) { %>
+            <div class="alert alert-danger">
+              <%= erreurs.loginLetters %>
+            </div>
+        <% } %>
+        <% if (erreurs.loginExists) { %>
+            <div class="alert alert-danger">
+              <%= erreurs.loginExists %>
+            </div>
+        <% } %>
+        <div class="form-group">
             <label for="inputEmail">Email</label>
-            <input type="email" class="form-control" id="inputEmail" placeholder="Email" required="required">
+            <input type="email" class="form-control" id="inputEmail" name="inputEmail" placeholder="Email" required="required">
         </div>
-        <div class="form-group col-md-6">
-            <label for="inputPassword4">Mot de passe</label>
-            <input type="password" class="form-control" id="inputPassword" placeholder="Mot de passe" required="required">
+        <% if (erreurs.email) { %>
+            <div class="alert alert-danger">
+              <%= erreurs.email %>
+            </div>
+        <% } %>
+        <% if (erreurs.emailExists) { %>
+            <div class="alert alert-danger">
+              <%= erreurs.emailExists %>
+            </div>
+        <% } %>
+        
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="inputPassword">Mot de passe</label>
+                <input type="password" class="form-control" id="inputPassword" name="inputPassword" placeholder="Mot de passe" required="required">
+            </div>
+            <div class="form-group col-md-6">
+                <label for="inputPasswordVerif">Vérifiez votre mot de passe</label>
+                <input type="password" class="form-control" id="inputPasswordVerif" name="inputPasswordVerif" placeholder="Mot de passe" required="required">
+            </div>
         </div>
-        </div>
+        <% if (erreurs.password) { %>
+            <div class="alert alert-danger">
+              <%= erreurs.password %>
+            </div>
+        <% } %>
+        <% if (erreurs.passwordVerif) { %>
+            <div class="alert alert-danger">
+              <%= erreurs.passwordVerif %>
+            </div>
+        <% } %>
         <div class="form-group">
-            <label for="inputAddress">Addresse</label>
-            <input type="text" class="form-control" id="inputAddress" placeholder="2 rue victor hugo" required="required">
+            <label for="inputAdresse">Adresse</label>
+            <input type="text" class="form-control" id="inputAdresse" name="inputAdresse" placeholder="2 rue victor hugo" required="required">
         </div>
+        <% if (erreurs.adresse) { %>
+            <div class="alert alert-danger">
+              <%= erreurs.adresse %>
+            </div>
+        <% } %>
         <div class="form-group">
-        <label for="inputAddress2">Addresse 2</label>
-        <input type="text" class="form-control" id="inputAddress2" placeholder="Informations complémentaires">
+        <label for="inputAdresse2">Adresse 2</label>
+        <input type="text" class="form-control" id="inputAdresse2" name="inputAdresse2" placeholder="Informations complémentaires">
         </div>
+        <% if (erreurs.adresse2) { %>
+            <div class="alert alert-danger">
+              <%= erreurs.adresse2 %>
+            </div>
+        <% } %>
         <div class="form-row">
         <div class="form-group col-md-8">
-            <label for="inputCity">Ville</label>
-            <input type="text" class="form-control" id="inputCity" required="required">
+            <label for="inputVille">Ville</label>
+            <input type="text" class="form-control" id="inputVille" name="inputVille" required="required">
         </div>
         <div class="form-group col-md-4">
             <label for="inputCode">Code Postal</label>
-            <input type="text" class="form-control" id="inputZip" required="required">
+            <input type="text" class="form-control" id="inputCode" name="inputCode" required="required">
         </div>
         </div>
+        <% if (erreurs.ville) { %>
+            <div class="alert alert-danger">
+              <%= erreurs.ville %>
+            </div>
+        <% } %>
+        <% if (erreurs.code) { %>
+            <div class="alert alert-danger">
+              <%= erreurs.code %>
+            </div>
+        <% } %>
         <button type="submit" class="btn btn-primary">Valider</button>
+        <!-- Section pour afficher les erreurs -->
+        <% if (erreurs.length > 0) { %>
+            <div class="alert alert-danger">
+            <ul>
+                <% erreurs.forEach(function(error) { %>
+                <li><%= erreur %></li>
+                <% }); %>
+            </ul>
+            </div>
+        <% } %>
+  
     </form>
 </body>
 </html>
