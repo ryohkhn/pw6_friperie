@@ -102,9 +102,16 @@
                     <% } %>
                 </div>
             </div>
+            <div class="container justify-content-center">
+                <input id="total-pages" type="hidden" value="<%= totalPages %>">
+                <input id="current-page" type="hidden" value="<%= currentPage %>">
+                <button id="prev-btn" type="button" class="btn btn-primary mx-2">Précédent</button>
+                <button id="next-btn" type="button" class="btn btn-primary mx-2">Suivant</button>
+            </div>
+        </div>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+        <script src="/js/pagination.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-        </div>
     </body>
 </html>

@@ -1,76 +1,73 @@
-const server = require('./express')
-const db = require('./database_pool');
+const server = require('./express_config')
+const db = require('./database_pool.local');
 const crypto = require('crypto');
 
-server.get('/', (req, res) => {
-    let request = `SELECT * FROM produits`;
-    db.query(request,(err,result)=> {
-        if (err){
-            console.log(err);
-            res.render('error.ejs',{errorcode: err});
-        }
-        console.log(result.rows);
-        res.render('page.ejs',{elements:result.rows});
-        /*
-        else if(result.rows.length === 1) {
-            const hashed_db_mdp = result.rows[0].mdp;
-            const hashed_mdp = crypto.createHash('sha256').update(mdp).digest();
-
-            // remove the first '\x'
-            const hexString = hashed_db_mdp.substring(2);
-            // splits the string into groups of two characters each, using a regular expression and converts each group of two hexadecimal characters into a decimal number
-            const byteArray = hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16));
-            const hashed_db_mdp_buff = Buffer.from(byteArray);
-
-            // console.log(hashed_db_mdp_buff);
-            // console.log(hashed_mdp);
-
-            if (hashed_mdp.equals(hashed_db_mdp_buff)) {
-                res.redirect("http://localhost:8080/");
-            } else {
-                res.render('login_page.ejs', {failed: true, login_type_val: login_type});
-            }
-        } else {
-            res.render('login_page.ejs', {failed: true, login_type_val: login_type});
-        }
-         */
-    });
+server.get('/',(req, res) => {
+    res.redirect('/accueil');
 });
 
-server.get('/panier', (req, res) => {
-    let request = `SELECT * FROM produits `;
-    db.query(request,(err,result)=> {
-        if (err){
-            console.log(err);
-            res.render('error.ejs',{errorcode: err});
+server.get('/accueil', async (req, res) => {
+    // nombre d'éléments par page
+    const limit = 10;
+    // on recupère la page courante
+    const currentPage = parseInt(req.query.page) || 1;
+    // on calcule l'offset de la requête SQL en fonction de la page courante et de la limite
+    const offset = (currentPage - 1) * limit;
+
+    try {
+        const totalItemsResult = await db.query(`SELECT * FROM produits`);
+        const totalItems = totalItemsResult.rows.length;
+        const totalPages = Math.ceil(totalItems / limit);
+
+        if (currentPage < 1) {
+            return res.redirect('/accueil?page=1');
         }
-        console.log(result.rows);
-        res.render('panier.ejs',{elements:result.rows});
-    });
+        else if (currentPage > totalPages) {
+            return res.redirect('/accueil?page=' + totalPages);
+        }
+
+        const request = 'SELECT * FROM produits ORDER BY createddate LIMIT $1 OFFSET $2';
+        const itemsResult = await db.query(request, [limit, offset]);
+        const items = itemsResult.rows;
+
+        res.render('page.ejs', {elements: items,totalPages: totalPages,currentPage:currentPage});
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal server error');
+    }
 });
 
-server.get('/produit/:num', (req, res) => {
-    let request = `SELECT * FROM produits WHERE id_produit = ` + req.params.num;
-    db.query(request, (err, result) => {
-        if (err) {
-            console.log(err);
-            res.render('error.ejs',{errorcode: err});
-        }
+server.get('/panier', async (req, res) => {
+    try {
+        const request = `SELECT * FROM produits `;
+        const result = await db.query(request);
+        console.log(result.rows);
+        res.render('panier.ejs', {elements: result.rows});
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal server error');
+    }
+});
 
-        let accessoiresReq = `SELECT * FROM accessoires`;
-        db.query(accessoiresReq, (err, result2) => {
-            if (err) {
-                console.log(err);
-                res.render('error.ejs',{errorcode: err});
-            }
-            res.render('produit.ejs',{idprod:req.params.num,elements:result.rows,accessoires:result2.rows});
-        });
-    });
+server.get('/produit/:num', async (req, res) => {
+    try {
+        const request = `SELECT * FROM produits WHERE id_produit = $1`;
+        const result = await db.query(request, [req.params.num]);
+
+        const accessoiresReq = `SELECT * FROM accessoires`;
+        const result2 = await db.query(accessoiresReq);
+
+        res.render('produit.ejs', {idprod: req.params.num,
+            elements: result.rows, accessoires: result2.rows});
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal server error');
+    }
 });
 
 
 server.get('/login', (req, res) => {
-    res.render('login_page.ejs', {failed: false, login_type_val: "client"});
+    res.render('login_page.ejs', {failed: false, login_type_val: "clients"});
 });
 
 server.get('/register', (req, res) => {
@@ -78,14 +75,14 @@ server.get('/register', (req, res) => {
 });
 
 server.get('/gerant', (req, res) => {
-    res.render('login_page.ejs', {failed: false, login_type_val: "gerant"});
+    res.render('login_page.ejs', {failed: false, login_type_val: "gerants"});
 });
 
 server.get('/search',(req, res) => {
 
 });
 
-function fullLetter(text){ 
+function fullLetter(text){
     var letters = /^[A-Za-z]+$/;
     if(text.value.match(letters)){
         return true;
@@ -152,7 +149,7 @@ server.post('/verify_register', (req, res) => {
         errors.code = "Le code postal doit être composé de 5 chiffres.";
     }
 
-    
+
     let request=`SELECT * FROM gerants,clients WHERE login = '${login}'`;
     db.query(request,(err,result)=>{
         if (err) {
@@ -182,34 +179,28 @@ server.post('/verify_register', (req, res) => {
 );
 
 // Verify login/password
-server.post('/verify_login', (req, res) => {
-    const login = (req.body.username);
-    const mdp = (req.body.password);
-    const login_type = (req.body.login_type);
-    console.log(login_type);
-    let request;
-    if (login_type==="gerant"){
-        request = `SELECT *
-                         FROM gerants
-                         WHERE login = '${login}'`;
-    }
-    else if (login_type==="client"){
-        request = `SELECT *
-                         FROM clients
-                         WHERE login = '${login}'`;
-    }
-    db.query(request,(err,result)=>{
-        if (err) {
-            console.log(err);
-            res.render('error.ejs',{errorcode: err});
+server.post('/verify_login', async (req, res) => {
+    try {
+        const login = (req.body.username);
+        const mdp = (req.body.password);
+        const login_type = (req.body.login_type);
+        console.log(login_type);
+
+        const validLogins = ['gerants', 'clients'];
+        if (!validLogins.includes(login_type)) {
+            return res.status(400).send('Invalid login type');
         }
-        else if (result.rows.length === 1) {
+
+        const request = `SELECT * FROM ${login_type} WHERE login = $1`;
+        const result = await db.query(request, [login]);
+        if (result.rows.length === 1) {
             const hashed_db_mdp = result.rows[0].mdp;
             const hashed_mdp = crypto.createHash('sha256').update(mdp).digest();
 
             // remove the first '\x'
             const hexString = hashed_db_mdp.substring(2);
-            // splits the string into groups of two characters each, using a regular expression and converts each group of two hexadecimal characters into a decimal number
+            // splits the string into groups of two characters each
+            // using a regular expression and converts each group of two hexadecimal characters into a decimal number
             const byteArray = hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16));
             const hashed_db_mdp_buff = Buffer.from(byteArray);
 
@@ -217,12 +208,17 @@ server.post('/verify_login', (req, res) => {
             // console.log(hashed_mdp);
 
             if (hashed_mdp.equals(hashed_db_mdp_buff)) {
-                res.redirect("http://localhost:8080/");
-            } else {
-                res.render('login_page.ejs', {failed: true,login_type_val: login_type});
+                res.redirect("/");
             }
-        } else {
-            res.render('login_page.ejs', {failed: true,login_type_val: login_type});
+            else {
+                res.render('login_page.ejs', {failed: true, login_type_val: login_type});
+            }
         }
-    });
+        else {
+            res.render('login_page.ejs', {failed: true, login_type_val: login_type});
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal server error');
+    }
 });
