@@ -90,7 +90,7 @@
                         let j = i%2 %>
                         <div class="col-xl-5 col-lg-3 col-md-4 col-sm-6">
                             <div class="card mb-4">
-                                <img src="/src" class="card-img-top" alt="product's image">
+                                <img src="" class="card-img-top" alt="product's image">
                                 <div class="card-body text-left">
                                     <h5 class="card-title"><%= elements[i].nom_produit %></h5>
                                     <p class="card-text"><%= elements[i].prix %> €</p>
@@ -102,12 +102,14 @@
                     <% } %>
                 </div>
             </div>
-            <div class="container justify-content-center">
-                <input id="total-pages" type="hidden" value="<%= totalPages %>">
-                <input id="current-page" type="hidden" value="<%= currentPage %>">
-                <button id="prev-btn" type="button" class="btn btn-primary mx-2">Précédent</button>
-                <button id="next-btn" type="button" class="btn btn-primary mx-2">Suivant</button>
-            </div>
+            <% if(totalPages!==1){%>
+                <div class="container justify-content-center">
+                    <input id="total-pages" type="hidden" value="<%= totalPages %>">
+                    <input id="current-page" type="hidden" value="<%= currentPage %>">
+                    <button id="prev-btn" type="button" class="btn btn-primary mx-2">Précédent</button>
+                    <button id="next-btn" type="button" class="btn btn-primary mx-2">Suivant</button>
+                </div>
+            <% } %>
         </div>
         <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
         <script src="/js/pagination.js"></script>
