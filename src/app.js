@@ -1,5 +1,6 @@
 const server = require('./express_config')
 const db = require('./database_pool.local');
+
 const authRoutes = require('./routing/authRoutes');
 const middlewares = require('./middlewares/middlewares');
 

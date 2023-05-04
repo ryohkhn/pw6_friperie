@@ -9,24 +9,81 @@
 </head>
     <body>
         <div class="container-fluid">
-            <div class="row">
-                <nav class="navbar navbar-expand-md navbar-light justify-content-between">
-                    <a class="navbar-brand" href="/"><img src="/ressources/logo.png" alt="Le grenier de mamie" id="logo_tmp"></a>
-                    <form class="form-inline" method="get" action="http://localhost:8080/search">
-                        <div class="input-group">
-                            <input class="form-control" id="searchbar" name="recherche" type="search" placeholder="Rechercher"/>
-                            <div class="input-group-append">
+            <!--
+            <nav class="navbar navbar-expand-md navbar-light justify-content-between">
+                <a class="navbar-brand" href="/"><img src="/ressources/logo.png" alt="Le grenier de mamie" id="logo"></a>
+                <form class="form-inline" method="get" action="http://localhost:8080/search">
+                    <div class="input-group">
+                        <input class="form-control" id="searchbar" name="recherche" type="search" placeholder="Rechercher"/>
+                        <div class="input-group-append">
+                            <button id="search-button" type="button" class="btn bg-light">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <i class="fa-solid fa-user fa-xl" style="color: #000000;"></i>
+                <i class="fa-solid fa-cart-shopping fa-xl" style="color: #000000;"></i>
+            </nav>
+            -->
+            <!--
+            <nav class="navbar-expand">
+                <div class="container-fluid">
+                    <div class="row w-100">
+                        <div class="col-2 d-flex align-items-center">
+                            <a class="navbar-brand" href="/"><img src="/ressources/logo.png"
+                                                                  alt="Le grenier de mamie" id="logo"></a>
+                        </div>
+                        <div class="col-8 d-flex align-items-center justify-content-center">
+                            <form class="form-inline d-flex" method="get"
+                                  action="http://localhost:8080/search">
+                                <input class="form-control" id="searchbar" name="recherche" type="search"
+                                       placeholder="Rechercher"/>
                                 <button id="search-button" type="button" class="btn bg-light">
                                     <i class="fas fa-search"></i>
                                 </button>
-                            </div>
+                            </form>
                         </div>
-                    </form>
-                    <a href="panier"><img id="panier" src="/ressources/panier.png"></a>
-                </nav>
-            </div>
+                        <div class="col-2 d-flex align-items-center justify-content-end">
+                            <i class="fa-solid fa-user fa-xl" style="color: #000000;"></i>
+                            <i class="fa-solid fa-cart-shopping fa-xl" style="color: #000000;"></i>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            -->
+            <nav class="navbar-expand">
+                <div class="container-fluid">
+                    <div class="row w-100">
+                        <div class="col-3 d-flex align-items-center">
+                            <a class="navbar-brand m-2" href="/">
+                                <img src="/ressources/logo.png" alt="Le grenier de mamie" id="logo">
+                            </a>
+                        </div>
+                        <div class="col-6 d-flex align-items-center justify-content-center">
+                            <form class="form-inline d-flex w-100" method="get" action="http://localhost:8080/search">
+                                <div class="input-group w-100 w-sm-75 w-md-60 w-lg-80">
+                                    <input class="form-control" id="searchbar" name="recherche" type="search"
+                                           placeholder="Rechercher"/>
+                                    <button id="search-button" type="button" class="btn bg-light">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-3 d-flex align-items-center justify-content-end">
+                            <a href="/profil">
+                                <i class="fa-solid fa-user fa-xl logos m-2"></i>
+                            </a>
+                            <a href="/panier">
+                                <i class="fa-solid fa-cart-shopping fa-xl logos m-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </nav>
             <div class="row">
-                <nav class="navbar navbar-expand-lg navbar-light" id="categ">
+                <nav class="navbar navbar-expand-lg navbar-light navtmp" id="categ">
                     <button class="navbar-toggler bg-light" type="button" data-toggle="collapse" data-target="#navArticles"
                             aria-controls="navArticles" aria-expanded="false" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
@@ -85,5 +142,6 @@
         <script src="/js/pagination.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script src="https://kit.fontawesome.com/607cb4a3b6.js" crossorigin="anonymous"></script>
     </body>
 </html>
