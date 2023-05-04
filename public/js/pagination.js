@@ -1,5 +1,6 @@
 function navigateToPage(page){
-    window.location.href = "/accueil?page=" + page;
+    const currentPath = window.location.pathname;
+    window.location.href = currentPath + "?page=" + page;
 }
 
 $(document).ready(function () {
