@@ -45,9 +45,15 @@ body{
 #search {
     margin : auto;
 }
+
 #panier {
     margin : auto;
     width: 50px;
     margin-top: 2em;
     margin-right: 4em;
+}
+
+.product{
+    color: inherit;
+    text-decoration: none;
 }

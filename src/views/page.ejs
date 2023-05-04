@@ -86,19 +86,19 @@
             -->
             <div class="container">
                 <div class="row row-centered">
-                    <% for (let i = 0; i < elements.length; i++) {
-                        let j = i%2 %>
-                        <div class="col-xl-5 col-lg-3 col-md-4 col-sm-6">
+                    <% for (let i = 0; i < elements.length; i++) { %>
+                    <div class="col-xl-5 col-lg-3 col-md-4 col-sm-6">
+                        <a href="/produit/<%= elements[i].id_produit %>">
                             <div class="card mb-4">
-                                <img src="" class="card-img-top" alt="product's image">
+                                <img src="/ressources/placeholder.png" class="card-img-top product" alt="product's image">
                                 <div class="card-body text-left">
-                                    <h5 class="card-title"><%= elements[i].nom_produit %></h5>
-                                    <p class="card-text"><%= elements[i].prix %> €</p>
-                                    <p class="card-text"><%= elements[i].marque %></p>
-                                    <a href="#" class="btn btn-primary">Go somewhere</a>
+                                    <h5 class="card-title product"><%= elements[i].nom_produit %></h5>
+                                    <p class="card-text product"><%= elements[i].prix %> €</p>
+                                    <p class="card-text product"><%= elements[i].marque %></p>
                                 </div>
                             </div>
-                        </div>
+                        </a>
+                    </div>
                     <% } %>
                 </div>
             </div>
