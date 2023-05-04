@@ -10,24 +10,30 @@ server.get('/',(req, res) => {
     res.redirect('/accueil');
 });
 
-async function getPaginatedItems(type, page, limit = 5) {
-    // on recupère la page courante
-    const currentPage = parseInt(page) || 1;
+async function getPaginatedItems(type, currentPage, searchTerm, limit = 5) {
     // on calcule l'offset de la requête SQL en fonction de la page courante et de la limite
     const offset = (currentPage - 1) * limit;
     let totalItemsResult;
     let itemsResult;
 
     try {
-        if (type === 'all') {
-            totalItemsResult = await db.query(`SELECT *
-                                               FROM produits`);
+        if (type === 'search') {
+            totalItemsResult = await db.query(`SELECT * FROM produits
+                                               WHERE LOWER(nom_produit) LIKE LOWER($1)`, [`%${searchTerm}%`]);
+            itemsResult = await db.query(`SELECT * FROM produits
+                                          WHERE LOWER(nom_produit) LIKE LOWER($1) ORDER BY createddate
+                                          LIMIT $2 OFFSET $3`, [`%${searchTerm}%`, limit, offset]);
+        }
+        else if (type === 'all') {
+            totalItemsResult = await db.query(`SELECT * FROM produits`);
             itemsResult = await db.query('SELECT * FROM produits ORDER BY createddate LIMIT $1 OFFSET $2', [limit, offset]);
-        } else {
-            totalItemsResult = await db.query(`SELECT *
-                                               FROM produits
+        }
+        else {
+            totalItemsResult = await db.query(`SELECT * FROM produits
                                                WHERE type_produit = $1`, [type]);
-            itemsResult = await db.query('SELECT * FROM produits WHERE type_produit=$1 ORDER BY createddate LIMIT $2 OFFSET $3', [type, limit, offset]);
+            itemsResult = await db.query(`SELECT * FROM produits
+                                          WHERE type_produit = $1 ORDER BY createddate
+                                          LIMIT $2 OFFSET $3`, [type, limit, offset]);
         }
 
         const totalItems = totalItemsResult.rows.length;
@@ -37,7 +43,6 @@ async function getPaginatedItems(type, page, limit = 5) {
         return {
             items,
             totalPages,
-            currentPage,
         };
     } catch (err) {
         console.error(err);
@@ -47,11 +52,14 @@ async function getPaginatedItems(type, page, limit = 5) {
 
 server.get('/accueil', async (req, res) => {
     try {
-        const {items, totalPages, currentPage} = await getPaginatedItems('all', req.query.page);
-
+        // on récupère la page courante
+        const currentPage = parseInt(req.query.page) || 1;
         if (currentPage < 1) {
             return res.redirect('/accueil?page=1');
-        } else if (currentPage > totalPages) {
+        }
+
+        const {items, totalPages} = await getPaginatedItems('all',currentPage ,'');
+        if (currentPage > totalPages) {
             return res.redirect('/accueil?page=' + totalPages);
         }
 
@@ -90,20 +98,41 @@ server.get('/produit/:num', async (req, res) => {
     }
 });
 
+// routage du formulaire de la barre de recherche
+server.get('/search',async (req, res) => {
+    // on récupère la valeur du formulaire
+    const search_input = req.query.recherche;
+    try {
+        // on récupère la page courante
+        const currentPage = parseInt(req.query.page) || 1;
+        if (currentPage < 1) {
+            return res.redirect('/search?recherche=' + encodeURIComponent(search_input) + '&page=1');
+        }
 
-server.get('/search',(req, res) => {
+        // on récupère les informations de la base de données en fonciton de la page courante et du formulaire
+        const {items, totalPages} = await getPaginatedItems('search',currentPage,search_input);
+        if (currentPage > totalPages && items.length !== 0) {
+            return res.redirect('/search?recherche=' + encodeURIComponent(search_input) + '&page=' + totalPages);
+        }
 
+        res.render('page.ejs', {elements: items, totalPages: totalPages, currentPage: currentPage});
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal server error');
+    }
 });
 
 // routage sur les catégories de vêtements
 server.get('/:type',middlewares.validateCategory,async (req, res) => {
     try {
-        const {items, totalPages, currentPage} = await getPaginatedItems(req.params.type, req.query.page);
-
+        // on récupère la page courante
+        const currentPage = parseInt(req.query.page) || 1;
         if (currentPage < 1) {
             return res.redirect(`/${req.params.type}?page=1`);
         }
-        else if (currentPage > totalPages) {
+
+        const {items, totalPages} = await getPaginatedItems(req.params.type,currentPage,'');
+        if (currentPage > totalPages) {
             return res.redirect(`/${req.params.type}?page=${totalPages}`);
         }
 
