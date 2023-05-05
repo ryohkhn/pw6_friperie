@@ -12,7 +12,7 @@ $(document).ready(function () {
             },
             success: function (response) {
                 console.log(response);
-                // location.reload(); // Reload the page to see the updated list of orders
+                location.reload(); // Reload the page to see the updated list of orders
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.error('Error deleting order:', errorThrown);

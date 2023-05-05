@@ -143,16 +143,15 @@ server.post('/ajoutePanier', function(req, res) {
 server.post('/delete-basket', function(req, res) {
     const produitId = req.body.id_produit;
     console.log(produitId);
+
     res.clearCookie("Produit" + produitId);
     res.json({success: true});
 });
 
 server.get('/panier', async (req, res) => {
     try {
-
         var request = `SELECT * FROM produits WHERE `;
         var acc=0;
-        
 
         // Ajoute les ID de produit au filtre de la requête SQL
         for (const cookieName in req.cookies) {
@@ -167,8 +166,10 @@ server.get('/panier', async (req, res) => {
         }
         if(acc===0){
             res.render('panier.ejs', {elements: []});
-        }else{
+        }
+        else{
             const result = await db.query(request);
+            console.log(result);
             res.render('panier.ejs', {elements: result.rows});
         }
     } catch (err) {
