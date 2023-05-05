@@ -71,8 +71,10 @@ CREATE TABLE commandes(
 CREATE TABLE produits_commandes(
     id_produit INT NOT NULL,
     id_commande INT NOT NULL,
+    id_taille INT NOT NULL,
     quantite INT NOT NULL,
-    PRIMARY KEY (id_produit, id_commande),
+    PRIMARY KEY (id_produit, id_commande, id_taille),
     FOREIGN KEY (id_produit) REFERENCES produits(id_produit),
-    FOREIGN KEY (id_commande) REFERENCES commandes(id_commande)
+    FOREIGN KEY (id_commande) REFERENCES commandes(id_commande),
+    FOREIGN KEY (id_produit, id_taille) REFERENCES dispo_tailles(id_produit, id_taille)
 );

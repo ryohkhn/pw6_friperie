@@ -73,3 +73,12 @@ INSERT INTO produits_accessoires (id_produit, id_accessoire) VALUES (4, 6);
 
 INSERT INTO gerants(login,mdp) VALUES('admin',sha256('admin'));
 INSERT INTO clients(nom,prenom,adresse,login,mdp) VALUES('RODRIGUEZ','Lucas','1 rue des pigeons,75017 Paris','lucasrdz',sha256('lucas'));
+
+DO $$
+DECLARE
+  id INTEGER;
+BEGIN
+  INSERT INTO commandes (id_client) VALUES (1) RETURNING id_commande INTO id;
+  INSERT INTO produits_commandes (id_produit, id_commande, id_taille, quantite) VALUES (1, id, 1, 1);
+  INSERT INTO produits_commandes (id_produit, id_commande, id_taille, quantite) VALUES (2, id, 4, 3);
+END $$;
