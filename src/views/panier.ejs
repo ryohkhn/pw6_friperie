@@ -55,23 +55,23 @@
                     <p class="w-25 text-center">Aucun produit dans le panier</p>
                     <%
                 }else{  
-                    for (let i = 0; i < elements.length; i++) {
-                        <!--if(panier.includes(elements[i].id_produit)){-->
-                        %>
-                        <tr class="text-center">
+                    for (let i = 0; i < elements.length; i++) {                        %>
+                        <tr data-basket-id="<% elements[i].id_produit%>" class="text-center">
                             <td><img src="/src" class="" alt="product's image"></td>
                             <td class="w-25 align-middle"><h5><%= elements[i].nom_produit %></h5></td>
                             <td class="w-25 align-middle"><%= elements[i].prix %> €</td>
-                            <td class="w-25 align-middle"><a href="#" class="btn btn-primary">Supprimer</a></td>
+                            <td class="w-25 align-middle"><button class="btn btn-danger delete-basket-btn">Supprimer</button></td>
                         </tr>
                     <%  }
                 } %>
                 </table>
                 <a href="#" class="w-25 text-center btn btn-primary">Payer</a>
             </div>
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>    
+            <script src="/js/panier.js"></script>
+            <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+            <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
         </div>
     </body>
 </html>

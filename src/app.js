@@ -140,11 +140,11 @@ server.post('/ajoutePanier', function(req, res) {
     res.redirect('/panier');
 });
 
-server.post('/supprimePanier/:num', function(req, res) {
+server.post('/delete-basket', function(req, res) {
     const produitId = req.body.id_produit;
-    const valTaille = req.body.taille; // Récupère la valeur de la liste déroulante
-    res.cookie(`Produit${produitId}`, valTaille, { maxAge: 86400000 }); // expire après 1 jour
-    res.redirect('/panier');
+    console.log(produitId);
+    res.clearCookie("Produit" + produitId);
+    res.json({success: true});
 });
 
 server.get('/panier', async (req, res) => {
