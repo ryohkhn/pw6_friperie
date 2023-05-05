@@ -135,39 +135,37 @@ server.get('/commandes', async (req, res) => {
 // Ajoute un produit au panier
 server.post('/ajoutePanier', function(req, res) {
     const produitId = req.body.id_produit;
-    var panier="";
-    // Vérifie si le cookie du panier existe déjà
-    if(req.cookies===undefined){
-        panier= "" + produitId;
-    }else{
-        panier = req.cookies.panier;
-        if(panier===undefined){
-            panier= "" + produitId;
-        }else{
-            panier = panier + "," + produitId;
-        }
-    }
+    const valTaille = req.body.taille; // Récupère la valeur de la liste déroulante
+    res.cookie(`Produit${produitId}`, valTaille, { maxAge: 86400000 }); // expire après 1 jour
+    res.redirect('/panier');
+});
 
-    // Stocke le panier dans un cookie
-    res.cookie('panier', panier,{ maxAge: 86400000 });
-  
+server.post('/supprimePanier/:num', function(req, res) {
+    const produitId = req.body.id_produit;
+    const valTaille = req.body.taille; // Récupère la valeur de la liste déroulante
+    res.cookie(`Produit${produitId}`, valTaille, { maxAge: 86400000 }); // expire après 1 jour
     res.redirect('/panier');
 });
 
 server.get('/panier', async (req, res) => {
     try {
-        var panier = req.cookies ? req.cookies.panier.split(',') || [] : [];
+
         var request = `SELECT * FROM produits WHERE `;
-        console.log(panier);
+        var acc=0;
+        
 
         // Ajoute les ID de produit au filtre de la requête SQL
-        for (let i = 0; i < panier.length; i++) {
-            request += `id_produit=${panier[i]}`;
-            if (i < panier.length - 1) {
-            request += ' OR ';
+        for (const cookieName in req.cookies) {
+            if (cookieName.startsWith("Produit")) {
+                if(acc!=0){
+                    request += ' OR ';
+                }
+                acc++;
+                var id=cookieName.substring(7);
+                request += `id_produit=${id}`;
             }
         }
-        if(panier.length===0){
+        if(acc===0){
             res.render('panier.ejs', {elements: []});
         }else{
             const result = await db.query(request);

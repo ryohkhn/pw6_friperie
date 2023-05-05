@@ -71,7 +71,7 @@
                     <p class="card-text"><%= elements[0].marque %></p>
                     <form method="post" action="http://localhost:8080/ajoutePanier">
                         <input type="hidden" name="id_produit" value="<%= elements[0].id_produit %>">
-                        <select>
+                        <select name="taille">
                             <option value="XS">XS</option>
                             <option value="S">S</option>
                             <option value="M">M</option>
@@ -79,7 +79,7 @@
                             <option value="XL">XL</option>
                             <option value="XXL">XXL</option>
                         </select>
-                        <select>
+                        <select name="accessoire">
                             <% for(let i = 0; i < accessoires.length ; i++){ %>
                             <option value=<%= accessoires[i].id_accessoire %>> <%= accessoires[i].nom_accessoire %></option>
                             <% } %>
