@@ -3,9 +3,13 @@ const db = require('./database_pool.local');
 
 const authRoutes = require('./routing/authRoutes');
 const middlewares = require('./middlewares/middlewares');
+const cookieParser = require('cookie-parser');
+
 
 // routage pour l'authentification
 server.use(authRoutes);
+
+server.use(cookieParser());
 
 server.get('/',(req, res) => {
     res.redirect('/accueil');
@@ -129,17 +133,23 @@ server.get('/commandes', async (req, res) => {
 });
 
 // Ajoute un produit au panier
-server.post('/ajouterPanier', function(req, res) {
-    var produitId = req.body.produitId;
-  
+server.post('/ajoutePanier', function(req, res) {
+    const produitId = req.body.id_produit;
+    var panier="";
     // Vérifie si le cookie du panier existe déjà
-    var panier = req.cookies.panier || [];
-  
-    // Ajoute l'ID du produit au panier
-    panier.push(produitId);
-  
+    if(req.cookies===undefined){
+        panier= "" + produitId;
+    }else{
+        panier = req.cookies.panier;
+        if(panier===undefined){
+            panier= "" + produitId;
+        }else{
+            panier = panier + "," + produitId;
+        }
+    }
+
     // Stocke le panier dans un cookie
-    res.cookie('panier', panier);
+    res.cookie('panier', panier,{ maxAge: 86400000 });
   
     res.redirect('/panier');
 });
@@ -147,21 +157,20 @@ server.post('/ajouterPanier', function(req, res) {
 server.get('/panier', async (req, res) => {
     try {
         var panier = req.cookies ? req.cookies.panier.split(',') || [] : [];
-        const request = `SELECT * FROM produits WHERE `;
+        var request = `SELECT * FROM produits WHERE `;
+        console.log(panier);
 
         // Ajoute les ID de produit au filtre de la requête SQL
         for (let i = 0; i < panier.length; i++) {
             request += `id_produit=${panier[i]}`;
-            if (i < panier.length() - 1) {
+            if (i < panier.length - 1) {
             request += ' OR ';
             }
         }
         if(panier.length===0){
             res.render('panier.ejs', {elements: []});
         }else{
-            console.log(request);
             const result = await db.query(request);
-            console.log(result.rows);
             res.render('panier.ejs', {elements: result.rows});
         }
     } catch (err) {

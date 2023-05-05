@@ -70,6 +70,7 @@
                     <h6 class="card-subtitle mb-2 text-muted"><%= elements[0].prix %> €</h6>
                     <p class="card-text"><%= elements[0].marque %></p>
                     <form method="post" action="http://localhost:8080/ajoutePanier">
+                        <input type="hidden" name="id_produit" value="<%= elements[0].id_produit %>">
                         <select>
                             <option value="XS">XS</option>
                             <option value="S">S</option>
