@@ -49,4 +49,22 @@ $(document).ready(function () {
         }
         updateButtonsVisibility(currentPage,totalPages);
     });
+
+        // gérer le déclenchement du bouton page précédente
+    $('#prev-btn-orders').click(function () {
+        if (currentPage > 1) {
+            currentPage--;
+            navigateToPage(currentPage);
+        }
+        updateButtonsVisibility(currentPage,totalPages);
+    });
+
+    // gérer le déclenchement du bouton page suivante
+    $('#next-btn-orders').click(function () {
+        if (currentPage < totalPages) {
+            currentPage++;
+            navigateToPage(currentPage);
+        }
+        updateButtonsVisibility(currentPage,totalPages);
+    });
 });

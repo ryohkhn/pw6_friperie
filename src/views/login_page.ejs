@@ -4,27 +4,33 @@
     <meta charset="UTF-8">
     <title>Le grenier de mamie</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
-    <link href="/stylesheets/style_gerant.css" rel="stylesheet" type="text/css">
+    <link href="/stylesheets/style.css" rel="stylesheet" type="text/css">
 </head>
 <body>
-<header>
-    <h1 id="logo">Le grenier de mamie</h1>
-</header>
-<div id="login-form">
-    <% if(failed){ %>
-        <h3>Mauvais login ou mot de passe</h3>
-    <%}%>
-    <form method="post" action="http://localhost:8080/verify_login">
-        <label for="username">Username:</label>
-        <input type="hidden" name="login_type" value=<%=login_type_val%>>
+<div class="container-fluid px-0">
+    <nav class="navbar-expand navcolor">
+        <div class="container-fluid px-0 d-flex justify-content-center">
+            <a class="navbar-brand" href="/">
+                <img src="/ressources/logo.png" alt="Le grenier de mamie" id="logo_brand_center">
+            </a>
+        </div>
+    </nav>
+    <div class="container-fluid d-flex justify-content-center align-items-center" id="login-form">
+        <% if(failed){ %>
+            <h3>Mauvais login ou mot de passe</h3>
+        <% } %>
+        <form method="post" action="http://localhost:8080/verify_login">
+            <label for="username">Username:</label>
+            <input type="hidden" name="login_type" value=<%= login_type_val %>>
 
-        <input type="text" id="username" name="username" required>
+            <input type="text" id="username" name="username" required>
 
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
 
-        <button type="submit">Login</button>
-    </form>
+            <button type="submit">Login</button>
+        </form>
+    </div>
 </div>
 </body>
 </html>

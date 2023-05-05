@@ -14,31 +14,34 @@ server.get('/',(req, res) => {
 async function getPaginatedItems(type, currentPage, searchTerm, limit = 5) {
     // on calcule l'offset de la requête SQL en fonction de la page courante et de la limite
     const offset = (currentPage - 1) * limit;
-    let totalItemsResult;
+    let totalResult;
     let itemsResult;
 
     try {
         if (type === 'search') {
-            totalItemsResult = await db.query(`SELECT * FROM produits
+            totalResult = await db.query(`SELECT * FROM produits
                                                WHERE LOWER(nom_produit) LIKE LOWER($1)`, [`%${searchTerm}%`]);
             itemsResult = await db.query(`SELECT * FROM produits
                                           WHERE LOWER(nom_produit) LIKE LOWER($1) ORDER BY createddate
                                           LIMIT $2 OFFSET $3`, [`%${searchTerm}%`, limit, offset]);
         }
         else if (type === 'all') {
-            totalItemsResult = await db.query(`SELECT * FROM produits`);
+            totalResult = await db.query(`SELECT * FROM produits`);
             itemsResult = await db.query('SELECT * FROM produits ORDER BY createddate LIMIT $1 OFFSET $2', [limit, offset]);
         }
+        else if (type === 'orders') {
+            console.log("commandes");
+        }
         else {
-            totalItemsResult = await db.query(`SELECT * FROM produits
+            totalResult = await db.query(`SELECT * FROM produits
                                                WHERE type_produit = $1`, [type]);
             itemsResult = await db.query(`SELECT * FROM produits
                                           WHERE type_produit = $1 ORDER BY createddate
                                           LIMIT $2 OFFSET $3`, [type, limit, offset]);
         }
 
-        const totalItems = totalItemsResult.rows.length;
-        const totalPages = Math.ceil(totalItems / limit);
+        const totalLength = totalResult.rows.length;
+        const totalPages = Math.ceil(totalLength / limit);
         const items = itemsResult.rows;
 
         return {
@@ -65,6 +68,26 @@ server.get('/accueil', async (req, res) => {
         }
 
         res.render('page.ejs', {elements: items, totalPages: totalPages, currentPage: currentPage});
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal server error');
+    }
+});
+
+server.get('/commandes', async (req, res) => {
+    try {
+        // on récupère la page courante
+        const currentPage = parseInt(req.query.page) || 1;
+        if (currentPage < 1) {
+            return res.redirect('/commandes?page=1');
+        }
+
+        const {items, totalPages} = await getPaginatedItems('orders',currentPage ,'');
+        if (currentPage > totalPages) {
+            return res.redirect('/commandes?page=' + totalPages);
+        }
+
+        res.render('commandes.ejs', {elements: items, totalPages: totalPages, currentPage: currentPage});
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal server error');
@@ -122,6 +145,8 @@ server.get('/search',async (req, res) => {
         res.status(500).send('Internal server error');
     }
 });
+
+
 
 // routage sur les catégories de vêtements
 server.get('/:type',middlewares.validateCategory,async (req, res) => {
