@@ -71,26 +71,41 @@
             </div>
         </div>
         <div class="container-fluid main-frame">
-            <h1>Recent Orders</h1>
+            <h2>Commandes récentes</h2>
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <th>Order ID</th>
-                    <th>Client ID</th>
-                    <th>Product ID</th>
-                    <th>Quantity</th>
+                    <th>Commande n°</th>
+                    <th>Numéro client</th>
+                    <th>Produits</th>
                     <th></th>
                 </tr>
                 </thead>
                 <tbody>
-                <% orders.forEach(order => { %>
-                    <tr data-order-id="<%= order.id_commande %>">
-                        <td><%= order.id_commande %></td>
-                        <td><%= order.id_client %></td>
-                        <td><%= order.id_produit %></td>
-                        <td><%= order.quantite %></td>
+                <% elements.forEach(commande => { %>
+                    <tr data-order-id="<%= commande.id_commande %>">
+                        <td><%= commande.id_commande %></td>
+                        <td><%= commande.id_client %></td>
                         <td>
-                            <button class="btn btn-danger delete-order-btn">Delete</button>
+                            <table class="table table-bordered">
+                                <thead>
+                                <tr>
+                                    <th>ID du produit</th>
+                                    <th>Quantité</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <% commande.produits.forEach(produit => { %>
+                                    <tr>
+                                        <td><%= produit.nom_produit %></td>
+                                        <td><%= produit.quantite %></td>
+                                    </tr>
+                                <% }); %>
+                                </tbody>
+                            </table>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger delete-order-btn">Supprimer</button>
                         </td>
                     </tr>
                 <% }); %>
@@ -107,8 +122,9 @@
         </div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="/js/pagination.js"></script>
+        <script src="/js/commandes.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
         <script src="https://kit.fontawesome.com/607cb4a3b6.js" crossorigin="anonymous"></script>
     </body>
-<
+</html>

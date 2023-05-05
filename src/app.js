@@ -11,6 +11,24 @@ server.get('/',(req, res) => {
     res.redirect('/accueil');
 });
 
+function combineCommandes(data) {
+    return data.reduce((acc, item) => {
+        const existing = acc.find(x => x.id_commande === item.id_commande);
+
+        if (existing) {
+            existing.produits.push({nom_produit: item.nom_produit, quantite: item.quantite});
+        } else {
+            acc.push({
+                id_client: item.id_client,
+                id_commande: item.id_commande,
+                produits: [{nom_produit: item.nom_produit, quantite: item.quantite}]
+            });
+        }
+
+        return acc;
+    }, []);
+}
+
 async function getPaginatedItems(type, currentPage, searchTerm, limit = 5) {
     // on calcule l'offset de la requête SQL en fonction de la page courante et de la limite
     const offset = (currentPage - 1) * limit;
@@ -30,7 +48,16 @@ async function getPaginatedItems(type, currentPage, searchTerm, limit = 5) {
             itemsResult = await db.query('SELECT * FROM produits ORDER BY createddate LIMIT $1 OFFSET $2', [limit, offset]);
         }
         else if (type === 'orders') {
-            console.log("commandes");
+            totalResult = await db.query(`SELECT c.id_client, c.id_commande, p.nom_produit,pc.quantite
+                                          FROM commandes c
+                                              JOIN produits_commandes pc ON c.id_commande = pc.id_commande
+                                              JOIN produits p ON pc.id_produit = p.id_produit
+                                          ORDER BY c.id_commande;`);
+            itemsResult = await db.query(`SELECT c.id_client, c.id_commande, p.nom_produit,pc.quantite
+                                          FROM commandes c
+                                              JOIN produits_commandes pc ON c.id_commande = pc.id_commande
+                                              JOIN produits p ON pc.id_produit = p.id_produit
+                                          ORDER BY c.id_commande LIMIT $1 OFFSET $2`, [limit, offset]);
         }
         else {
             totalResult = await db.query(`SELECT * FROM produits
@@ -42,7 +69,13 @@ async function getPaginatedItems(type, currentPage, searchTerm, limit = 5) {
 
         const totalLength = totalResult.rows.length;
         const totalPages = Math.ceil(totalLength / limit);
-        const items = itemsResult.rows;
+        let items;
+        if(type === 'orders') {
+            items = combineCommandes(itemsResult.rows);
+        }
+        else {
+            items = itemsResult.rows;
+        }
 
         return {
             items,
@@ -83,7 +116,8 @@ server.get('/commandes', async (req, res) => {
         }
 
         const {items, totalPages} = await getPaginatedItems('orders',currentPage ,'');
-        if (currentPage > totalPages) {
+
+        if (currentPage > totalPages && items.length !== 0) {
             return res.redirect('/commandes?page=' + totalPages);
         }
 
@@ -146,7 +180,25 @@ server.get('/search',async (req, res) => {
     }
 });
 
+server.post('/delete-order', async (req, res) => {
+    const id_commande = req.body.id_commande;
 
+    const requete = `
+        WITH deleted_commandes AS (
+            DELETE FROM commandes WHERE id_commande = $1 RETURNING id_commande)
+        DELETE
+        FROM produits_commandes
+        WHERE id_commande IN (SELECT id_commande FROM deleted_commandes);
+    `;
+
+    try {
+        await db.query(requete, [id_commande]);
+        res.json({success: true});
+    } catch (error) {
+        console.error('Erreur suppression commande:', error);
+        res.status(500).json({error: 'Internal server error'});
+    }
+});
 
 // routage sur les catégories de vêtements
 server.get('/:type',middlewares.validateCategory,async (req, res) => {
