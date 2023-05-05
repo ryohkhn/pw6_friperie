@@ -128,12 +128,42 @@ server.get('/commandes', async (req, res) => {
     }
 });
 
+// Ajoute un produit au panier
+server.post('/ajouterPanier', function(req, res) {
+    var produitId = req.body.produitId;
+  
+    // Vérifie si le cookie du panier existe déjà
+    var panier = req.cookies.panier || [];
+  
+    // Ajoute l'ID du produit au panier
+    panier.push(produitId);
+  
+    // Stocke le panier dans un cookie
+    res.cookie('panier', panier);
+  
+    res.redirect('/panier');
+});
+
 server.get('/panier', async (req, res) => {
     try {
-        const request = `SELECT * FROM produits `;
-        const result = await db.query(request);
-        console.log(result.rows);
-        res.render('panier.ejs', {elements: result.rows});
+        var panier = req.cookies ? req.cookies.panier.split(',') || [] : [];
+        const request = `SELECT * FROM produits WHERE `;
+
+        // Ajoute les ID de produit au filtre de la requête SQL
+        for (let i = 0; i < panier.length; i++) {
+            request += `id_produit=${panier[i]}`;
+            if (i < panier.length() - 1) {
+            request += ' OR ';
+            }
+        }
+        if(panier.length===0){
+            res.render('panier.ejs', {elements: []});
+        }else{
+            console.log(request);
+            const result = await db.query(request);
+            console.log(result.rows);
+            res.render('panier.ejs', {elements: result.rows});
+        }
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal server error');

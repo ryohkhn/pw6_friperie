@@ -6,7 +6,6 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <link href="/stylesheets/style.css" rel="stylesheet" type="text/css">
-    <script src="cookies.js"></script>
 </head>
     <body>
         <div class="container-fluid">
@@ -23,7 +22,6 @@
                             </div>
                         </div>
                     </form>
-                    <a href="panier"><img id="panier" src="/ressources/panier.png"></a>
                 </nav>
             </div>
             <div class="row">
@@ -53,12 +51,10 @@
                 <table id="table"class="table table-image">
 
                 <% 
-                <!--var panier = getAllBasketCookies(); 
-                if(panier.length()===0){%>
+                if(elements.length===0){%>
                     <p class="w-25 text-center">Aucun produit dans le panier</p>
                     <%
-                }else{
-                -->    
+                }else{  
                     for (let i = 0; i < elements.length; i++) {
                         <!--if(panier.includes(elements[i].id_produit)){-->
                         %>
@@ -69,8 +65,7 @@
                             <td class="w-25 align-middle"><a href="#" class="btn btn-primary">Supprimer</a></td>
                         </tr>
                     <%  }
-                    <!--} 
-                }-->%>
+                } %>
                 </table>
                 <a href="#" class="w-25 text-center btn btn-primary">Payer</a>
             </div>

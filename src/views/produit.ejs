@@ -69,20 +69,22 @@
                     <h5 class="card-title"><%= elements[0].nom_produit %></h5>
                     <h6 class="card-subtitle mb-2 text-muted"><%= elements[0].prix %> €</h6>
                     <p class="card-text"><%= elements[0].marque %></p>
-                    <select>
-                        <option value="XS">XS</option>
-                        <option value="S">S</option>
-                        <option value="M">M</option>
-                        <option value="L">L</option>
-                        <option value="XL">XL</option>
-                        <option value="XXL">XXL</option>
-                    </select>
-                    <select>
-                        <% for(let i = 0; i < accessoires.length ; i++){ %>
-                        <option value=<%= accessoires[i].id_accessoire %>> <%= accessoires[i].nom_accessoire %></option>
-                        <% } %>
-                    </select>
-                    <a href="#" class="btn btn-primary">Ajouter au panier</a>
+                    <form method="post" action="http://localhost:8080/ajoutePanier">
+                        <select>
+                            <option value="XS">XS</option>
+                            <option value="S">S</option>
+                            <option value="M">M</option>
+                            <option value="L">L</option>
+                            <option value="XL">XL</option>
+                            <option value="XXL">XXL</option>
+                        </select>
+                        <select>
+                            <% for(let i = 0; i < accessoires.length ; i++){ %>
+                            <option value=<%= accessoires[i].id_accessoire %>> <%= accessoires[i].nom_accessoire %></option>
+                            <% } %>
+                        </select>
+                        <button type="submit" class="btn btn-primary">Ajouter au panier</button>
+                    </form>
                 </div>
             </div>
         </div>
