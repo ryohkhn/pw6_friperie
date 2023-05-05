@@ -1,7 +1,6 @@
 DROP TABLE IF EXISTS dispo_tailles cascade;
 DROP TABLE IF EXISTS accessoires cascade;
 DROP TABLE IF EXISTS produits_accessoires cascade;
-DROP TABLE IF EXISTS tailles cascade;
 DROP TABLE IF EXISTS clients cascade;
 DROP TABLE IF EXISTS produits cascade;
 DROP TABLE IF EXISTS produits_commandes cascade;
@@ -36,7 +35,8 @@ CREATE TABLE produits(
 CREATE TABLE accessoires(
     id_accessoire SERIAL PRIMARY KEY,
     nom_accessoire VARCHAR(255) NOT NULL,
-    type_accessoire VARCHAR(255) NOT NULL
+    type_accessoire VARCHAR(255) NOT NULL,
+    type_produit VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE produits_accessoires(
@@ -47,18 +47,12 @@ CREATE TABLE produits_accessoires(
     FOREIGN KEY (id_accessoire) REFERENCES accessoires(id_accessoire)
 );
 
-CREATE TABLE tailles(
-    id_taille SERIAL PRIMARY KEY,
-    taille VARCHAR(10) NOT NULL
-);
-
 CREATE TABLE dispo_tailles(
     id_produit INT NOT NULL,
-    id_taille INT NOT NULL,
+    taille VARCHAR(10) NOT NULL,
     quantite INT NOT NULL,
-    PRIMARY KEY (id_produit, id_taille),
-    FOREIGN KEY (id_produit) REFERENCES produits(id_produit),
-    FOREIGN KEY (id_taille) REFERENCES tailles(id_taille)
+    PRIMARY KEY (id_produit, taille),
+    FOREIGN KEY (id_produit) REFERENCES produits(id_produit)
 );
 
 CREATE TABLE commandes(
@@ -71,10 +65,10 @@ CREATE TABLE commandes(
 CREATE TABLE produits_commandes(
     id_produit INT NOT NULL,
     id_commande INT NOT NULL,
-    id_taille INT NOT NULL,
+    taille VARCHAR(10) NOT NULL,
     quantite INT NOT NULL,
-    PRIMARY KEY (id_produit, id_commande, id_taille),
+    PRIMARY KEY (id_produit, id_commande, taille),
     FOREIGN KEY (id_produit) REFERENCES produits(id_produit),
     FOREIGN KEY (id_commande) REFERENCES commandes(id_commande),
-    FOREIGN KEY (id_produit, id_taille) REFERENCES dispo_tailles(id_produit, id_taille)
+    FOREIGN KEY (id_produit, taille) REFERENCES dispo_tailles(id_produit, taille)
 );

@@ -72,17 +72,20 @@
                     <form method="post" action="http://localhost:8080/ajoutePanier">
                         <input type="hidden" name="id_produit" value="<%= elements[0].id_produit %>">
                         <select name="taille">
-                            <option value="XS">XS</option>
-                            <option value="S">S</option>
-                            <option value="M">M</option>
-                            <option value="L">L</option>
-                            <option value="XL">XL</option>
-                            <option value="XXL">XXL</option>
+                            <%var rupture=true; 
+                                for(let i = 0; i < tailles.length ; i++){
+                                    if(tailles[i].quantite>0){%>
+                                        rupture=false;%>
+                                        <option value="<%=tailles[i].taille%>"><%=tailles[i].taille%></option>
+                                <%  }
+                                }%>
                         </select>
                         <select name="accessoire">
-                            <% for(let i = 0; i < accessoires.length ; i++){ %>
-                            <option value=<%= accessoires[i].id_accessoire %>> <%= accessoires[i].nom_accessoire %></option>
-                            <% } %>
+                            <% for(let i = 0; i < accessoires.length ; i++){ 
+                                    if(elements[0].type_produit===accessoires[i].type_produit){%>
+                                        <option value="<%= accessoires[i].id_accessoire %>"><%=accessoires[i].nom_accessoire %></option>
+                                <%  }
+                                } %>
                         </select>
                         <button type="submit" class="btn btn-primary">Ajouter au panier</button>
                     </form>

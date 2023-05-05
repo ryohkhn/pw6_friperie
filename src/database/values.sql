@@ -27,43 +27,35 @@ INSERT INTO produits(nom_produit, type_produit, marque, genre, prix) VALUES
 ('Parka kaki avec fausse fourrure', 'manteaux', 'Zara', 'homme', 129.99),
 ('Blouson en cuir marron', 'vestes', 'The Kooples', 'homme', 399.99);
 
-INSERT INTO accessoires(nom_accessoire, type_accessoire) VALUES
-('Ceinture en cuir', 'Ceinture'),
-('Bretelles fines', 'Bretelles'),
-('Bretelles larges', 'Bretelles'),
-('Cravate slim', 'Cravate'),
-('Cravate classique', 'Cravate'),
-('Nœud papillon', 'Nœud papillon'),
-('Pochette de costume', 'Pochette');
+INSERT INTO accessoires(nom_accessoire, type_accessoire, type_produit) VALUES
+('Ceinture en cuir', 'Ceinture', 'pantalons'),
+('Bretelles fines', 'Bretelles', 'pantalons'),
+('Bretelles larges', 'Bretelles', 'pantalons'),
+('Cravate slim', 'Cravate', 'chemises'),
+('Cravate classique', 'Cravate', 'chemises'),
+('Nœud papillon', 'Nœud papillon', 'chemises'),
+('Pochette de costume', 'Pochette', 'chemises');
 
-INSERT INTO tailles(taille) VALUES
-('XS'),
-('S'),
-('M'),
-('L'),
-('XL'),
-('XXL');
+INSERT INTO dispo_tailles(id_produit, taille, quantite) VALUES
+(1, 'XS', 10),
+(1, 'XXL', 5);
 
-INSERT INTO dispo_tailles(id_produit, id_taille, quantite) VALUES
-(1, 1, 10),
-(1, 6, 5);
+INSERT INTO dispo_tailles(id_produit, taille, quantite) VALUES
+(2, 'L', 35),
+(2, 'XL', 20),
+(2, 'XXL', 15);
 
-INSERT INTO dispo_tailles(id_produit, id_taille, quantite) VALUES
-(2, 4, 35),
-(2, 5, 20),
-(2, 6, 15);
+INSERT INTO dispo_tailles(id_produit, taille, quantite) VALUES
+(6, 'S', 10),
+(6, 'M', 12),
+(6, 'L', 14),
+(6, 'XL', 16);
 
-INSERT INTO dispo_tailles(id_produit, id_taille, quantite) VALUES
-(6, 2, 10),
-(6, 3, 12),
-(6, 4, 14),
-(6, 5, 16);
-
-INSERT INTO dispo_tailles(id_produit, id_taille, quantite) VALUES
-(12, 1, 15),
-(12, 3, 25),
-(12, 5, 15),
-(12, 6, 10);
+INSERT INTO dispo_tailles(id_produit, taille, quantite) VALUES
+(12, 'XS', 15),
+(12, 'M', 25),
+(12, 'XL', 15),
+(12, 'XXL', 10);
 
 INSERT INTO produits_accessoires (id_produit, id_accessoire) VALUES (1, 1);
 INSERT INTO produits_accessoires (id_produit, id_accessoire) VALUES (2, 4);
@@ -79,6 +71,6 @@ DECLARE
   id INTEGER;
 BEGIN
   INSERT INTO commandes (id_client) VALUES (1) RETURNING id_commande INTO id;
-  INSERT INTO produits_commandes (id_produit, id_commande, id_taille, quantite) VALUES (1, id, 1, 1);
-  INSERT INTO produits_commandes (id_produit, id_commande, id_taille, quantite) VALUES (2, id, 4, 3);
+  INSERT INTO produits_commandes (id_produit, id_commande, taille, quantite) VALUES (1, id, 'XS', 1);
+  INSERT INTO produits_commandes (id_produit, id_commande, taille, quantite) VALUES (2, id, 'L', 3);
 END $$;

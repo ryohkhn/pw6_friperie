@@ -136,6 +136,7 @@ server.get('/commandes', async (req, res) => {
 server.post('/ajoutePanier', function(req, res) {
     const produitId = req.body.id_produit;
     const valTaille = req.body.taille; // Récupère la valeur de la liste déroulante
+    const accessoireid = req.body.accessoire;
     res.cookie(`Produit${produitId}`, valTaille, { maxAge: 86400000 }); // expire après 1 jour
     res.redirect('/panier');
 });
@@ -151,20 +152,30 @@ server.post('/delete-basket', function(req, res) {
 server.get('/panier', async (req, res) => {
     try {
         var request = `SELECT * FROM produits WHERE `;
-        var acc=0;
+        var requestAccessoires = `SELECT * FROM accessoires WHERE `;
+        var accProd=0;
+        var accAccess=0;
 
         // Ajoute les ID de produit au filtre de la requête SQL
         for (const cookieName in req.cookies) {
             if (cookieName.startsWith("Produit")) {
-                if(acc!=0){
+                if(accProd!=0){
                     request += ' OR ';
                 }
-                acc++;
+                accProd++;
                 var id=cookieName.substring(7);
                 request += `id_produit=${id}`;
             }
+            /*if (cookieName.startsWith("Accessoire")) {
+                if(accAccess!=0){
+                    requestAccessoires += ' OR ';
+                }
+                accAccess++;
+                var id=cookieName.substring(10);
+                requestAccessoires += `id_accessoire=${id}`;
+            }*/
         }
-        if(acc===0){
+        if(accProd===0){
             res.render('panier.ejs', {elements: []});
         }
         else{
@@ -186,8 +197,11 @@ server.get('/produit/:num', async (req, res) => {
         const accessoiresReq = `SELECT * FROM accessoires`;
         const result2 = await db.query(accessoiresReq);
 
+        const disposReq = `SELECT * FROM dispo_tailles WHERE id_produit = $1`;
+        const result3 = await db.query(disposReq,[req.params.num]);
+
         res.render('produit.ejs', {idprod: req.params.num,
-            elements: result.rows, accessoires: result2.rows});
+            elements: result.rows, accessoires: result2.rows, tailles:result3.rows});
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal server error');
