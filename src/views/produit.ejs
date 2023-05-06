@@ -71,23 +71,32 @@
                     <p class="card-text"><%= elements[0].marque %></p>
                     <form method="post" action="http://localhost:8080/ajoutePanier" id="add-to-panier-form">
                         <input type="hidden" name="id_produit" value="<%= elements[0].id_produit %>">
-                        <select name="taille">
-                            <%var rupture=true; 
+                            <% let etat = { enRupture: true };
                                 for(let i = 0; i < tailles.length ; i++){
-                                    if(tailles[i].quantite>0){%>
-                                        rupture=false;%>
+                                    if(tailles[i].quantite>0){
+                                        if(etat.enRupture){%>
+                                            <select name="taille">
+                                        <%}
+                                        etat.enRupture=false;%>
                                         <option value="<%=tailles[i].taille%>"><%=tailles[i].taille%></option>
                                 <%  }
-                                }%>
+                                }
+                                if(!etat.enRupture){%>
                         </select>
+
+                        
                         <select name="accessoire">
+                            <option value="-1">Pas d'accessoire</option>
                             <% for(let i = 0; i < accessoires.length ; i++){ 
-                                    if(elements[0].type_produit===accessoires[i].type_produit){%>
-                                        <option value="<%= accessoires[i].id_accessoire %>"><%=accessoires[i].nom_accessoire %></option>
-                                <%  }
-                                } %>
+                                if(elements[0].type_produit===accessoires[i].type_produit){%>
+                                    <option value="<%= accessoires[i].id_accessoire %>"><%=accessoires[i].nom_accessoire %></option>
+                            <%  }
+                            } %>
                         </select>
                         <button type="submit" id="add-to-panier-btn" class="btn btn-primary">Ajouter au panier</button>
+                            <%}else{%>
+                            <button type="submit" id="add-to-panier-btn" class="btn btn-primary disabled">En rupture de stock</button>
+                        <% }%>                        
                     </form>
                 </div>
             </div>
