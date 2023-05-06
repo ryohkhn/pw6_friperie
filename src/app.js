@@ -259,8 +259,11 @@ server.get('/produit/:num', async (req, res) => {
         const disposReq = `SELECT * FROM dispo_tailles WHERE id_produit = $1`;
         const result3 = await db.query(disposReq,[req.params.num]);
 
+        const accLieReq = `SELECT * FROM produits_accessoires WHERE id_produit = $1`;
+        const result4 = await db.query(accLieReq,[req.params.num]);
+
         res.render('produit.ejs', {idprod: req.params.num,
-            elements: result.rows, accessoires: result2.rows, tailles:result3.rows});
+            elements: result.rows, accessoires: result2.rows, tailles:result3.rows, accLie:result4.rows});
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal server error');

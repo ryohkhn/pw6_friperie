@@ -84,17 +84,28 @@
                                 if(!etat.enRupture){%>
                         </select>
 
-                        
-                        <select name="accessoire">
+                        <%if(accLie.length===0){%>
+                            <select name="accessoire">
+                        <%}else{%>
+                            <select name="accessoire" disabled>
+                        <%}%>
                             <option value="-1">Pas d'accessoire</option>
-                            <% for(let i = 0; i < accessoires.length ; i++){ 
-                                if(elements[0].type_produit===accessoires[i].type_produit){%>
-                                    <option value="<%= accessoires[i].id_accessoire %>"><%=accessoires[i].nom_accessoire %></option>
-                            <%  }
+                            <%
+                            for(let i = 0; i < accessoires.length ; i++){ 
+                                if(accLie.length>0){
+                                    if(accLie[0].id_accessoire===accessoires[i].id_accessoire){%>
+                                        <option value="<%= accessoires[i].id_accessoire %>" selected><%=accessoires[i].nom_accessoire %></option>
+                                  <%  }
+                                }else{
+                                    if(elements[0].type_produit===accessoires[i].type_produit){%>
+                                        <option value="<%= accessoires[i].id_accessoire %>"><%=accessoires[i].nom_accessoire %></option>
+                                <%  }
+                                }
                             } %>
                         </select>
                         <button type="submit" id="add-to-panier-btn" class="btn btn-primary">Ajouter au panier</button>
-                            <%}else{%>
+                            <%
+                            }else{%>
                             <button type="submit" id="add-to-panier-btn" class="btn btn-primary disabled">En rupture de stock</button>
                         <% }%>                        
                     </form>
