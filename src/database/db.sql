@@ -13,7 +13,12 @@ CREATE TABLE clients(
     id_client SERIAL PRIMARY KEY,
     nom VARCHAR(50) NOT NULL,
     prenom VARCHAR(50) NOT NULL,
+    tel VARCHAR(12) NOT NULL,
+    email VARCHAR(255) NOT NULL,
     adresse VARCHAR(255) NOT NULL,
+    adresse2 VARCHAR(255) NOT NULL,
+    ville VARCHAR(255) NOT NULL,
+    code VARCHAR(10) NOT NULL,
     login VARCHAR(255) NOT NULL,
     mdp TEXT NOT NULL
 );
@@ -75,9 +80,16 @@ CREATE TABLE combinaisons_parts(
 
 CREATE TABLE commandes(
     id_commande SERIAL,
-    id_client INT NOT NULL,
-    PRIMARY KEY (id_commande),
-    FOREIGN KEY (id_client) REFERENCES clients(id_client)
+    nom VARCHAR(50) NOT NULL,
+    prenom VARCHAR(50) NOT NULL,
+    tel VARCHAR(12) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    adresse VARCHAR(255) NOT NULL,
+    adresse2 VARCHAR(255) NOT NULL,
+    ville VARCHAR(255) NOT NULL,
+    code VARCHAR(10) NOT NULL,
+    heureLivraison VARCHAR(10) NOT NULL,
+    PRIMARY KEY (id_commande)
 );
 
 CREATE TABLE produits_commandes(

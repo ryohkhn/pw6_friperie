@@ -8,7 +8,7 @@ router.get('/login', (req, res) => {
 });
 
 router.get('/register', (req, res) => {
-    res.render('register_page.ejs', {failed: false});
+    res.render('register_page.ejs', {erreurs:{}});
 });
 
 router.get('/gerant', (req, res) => {
@@ -31,6 +31,7 @@ router.post('/verify_register', (req, res) => {
     const nom = (req.body.inputNom);
     const email = (req.body.inputEmail);
     const login = (req.body.inputLogin);
+    const num = (req.body.inputNum);
     const password = (req.body.inputPassword);
     const passwordVerif = (req.body.inputPasswordVerif);
     const adresse = (req.body.inputAdresse);
@@ -41,6 +42,7 @@ router.post('/verify_register', (req, res) => {
     const alphaNumericRegex = /^[a-zA-Z0-9]+$/;
     const alphaRegex = /^[a-zA-Z]+$/;
     const emailRegex = /\S+@\S+\.\S+/;
+    const phoneNumberRegex = /^[0-9]{10}$/;
     const adresseRegex = /^[a-zA-Z0-9\s,'-]+$/;
     const codeRegex = /^\d{5}$/;
 
@@ -58,6 +60,9 @@ router.post('/verify_register', (req, res) => {
     }
     if (!email.match(emailRegex)) {
         errors.email= "L'adresse e-mail est invalide.";
+    }
+    if (!num.match(phoneNumberRegex)){
+        errors.num= "Le numéro de téléphone doit être une combinaison de 8 chiffres.";
     }
     if (password.length < 8) {
         errors.password= "Le mot de passe doit contenir au moins 8 caractères.";
@@ -85,7 +90,7 @@ router.post('/verify_register', (req, res) => {
     db.query(request,(err,result)=>{
         if (err) {
             console.log(err);
-            res.render('error.ejs',{errorcode: err});
+            res.render('error.ejs',{errorCode: err});
         }
         else if (result.rows.length > 0) {
             errors.loginExists = "Le pseudo entré n'est pas disponible.";
@@ -94,13 +99,24 @@ router.post('/verify_register', (req, res) => {
         db.query(emailReq, (err, result2) => {
             if (err) {
                 console.log(err);
-                res.render('error.ejs',{errorcode: err});
+                res.render('error.ejs',{errorCode: err});
             }else if (result2.rows.length > 0) {
                 errors.emailExists = "L'adresse mail entrée n'est pas disponible.";
             }
             if(Object.keys(errors).length === 0){
+                const hashed_mdp = crypto.createHash('sha256').update(password).digest();
                 //TODO : créer la session et ajouter dans la base de données
-                res.render('/');
+                const reqInsert = `INSERT INTO clients (nom, prenom, tel, adresse, adresse2, ville, code, login, mdp)
+                VALUES ('${nom}', '${prenom}', '${num}','${email}', '${adresse}', '${adresse2}', '${ville}', '${code}', '${hashed_mdp}','${login}');`
+
+                db.query(reqInsert,(err, result3) => {
+                    if (err) {
+                        console.log(err);
+                        res.render('error.ejs',{errorCode: err});
+                    }else{
+                        res.render('login_page.ejs', {failed: false, login_type_val: "clients"});
+                    }
+                });
             }else{
                 res.render('register_page.ejs',{erreurs:errors});
             }
@@ -139,7 +155,8 @@ router.post('/verify_login', async (req, res) => {
             // console.log(hashed_mdp);
 
             if (hashed_mdp.equals(hashed_db_mdp_buff)) {
-                res.redirect("/");
+                req.session.userId = result.rows[0].id; // Stocke l'identifiant de l'utilisateur dans la session
+                res.redirect('/');
             }
             else {
                 res.render('login_page.ejs', {failed: true, login_type_val: login_type});

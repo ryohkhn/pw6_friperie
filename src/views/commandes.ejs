@@ -79,7 +79,8 @@
             <thead>
             <tr>
                 <th>Commande n°</th>
-                <th>Numéro client</th>
+                <th>Prénom</th>
+                <th>Nom</th>
                 <th>Produits</th>
                 <th></th>
             </tr>
@@ -88,7 +89,8 @@
             <% elements.forEach(commande => { %>
                 <tr data-order-id="<%= commande.id_commande %>">
                     <td><%= commande.id_commande %></td>
-                    <td><%= commande.id_client %></td>
+                    <td><%= commande.prenom %></td>
+                    <td><%= commande.nom %></td>
                     <td>
                         <table class="table table-bordered">
                             <thead>

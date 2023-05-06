@@ -4,7 +4,14 @@ const db = require('./database_pool.local');
 const authRoutes = require('./routing/authRoutes');
 const middlewares = require('./middlewares/middlewares');
 const cookieParser = require('cookie-parser');
+const session = require('express-session');
 
+server.use(session({
+    secret: 'secret',
+    resave:false,
+    cookie: {maxAge : 86400000},
+    saveUninitialized: false
+}));
 
 // routage pour l'authentification
 server.use(authRoutes);

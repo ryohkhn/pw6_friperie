@@ -185,13 +185,4 @@ INSERT INTO combinaisons_parts (id_combi, id_produit) VALUES
 
 
 INSERT INTO gerants(login,mdp) VALUES('admin',sha256('admin'));
-INSERT INTO clients(nom,prenom,adresse,login,mdp) VALUES('RODRIGUEZ','Lucas','1 rue des pigeons,75017 Paris','lucasrdz',sha256('lucas'));
-
-DO $$
-DECLARE
-  id INTEGER;
-BEGIN
-  INSERT INTO commandes (id_client) VALUES (1) RETURNING id_commande INTO id;
-  INSERT INTO produits_commandes (id_produit, id_commande, taille, quantite) VALUES (1, id, 'XS', 1);
-  INSERT INTO produits_commandes (id_produit, id_commande, taille, quantite) VALUES (2, id, 'L', 3);
-END $$;
+INSERT INTO clients(nom,prenom,tel,email,adresse,adresse2,ville,code,login,mdp) VALUES('RODRIGUEZ','Lucas','0102030405','lucas@gmail.com','1 rue des pigeons','','Paris','75017','lucasrdz',sha256('lucas'));

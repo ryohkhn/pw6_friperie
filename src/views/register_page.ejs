@@ -31,9 +31,16 @@
               <%= erreurs.nom %>
             </div>
         <% } %>
-        <div class="form-group">
-            <label for="inputLogin">Pseudo</label>
-            <input type="text" class="form-control" id="inputLogin" name="inputLogin" placeholder="Pseudo" required="required">
+        
+        <div class="form-row">
+            <div class="form-group col-md-7">
+                <label for="inputLogin">Pseudo</label>
+                <input type="text" class="form-control" id="inputLogin" name="inputLogin" placeholder="Pseudo" required="required">
+            </div>
+            <div class="form-group col-md-5">
+                <label for="inputNum">Numéro</label>
+                <input type="text" class="form-control" id="inputNum" name="inputNum" placeholder="Numéro" required="required">
+            </div>
         </div>
         <% if (erreurs.loginLetters) { %>
             <div class="alert alert-danger">
@@ -119,16 +126,6 @@
             </div>
         <% } %>
         <button type="submit" class="btn btn-primary">Valider</button>
-        <!-- Section pour afficher les erreurs -->
-        <% if (erreurs.length > 0) { %>
-            <div class="alert alert-danger">
-            <ul>
-                <% erreurs.forEach(function(error) { %>
-                <li><%= erreur %></li>
-                <% }); %>
-            </ul>
-            </div>
-        <% } %>
     </form>
 </body>
 </html>
