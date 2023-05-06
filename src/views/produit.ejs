@@ -94,14 +94,11 @@
                                 }
                                 if(!etat.enRupture){%>
                         </select>
-
-                        <%if(accLie.length===0){%>
                             <select name="accessoire">
-                        <%}else{%>
-                            <select name="accessoire" disabled>
-                        <%}%>
-                            <option value="-1">Pas d'accessoire</option>
+                            <%if(accLie.length===0){%>
+                                <option value="-1">Pas d'accessoire</option>
                             <%
+                            }
                             for(let i = 0; i < accessoires.length ; i++){ 
                                 if(accLie.length>0){
                                     if(accLie[0].id_accessoire===accessoires[i].id_accessoire){%>

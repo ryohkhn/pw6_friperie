@@ -1,14 +1,21 @@
 $(document).ready(function () {
     $('.delete-basket-btn').on('click', function () {
         const id_produit = $(this).closest('tr').data('basket-id');
+        const size = $(this).closest('tr').data('basket-size');
+        const id_accessoire = $(this).closest('tr').data('basket-accessoire');
+        const prix=$(this).closest('tr').data('basket-prix');
         console.log('Deleting Product ID:', id_produit);
+
 
         // Supprimer la commande depuis le serveur avec AJAX
         $.ajax({
             url: '/delete-basket',
             method: 'POST',
             data: {
-                id_produit: id_produit
+                id_produit: id_produit,
+                size: size,
+                id_accessoire: id_accessoire,
+                prix:prix
             },
             success: function (response) {
                 console.log(response);

@@ -152,13 +152,25 @@ function updatePanier(panier, newProduit) {
     return panier;
 }
 
+function deleteProduit(panier, deleteProduct) {
+    const index = panier.findIndex(product => product.produitId === deleteProduct.produitId && product.size === deleteProduct.size && product.accessoireId === deleteProduct.accessoireId);
+    if (index !== -1) {
+        panier[index].quantity -= deleteProduct.quantity;
+        if(panier[index].quantity<1){
+            panier.splice(index,1);
+        }
+    }
+
+    return panier;
+}
+
 // gère la requête AJAX de l'ajout au panier d'un produit
 server.post('/ajoutePanierAjax', function(req, res) {
     const id = req.body.id_produit;
     const valTaille = req.body.taille;
     const accessoireId = req.body.accessoire;
 
-    // on récupèr le panier courant
+    // on récupère le panier courant
     const currentPanier= req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
 
     const produit = {
@@ -180,11 +192,32 @@ server.post('/ajoutePanierAjax', function(req, res) {
 });
 
 server.post('/delete-basket', function(req, res) {
-    const produitId = req.body.id_produit;
-    console.log(produitId);
+    const id_produit = req.body.id_produit;
+    const valTaille = req.body.size;
+    const accessoireId = req.body.id_accessoire;
+    const prix = req.body.prix;
 
-    res.clearCookie("Produit" + produitId);
-    res.json({success: true});
+     // on récupère le panier courant
+     const currentPanier= req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
+
+     const produit = {
+         produitId: id_produit,
+         size: valTaille,
+         quantity: 1,
+         accessoireId: accessoireId,
+     };
+ 
+     // on ajoute le nouveau produit au cookie
+    const updatedPanier = deleteProduit(currentPanier, produit);
+     // on remplace l'ancien cookie par le nouveau
+    res.cookie('panier', JSON.stringify(updatedPanier), {maxAge: 86400000 });
+
+    const currentPrixTotal = getPrixTotalCookie(req);
+    const newPrixTotal = currentPrixTotal - parseFloat(prix);
+    res.cookie('prixTotal', newPrixTotal, {maxAge: 86400000, sameSite: 'lax'});
+
+    const productPrice = 0;
+    res.json({ price: productPrice });
 });
 
 server.post('/update-total-Ajax', function (req, res) {
