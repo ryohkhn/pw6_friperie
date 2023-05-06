@@ -83,10 +83,12 @@
                 else{
                     for (let i = 0; i < elements.length; i++) { %>
                         <tr data-basket-id="<%= elements[i].id_produit%>" class="text-center">
-                            <td><img src="/src" class="" alt="product's image"></td>
-                            <td class="w-25 align-middle"><h5><%= elements[i].nom_produit %></h5></td>
-                            <td class="w-25 align-middle"><%= elements[i].prix %> €</td>
-                            <td class="w-25 align-middle"><button class="btn btn-danger delete-basket-btn">Supprimer</button></td>
+                            <td><img src="/ressources/placeholder.png" class="img-fluid" alt="product's image"></td>
+                            <td class="align-middle"><p><strong><%= elements[i].nom_produit %></strong></p></td>
+                            <td class="align-middle"><p><%= elements[i].nom_accessoire %></p></td>
+                            <td class="align-middle"><%= elements[i].prix * elements[i].quantity %> €</td>
+                            <td class="align-middle"><%= elements[i].quantity %></td>
+                            <td class="align-middle"><button class="btn btn-danger delete-basket-btn">Supprimer</button></td>
                         </tr>
                     <%  }
                 } %>

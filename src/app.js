@@ -132,12 +132,44 @@ server.get('/commandes', async (req, res) => {
     }
 });
 
+
+function updatePanier(panier, newProduit) {
+    const index = panier.findIndex(product => product.produitId === newProduit.produitId && product.size === newProduit.size && product.accessoireId === newProduit.accessoireId);
+
+    if (index !== -1) {
+        // augment la quantité si existant
+        panier[index].quantity += newProduit.quantity;
+    }
+    else {
+        // Add the new product to the basket data
+        panier.push(newProduit);
+    }
+
+    return panier;
+}
+
 // Ajoute un produit au panier
 server.post('/ajoutePanier', function(req, res) {
-    const produitId = req.body.id_produit;
-    const valTaille = req.body.taille; // Récupère la valeur de la liste déroulante
-    const accessoireid = req.body.accessoire;
-    res.cookie(`Produit${produitId}`, valTaille, { maxAge: 86400000 }); // expire après 1 jour
+    const id = req.body.id_produit;
+    const valTaille = req.body.taille;
+    const accessoireId = req.body.accessoire;
+
+    const currentPanier= req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
+
+    const produit = {
+        produitId: id,
+        size: valTaille,
+        quantity: 1,
+        accessoireId: accessoireId,
+    };
+
+    const updatedPanier = updatePanier(currentPanier, produit);
+
+    // on remplace l'ancien cookie par le nouveau
+    res.cookie('panier', JSON.stringify(updatedPanier), {maxAge: 86400000 });
+
+    // res.cookie(`Produit${produitId}`, JSON.stringify(productData), {maxAge: 86400000});
+    // res.cookie(`Produit${produitId}`, valTaille, { maxAge: 86400000 }); // expire après 1 jour
     res.redirect('/panier');
 });
 
@@ -149,6 +181,7 @@ server.post('/delete-basket', function(req, res) {
     res.json({success: true});
 });
 
+/*
 server.get('/panier', async (req, res) => {
     try {
         var request = `SELECT * FROM produits WHERE `;
@@ -166,14 +199,7 @@ server.get('/panier', async (req, res) => {
                 var id=cookieName.substring(7);
                 request += `id_produit=${id}`;
             }
-            /*if (cookieName.startsWith("Accessoire")) {
-                if(accAccess!=0){
-                    requestAccessoires += ' OR ';
-                }
-                accAccess++;
-                var id=cookieName.substring(10);
-                requestAccessoires += `id_accessoire=${id}`;
-            }*/
+
         }
         if(accProd===0){
             res.render('panier.ejs', {elements: []});
@@ -181,6 +207,43 @@ server.get('/panier', async (req, res) => {
         else{
             const result = await db.query(request);
             console.log(result);
+            res.render('panier.ejs', {elements: result.rows});
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal server error');
+    }
+});
+*/
+
+server.get('/panier', async (req, res) => {
+    try {
+        const panier = req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
+
+        if (panier.length === 0) {
+            res.render('panier.ejs', {elements: []});
+        } else {
+            let request = '';
+            let parameters = [];
+
+            panier.forEach((product, index) => {
+                if (index !== 0) {
+                    request += ' UNION ALL ';
+                }
+
+                request += `
+                SELECT p.*, a.*, $${parameters.length + 1} as size, $${parameters.length + 2} as quantity
+                FROM produits p
+                LEFT JOIN produits_accessoires pa ON p.id_produit = pa.id_produit
+                LEFT JOIN accessoires a ON pa.id_accessoire = a.id_accessoire
+                WHERE p.id_produit = $${parameters.length + 3}`;
+
+                parameters.push(product.size, product.quantity, product.produitId);
+            });
+
+            const result = await db.query(request, parameters);
+            console.log(result);
+
             res.render('panier.ejs', {elements: result.rows});
         }
     } catch (err) {
