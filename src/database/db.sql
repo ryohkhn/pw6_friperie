@@ -6,6 +6,8 @@ DROP TABLE IF EXISTS produits cascade;
 DROP TABLE IF EXISTS produits_commandes cascade;
 DROP TABLE IF EXISTS commandes cascade;
 DROP TABLE IF EXISTS gerants;
+DROP TABLE IF EXISTS combinaisons_parts cascade;
+DROP TABLE IF EXISTS combinaisons cascade;
 
 CREATE TABLE clients(
     id_client SERIAL PRIMARY KEY,
@@ -52,6 +54,22 @@ CREATE TABLE dispo_tailles(
     taille VARCHAR(10) NOT NULL,
     quantite INT NOT NULL,
     PRIMARY KEY (id_produit, taille),
+    FOREIGN KEY (id_produit) REFERENCES produits(id_produit)
+);
+
+CREATE TABLE combinaisons(
+    id_combinaison SERIAL,
+    type VARCHAR(255) NOT NULL,
+    prix DECIMAL(10,2) NOT NULL,
+    PRIMARY KEY (id_combinaison)
+);
+
+CREATE TABLE combinaisons_parts(
+    id_partie SERIAL,
+    id_combi INT NOT NULL,
+    id_produit INT NOT NULL,
+    PRIMARY KEY (id_partie),
+    FOREIGN KEY (id_combi) REFERENCES combinaisons(id_combinaison),
     FOREIGN KEY (id_produit) REFERENCES produits(id_produit)
 );
 

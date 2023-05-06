@@ -37,7 +37,30 @@ function combineCommandes(data) {
     }, []);
 }
 
-async function getPaginatedItems(type, currentPage, searchTerm, limit = 5) {
+function combineCombinaisons(rows) {
+    const combinaisons = {};
+    rows.forEach(row => {
+        if (!combinaisons[row.id_combinaison]) {
+            combinaisons[row.id_combinaison] = {
+                id_combinaison: row.id_combinaison,
+                type: row.type,
+                prix_combi: row.prix,
+                products: []
+            };
+        }
+        combinaisons[row.id_combinaison].products.push({
+            id_produit: row.id_produit,
+            nom_produit: row.nom_produit,
+            type_produit: row.type_produit,
+            marque: row.marque,
+            genre: row.genre,
+            prix: row.prix,
+        });
+    });
+    return Object.values(combinaisons);
+}
+
+async function getPaginatedItems(type, currentPage, searchTerm, limit = 20) {
     // on calcule l'offset de la requête SQL en fonction de la page courante et de la limite
     const offset = (currentPage - 1) * limit;
     let totalResult;
@@ -67,6 +90,15 @@ async function getPaginatedItems(type, currentPage, searchTerm, limit = 5) {
                                               JOIN produits p ON pc.id_produit = p.id_produit
                                           ORDER BY c.id_commande LIMIT $1 OFFSET $2`, [limit, offset]);
         }
+        else if(type === 'combinaisons') {
+            totalResult = await db.query(`SELECT * FROM combinaisons`);
+            itemsResult = await db.query(`SELECT c.id_combinaison, c.type, c.prix, cp.id_partie, p.id_produit, p.nom_produit, p.type_produit, p.marque, p.genre
+                                  FROM combinaisons c
+                                  JOIN combinaisons_parts cp ON c.id_combinaison = cp.id_combi
+                                  JOIN produits p ON cp.id_produit = p.id_produit
+                                  ORDER BY c.id_combinaison, cp.id_partie
+                                  LIMIT $1 OFFSET $2`, [limit, offset]);
+        }
         else {
             totalResult = await db.query(`SELECT * FROM produits
                                                WHERE type_produit = $1`, [type]);
@@ -81,7 +113,10 @@ async function getPaginatedItems(type, currentPage, searchTerm, limit = 5) {
         if(type === 'orders') {
             items = combineCommandes(itemsResult.rows);
         }
-        else {
+        else if(type === 'combinaisons') {
+            items = combineCombinaisons(itemsResult.rows);
+        }
+        else{
             items = itemsResult.rows;
         }
 
@@ -109,6 +144,26 @@ server.get('/accueil', async (req, res) => {
         }
 
         res.render('page.ejs', {elements: items, totalPages: totalPages, currentPage: currentPage,prixTotal: getPrixTotalCookie(req)});
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal server error');
+    }
+});
+
+server.get('/combinaisons', async (req, res) => {
+    try {
+        // on récupère la page courante
+        const currentPage = parseInt(req.query.page) || 1;
+        if (currentPage < 1) {
+            return res.redirect('/combinaisons?page=1');
+        }
+
+        const {items, totalPages} = await getPaginatedItems('combinaisons',currentPage ,'');
+        if (currentPage > totalPages) {
+            return res.redirect('/combinaisons?page=' + totalPages);
+        }
+
+        res.render('combinaisons.ejs', {elements: items, totalPages: totalPages, currentPage: currentPage,prixTotal: getPrixTotalCookie(req)});
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal server error');

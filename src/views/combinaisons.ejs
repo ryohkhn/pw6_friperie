@@ -8,7 +8,7 @@
     <link href="/stylesheets/style.css" rel="stylesheet" type="text/css">
 </head>
     <body>
-    <div class="container-fluid px-0">
+        <div class="container-fluid px-0">
             <nav class="navbar-expand navcolor">
                 <div class="container-fluid px-0">
                     <div class="row w-100">
@@ -74,12 +74,43 @@
             </div>
         </div>
         <div class="container-fluid main-frame">
-
+            <div class="container">
+                <div class="row row-centered">
+                    <% if(elements.length === 0){ %>
+                        <h4>Aucun résultat</h4>
+                    <% }
+                    else{
+                        elements.forEach(elem => { %>
+                            <div class="col-xl-5 col-lg-3 col-md-4 col-sm-6">
+                                <a href="/combinaison/<%= elem.id_combinaison %>" class="card-link">
+                                <div class="card mb-4">
+                                    <img src="/ressources/placeholder.png" class="card-img-top product"
+                                         alt="product's image">
+                                    <div class="card-body text-left">
+                                        <h5 class="card-title product"><%= elem.type %></h5>
+                                        <p class="card-text product"><%= elem.prix %> €</p>
+                                    </div>
+                                </div>
+                                </a>
+                            </div>
+                        <% });
+                    } %>
+                </div>
+            </div>
+            <% if(totalPages>1){ %>
+                <div class="container justify-content-center">
+                    <input id="total-pages" type="hidden" value="<%= totalPages %>">
+                    <input id="current-page" type="hidden" value="<%= currentPage %>">
+                    <button id="prev-btn" type="button" class="btn btn-primary mx-2">Précédent</button>
+                    <button id="next-btn" type="button" class="btn btn-primary mx-2">Suivant</button>
+                </div>
+            <% } %>
         </div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="/js/pagination.js"></script>
+        <script src="/js/panier.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
         <script src="https://kit.fontawesome.com/607cb4a3b6.js" crossorigin="anonymous"></script>
     </body>
-<
+</html>

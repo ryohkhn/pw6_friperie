@@ -83,49 +83,57 @@
                     <p class="card-text"><%= elements[0].marque %></p>
                     <form method="post" action="/" id="add-to-panier-form">
                         <input type="hidden" name="id_produit" value="<%= elements[0].id_produit %>">
-                            <% let etat = { enRupture: true };
-                                for(let i = 0; i < tailles.length ; i++){
-                                    if(tailles[i].quantite>0){
-                                        if(etat.enRupture){%>
-                                            <select name="taille">
-                                        <%}
-                                        etat.enRupture=false;%>
-                                        <option value="<%=tailles[i].taille%>"><%=tailles[i].taille%></option>
-                                <%  }
+                        <% let etat = {enRupture: true};
+                        for(let i = 0; i < tailles.length ; i++){
+                            if(tailles[i].quantite > 0){
+                            if(etat.enRupture){ %>
+                            <select name="taille">
+                                <% }
+                                    etat.enRupture = false; %>
+                                <option value="<%= tailles[i].taille %>"><%= tailles[i].taille %></option>
+                                <% }
                                 }
-                                if(!etat.enRupture){%>
-                        </select>
+                                if(!etat.enRupture){ %>
+                            </select>
+
+                            <% if(accLie.length === 0){ %>
                             <select name="accessoire">
-                            <%if(accLie.length===0){%>
-                                <option value="-1">Pas d'accessoire</option>
-                            <%
-                            }
-                            for(let i = 0; i < accessoires.length ; i++){ 
-                                if(accLie.length>0){
-                                    if(accLie[0].id_accessoire===accessoires[i].id_accessoire){%>
-                                        <option value="<%= accessoires[i].id_accessoire %>" selected><%=accessoires[i].nom_accessoire %></option>
-                                  <%  }
-                                }else{
-                                    if(elements[0].type_produit===accessoires[i].type_produit){%>
-                                        <option value="<%= accessoires[i].id_accessoire %>"><%=accessoires[i].nom_accessoire %></option>
-                                <%  }
-                                }
-                            } %>
+                                <% }else{ %>
+                                <select name="accessoire" disabled>
+                                    <% } %>
+                                    <option value="-1">Pas d'accessoire</option>
+                                    <%
+                                    for(let i = 0; i < accessoires.length ; i++){
+                                    if(accLie.length > 0){
+                                    if(accLie[0].id_accessoire === accessoires[i].id_accessoire){ %>
+                                        <option value="<%= accessoires[i].id_accessoire %>"
+                                                selected><%= accessoires[i].nom_accessoire %></option>
+                                    <% }
+                                    }else{
+                                    if(elements[0].type_produit === accessoires[i].type_produit){ %>
+                                        <option value="<%= accessoires[i].id_accessoire %>"><%= accessoires[i].nom_accessoire %></option>
+                                    <% }
+                                    }
+                                    } %>
+                                </select>
+                                <button type="submit" id="add-to-panier-btn" class="btn btn-primary">Ajouter au panier
+                                </button>
+                                <%
+                                }else{ %>
+                                    <button type="submit" id="add-to-panier-btn" class="btn btn-primary disabled">En rupture
+                                        de stock
+                                    </button>
+                                <% } %>
                         </select>
-                        <button type="submit" id="add-to-panier-btn" class="btn btn-primary">Ajouter au panier</button>
-                            <%
-                            }else{%>
-                            <button type="submit" id="add-to-panier-btn" class="btn btn-primary disabled">En rupture de stock</button>
-                        <% }%>                        
                     </form>
                 </div>
             </div>
         </div>
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-        <script src="https://kit.fontawesome.com/607cb4a3b6.js" crossorigin="anonymous"></script>
-        <script src="/js/panier.js"></script>
     </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="https://kit.fontawesome.com/607cb4a3b6.js" crossorigin="anonymous"></script>
+    <script src="/js/panier.js"></script>
     </body>
 </html>

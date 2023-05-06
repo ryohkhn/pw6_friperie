@@ -25,7 +25,35 @@ INSERT INTO produits(nom_produit, type_produit, marque, genre, prix) VALUES
 ('Blazer en laine marine', 'vestes', 'Ralph Lauren', 'homme', 349.99),
 ('Manteau en laine beige', 'manteaux', 'Sandro', 'femme', 299.99),
 ('Parka kaki avec fausse fourrure', 'manteaux', 'Zara', 'homme', 129.99),
-('Blouson en cuir marron', 'vestes', 'The Kooples', 'homme', 399.99);
+('Blouson en cuir marron', 'vestes', 'The Kooples', 'homme', 399.99),
+('Jean slim noir', 'pantalons', 'Diesel', 'homme', 59.99),
+('Jean coupe droite', 'pantalons', 'Tommy Hilfiger', 'femme', 69.99),
+('Chino vert', 'pantalons', 'Lacoste', 'homme', 79.99),
+('Pantalon taille haute blanc', 'pantalons', 'Calvin Klein', 'femme', 89.99),
+('Chemise en lin rayé', 'chemises', 'Armani', 'homme', 99.99),
+('Chemise en jean noir', 'chemises', 'Gucci', 'femme', 159.99),
+('Chemise à carreaux', 'chemises', 'Burberry', 'homme', 129.99),
+('Chemisier en soie blanc', 'chemises', 'Chloé', 'femme', 249.99),
+('Veste en laine bleu marine', 'vestes', 'Balenciaga', 'homme', 399.99),
+('Veste en cuir rouge', 'vestes', 'Saint Laurent', 'femme', 599.99),
+('Veste en jean brut', 'vestes', 'Dolce & Gabbana', 'homme', 299.99),
+('Veste en laine bouclée noir', 'vestes', 'Prada', 'femme', 699.99),
+('Pull en laine col roulé noir', 'pulls', 'Versace', 'homme', 179.99),
+('Pantalon cargo kaki', 'pantalons', 'Timberland', 'homme', 64.99),
+('Legging noir', 'pantalons', 'Adidas', 'femme', 34.99),
+('Chino rouge', 'pantalons', 'Fred Perry', 'homme', 84.99),
+('Pantalon taille haute rayé', 'pantalons', 'Ted Baker', 'femme', 104.99),
+('Chemise en popeline blanche', 'chemises', 'Paul Smith', 'homme', 119.99),
+('Chemise en soie verte', 'chemises', 'Givenchy', 'femme', 259.99),
+('Chemise à pois', 'chemises', 'Kenzo', 'homme', 139.99),
+('Chemisier en dentelle rose', 'chemises', 'Miu Miu', 'femme', 349.99),
+('Veste en laine grise', 'vestes', 'Alexander McQueen', 'homme', 499.99),
+('Veste en daim beige', 'vestes', 'Loewe', 'femme', 799.99),
+('Veste en jean noir', 'vestes', 'Valentino', 'homme', 399.99),
+('Veste en velours bordeaux', 'vestes', 'Fendi', 'femme', 899.99),
+('Pull en laine col roulé bleu', 'pulls', 'Roberto Cavalli', 'homme', 189.99),
+('Pull en cachemire rouge', 'pulls', 'Stella McCartney', 'femme', 219.99),
+('Short cargo', 'shorts', 'Carhartt', 'homme', 49.99);
 
 INSERT INTO accessoires(nom_accessoire, type_accessoire, type_produit) VALUES
 ('Ceinture en cuir', 'Ceinture', 'pantalons'),
@@ -34,33 +62,126 @@ INSERT INTO accessoires(nom_accessoire, type_accessoire, type_produit) VALUES
 ('Cravate slim', 'Cravate', 'chemises'),
 ('Cravate classique', 'Cravate', 'chemises'),
 ('Nœud papillon', 'Nœud papillon', 'chemises'),
-('Pochette de costume', 'Pochette', 'chemises');
+('Pochette de costume', 'Pochette', 'chemises'),
+('Ceinture en tissu', 'Ceinture', 'pantalons'),
+('Écharpe en laine', 'Écharpe', 'vestes'),
+('Bonnet en laine', 'Bonnet', 'vestes'),
+('Collier', 'Collier', 'chemises'),
+('Bracelet', 'Bracelet', 'chemises'),
+('Ceinture tressée', 'Ceinture', 'pantalons'),
+('Bretelles à motifs', 'Bretelles', 'pantalons'),
+('Cravate large', 'Cravate', 'chemises'),
+('Foulard en soie', 'Foulard', 'chemises'),
+('Ceinture en métal', 'Ceinture', 'pantalons'),
+('Écharpe en soie', 'Écharpe', 'vestes'),
+('Bonnet en cachemire', 'Bonnet', 'vestes');
 
 INSERT INTO dispo_tailles(id_produit, taille, quantite) VALUES
-(1, 'XS', 10),
-(1, 'XXL', 5);
+(1, 'XS', 4),
+(1, 'XXL', 2),
+(2, 'L', 4),
+(2, 'XL', 3),
+(2, 'XXL', 3),
+(6, 'S', 3),
+(6, 'M', 2),
+(6, 'L', 2),
+(6, 'XL', 1),
+(12, 'XS', 2),
+(12, 'M', 4),
+(12, 'XL', 3),
+(12, 'XXL', 1),
+(28, 'S', 4),
+(28, 'M', 4),
+(28, 'L', 4),
+(28, 'XL', 2),
+(31, 'XS', 2),
+(31, 'S', 3),
+(31, 'M', 4),
+(31, 'L', 3),
+(31, 'XL', 2),
+(42, 'S', 3),
+(42, 'M', 4),
+(42, 'L', 4),
+(42, 'XL', 2),
+(45, 'XS', 1),
+(45, 'S', 3),
+(45, 'M', 4),
+(45, 'L', 3),
+(45, 'XL', 2),
+(3, 'M', 3),
+(3, 'L', 4),
+(4, 'S', 3),
+(4, 'M', 4),
+(7, 'L', 3),
+(7, 'XL', 1),
+(8, 'XS', 2),
+(8, 'S', 4),
+(13, 'M', 4),
+(13, 'L', 4),
+(14, 'XS', 1),
+(14, 'S', 3),
+(19, 'M', 3),
+(19, 'L', 3),
+(20, 'S', 3),
+(20, 'M', 4),
+(25, 'L', 4),
+(25, 'XL', 2),
+(26, 'S', 3),
+(9, 'M', 1),
+(9, 'L', 1),
+(11, 'S', 1),
+(26, 'M', 2),
+(32, 'M', 1),
+(32, 'L', 1),
+(33, 'S', 1),
+(33, 'M', 2),
+(5, 'M', 1),
+(5, 'L', 1);
 
-INSERT INTO dispo_tailles(id_produit, taille, quantite) VALUES
-(2, 'L', 35),
-(2, 'XL', 20),
-(2, 'XXL', 15);
+INSERT INTO produits_accessoires (id_produit, id_accessoire) VALUES
+(1, 1),
+(3, 3),
+(28, 8),
+(29, 9),
+(30, 10),
+(31, 11),
+(42, 12),
+(43, 13),
+(44, 14),
+(45, 15),
+(46,16),
+(33, 6),
+(35, 10),
+(47, 11);
 
-INSERT INTO dispo_tailles(id_produit, taille, quantite) VALUES
-(6, 'S', 10),
-(6, 'M', 12),
-(6, 'L', 14),
-(6, 'XL', 16);
+INSERT INTO combinaisons (type,prix) VALUES
+('Combinaison de base',40),
+('Combinaison de base',40),
+('Combinaison business',100),
+('Combinaison de luxe',200),
+('Combinaison de luxe',200);
 
-INSERT INTO dispo_tailles(id_produit, taille, quantite) VALUES
-(12, 'XS', 15),
-(12, 'M', 25),
-(12, 'XL', 15),
-(12, 'XXL', 10);
+INSERT INTO combinaisons_parts (id_combi, id_produit) VALUES
+-- Combinaisons de base
+(1,4),
+(1,32),
+(1,9),
+(2,41),
+(2,33),
+(2,11),
 
-INSERT INTO produits_accessoires (id_produit, id_accessoire) VALUES (1, 1);
-INSERT INTO produits_accessoires (id_produit, id_accessoire) VALUES (2, 4);
-INSERT INTO produits_accessoires (id_produit, id_accessoire) VALUES (3, 5);
-INSERT INTO produits_accessoires (id_produit, id_accessoire) VALUES (4, 6);
+-- Combinaison business
+(3,30),
+(3,33),
+(3,12),
+
+-- Combinaisons luxe
+(4,31),
+(4,35),
+(4,47),
+(5,43),
+(5,45),
+(5,46);
 
 
 INSERT INTO gerants(login,mdp) VALUES('admin',sha256('admin'));
