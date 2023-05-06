@@ -111,14 +111,6 @@
                 <% }); %>
                 </tbody>
             </table>
-            <% if(totalPages>1){ %>
-                <div class="container justify-content-center">
-                    <input id="total-pages" type="hidden" value="<%= totalPages %>">
-                    <input id="current-page" type="hidden" value="<%= currentPage %>">
-                    <button id="prev-btn-orders" type="button" class="btn btn-primary mx-2">Précédent</button>
-                    <button id="next-btn-orders" type="button" class="btn btn-primary mx-2">Suivant</button>
-                </div>
-            <% } %>
         </div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>

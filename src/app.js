@@ -148,6 +148,7 @@ function updatePanier(panier, newProduit) {
     return panier;
 }
 
+/*
 // Ajoute un produit au panier
 server.post('/ajoutePanier', function(req, res) {
     const id = req.body.id_produit;
@@ -172,6 +173,34 @@ server.post('/ajoutePanier', function(req, res) {
     // res.cookie(`Produit${produitId}`, valTaille, { maxAge: 86400000 }); // expire après 1 jour
     res.redirect('/panier');
 });
+*/
+
+// gère la requête AJAX de l'ajout au panier d'un produit
+server.post('/ajoutePanierAjax', function(req, res) {
+    const id = req.body.id_produit;
+    const valTaille = req.body.taille;
+    const accessoireId = req.body.accessoire;
+
+    // on récupèr le panier courant
+    const currentPanier= req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
+
+    const produit = {
+        produitId: id,
+        size: valTaille,
+        quantity: 1,
+        accessoireId: accessoireId,
+    };
+
+    // on ajoute le nouveau produit au cookie
+    const updatedPanier = updatePanier(currentPanier, produit);
+
+    // on remplace l'ancien cookie par le nouveau
+    res.cookie('panier', JSON.stringify(updatedPanier), {maxAge: 86400000 });
+
+    // Return the product price instead of redirecting
+    const productPrice = 0;
+    res.json({ price: productPrice });
+});
 
 server.post('/delete-basket', function(req, res) {
     const produitId = req.body.id_produit;
@@ -181,70 +210,37 @@ server.post('/delete-basket', function(req, res) {
     res.json({success: true});
 });
 
-/*
-server.get('/panier', async (req, res) => {
-    try {
-        var request = `SELECT * FROM produits WHERE `;
-        var requestAccessoires = `SELECT * FROM accessoires WHERE `;
-        var accProd=0;
-        var accAccess=0;
-
-        // Ajoute les ID de produit au filtre de la requête SQL
-        for (const cookieName in req.cookies) {
-            if (cookieName.startsWith("Produit")) {
-                if(accProd!=0){
-                    request += ' OR ';
-                }
-                accProd++;
-                var id=cookieName.substring(7);
-                request += `id_produit=${id}`;
-            }
-
-        }
-        if(accProd===0){
-            res.render('panier.ejs', {elements: []});
-        }
-        else{
-            const result = await db.query(request);
-            console.log(result);
-            res.render('panier.ejs', {elements: result.rows});
-        }
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Internal server error');
-    }
-});
-*/
-
 server.get('/panier', async (req, res) => {
     try {
         const panier = req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
 
         if (panier.length === 0) {
             res.render('panier.ejs', {elements: []});
-        } else {
-            let request = '';
-            let parameters = [];
+        }
+        else {
+            const tab = [];
 
-            panier.forEach((product, index) => {
-                if (index !== 0) {
-                    request += ' UNION ALL ';
-                }
+            for (const produit of panier) {
+                // on récupère le produit correspondant
+                const resultatProduit = await db.query(`SELECT * FROM produits WHERE id_produit = $1`,
+                    [produit.produitId]);
 
-                request += `
-                SELECT p.*, a.*, $${parameters.length + 1} as size, $${parameters.length + 2} as quantity
-                FROM produits p
-                LEFT JOIN produits_accessoires pa ON p.id_produit = pa.id_produit
-                LEFT JOIN accessoires a ON pa.id_accessoire = a.id_accessoire
-                WHERE p.id_produit = $${parameters.length + 3}`;
+                // on récupère l'accessoire correspondant
+                const resultatAccessoire = await db.query(`SELECT * FROM accessoires WHERE id_accessoire = $1`,
+                    [produit.accessoireId]);
 
-                parameters.push(product.size, product.quantity, product.produitId);
-            });
+                // on combine les éléments du premier tableau avec ceux du dexuième ainsi que le reste des éléments
+                const element = {
+                    ...resultatProduit.rows[0],
+                    ...resultatAccessoire.rows[0],
+                    size: produit.size,
+                    quantity: produit.quantity,
+                };
 
-            const result = await db.query(request, parameters);
-            console.log(result);
+                tab.push(element);
+            }
 
-            res.render('panier.ejs', {elements: result.rows});
+            res.render('panier.ejs', {elements: tab});
         }
     } catch (err) {
         console.error(err);
