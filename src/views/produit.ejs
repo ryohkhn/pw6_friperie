@@ -28,13 +28,24 @@
                             </div>
                         </form>
                     </div>
-                    <div class="col-3 d-flex align-items-center justify-content-end">
-                        <a href="/profil">
-                            <i class="fa-solid fa-user fa-xl logos m-2"></i>
-                        </a>
+                    <div class="col-3 d-flex align-items-center justify-content-end flex-wrap">
+                        <div class="dropdown">
+                            <a href="/profil" role="button" id="userMenu" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false">
+                                <i class="fa-solid fa-user fa-xl logos m-md-2 m-1"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenu">
+                                <a class="dropdown-item" href="/login">Connexion</a>
+                                <a class="dropdown-item" href="/register">S'enregistrer</a>
+                                <a class="dropdown-item" href="/options">Gérer</a>
+                                <a class="dropdown-item" href="/commandes">Commandes</a>
+                                <a class="dropdown-item" href="/disconnect">Déconnexion</a>
+                            </div>
+                        </div>
                         <a href="/panier">
-                            <i class="fa-solid fa-cart-shopping fa-xl logos m-2"></i>
+                            <i class="fa-solid fa-cart-shopping fa-xl logos m-md-2 m-1"></i>
                         </a>
+                        <p id="total-panier" class="d-flex align-items-center justify-content-end mb-0"><%= prixTotal %>€</p>
                     </div>
                 </div>
             </div>
@@ -67,9 +78,9 @@
                 <div class="card-body text-left">
                     <img src="/ressources/placeholder.png" class="card-img-top" alt="product's image">
                     <h5 class="card-title"><%= elements[0].nom_produit %></h5>
-                    <h6 class="card-subtitle mb-2 text-muted"><%= elements[0].prix %> €</h6>
+                    <h6 class="card-subtitle mb-2 text-muted" id="prix_produit"><%= elements[0].prix %> €</h6>
                     <p class="card-text"><%= elements[0].marque %></p>
-                    <form method="post" action="http://localhost:8080/ajoutePanier" id="add-to-panier-form">
+                    <form method="post" action="/" id="add-to-panier-form">
                         <input type="hidden" name="id_produit" value="<%= elements[0].id_produit %>">
                             <% let etat = { enRupture: true };
                                 for(let i = 0; i < tailles.length ; i++){

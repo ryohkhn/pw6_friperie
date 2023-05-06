@@ -8,7 +8,7 @@
     <link href="/stylesheets/style.css" rel="stylesheet" type="text/css">
 </head>
     <body>
-        <div class="container-fluid px-0">
+    <div class="container-fluid px-0">
             <nav class="navbar-expand navcolor">
                 <div class="container-fluid px-0">
                     <div class="row w-100">
@@ -28,22 +28,24 @@
                                 </div>
                             </form>
                         </div>
-                        <div class="col-3 d-flex align-items-center justify-content-end">
+                        <div class="col-3 d-flex align-items-center justify-content-end flex-wrap">
                             <div class="dropdown">
                                 <a href="/profil" role="button" id="userMenu" data-toggle="dropdown"
                                    aria-haspopup="true" aria-expanded="false">
-                                    <i class="fa-solid fa-user fa-xl logos m-2"></i>
+                                    <i class="fa-solid fa-user fa-xl logos m-md-2 m-1"></i>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenu">
-                                    <a class="dropdown-item" href="/">Gérer</a>
                                     <a class="dropdown-item" href="/login">Connexion</a>
                                     <a class="dropdown-item" href="/register">S'enregistrer</a>
+                                    <a class="dropdown-item" href="/options">Gérer</a>
+                                    <a class="dropdown-item" href="/commandes">Commandes</a>
+                                    <a class="dropdown-item" href="/disconnect">Déconnexion</a>
                                 </div>
                             </div>
-
                             <a href="/panier">
-                                <i class="fa-solid fa-cart-shopping fa-xl logos m-2"></i>
+                                <i class="fa-solid fa-cart-shopping fa-xl logos m-md-2 m-1"></i>
                             </a>
+                            <p id="total-panier" class="d-flex align-items-center justify-content-end mb-0"><%= prixTotal %>€</p>
                         </div>
                     </div>
                 </div>

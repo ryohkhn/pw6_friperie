@@ -1,11 +1,3 @@
-function updateTotalBasket(price) {
-  const totalBasketElement = document.getElementById('total-basket');
-  const currentTotal = parseFloat(totalBasketElement.textContent);
-  const newTotal = currentTotal + price;
-
-  totalBasketElement.textContent = newTotal + '€';
-}
-
 $(document).ready(function () {
     $('.delete-basket-btn').on('click', function () {
         const id_produit = $(this).closest('tr').data('basket-id');
@@ -29,6 +21,7 @@ $(document).ready(function () {
     });
 
     $('#add-to-panier-form').on('submit', function (event) {
+        // éviter la redirection par défaut du formulaire
         event.preventDefault();
 
         $.ajax({
@@ -36,7 +29,7 @@ $(document).ready(function () {
             type: 'POST',
             data: $(this).serialize(),
             success: function (response) {
-                updateTotalBasket(response.price);
+                console.log(response);
             },
             error: function (xhr, status, error) {
                 console.error('Erreur ajout produit au panier:', error);
@@ -45,8 +38,21 @@ $(document).ready(function () {
     });
 
     $('#add-to-panier-btn').on('click', function() {
-        const productPrice = parseFloat(document.getElementById('product-price').value);
+        const prixProduitElem = document.getElementById('prix_produit');
+        const prixProduit = parseFloat(prixProduitElem.textContent);
 
-        updateTotalBasket(productPrice);
+        $.ajax({
+            url: '/update-total-Ajax',
+            method: 'POST',
+            data: {
+                prix: prixProduit
+            },
+            success: function (response) {
+                $('#total-panier').text(response.newTotal.toFixed(2) + ' €');
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.error('Erreur update du prix total:', errorThrown);
+            }
+        });
     });
 });

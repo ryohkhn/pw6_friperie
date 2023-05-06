@@ -15,6 +15,10 @@ server.get('/',(req, res) => {
     res.redirect('/accueil');
 });
 
+function getPrixTotalCookie(req){
+    return req.cookies.prixTotal ? parseFloat(req.cookies.prixTotal) : 0;
+}
+
 function combineCommandes(data) {
     return data.reduce((acc, item) => {
         const existing = acc.find(x => x.id_commande === item.id_commande);
@@ -104,7 +108,7 @@ server.get('/accueil', async (req, res) => {
             return res.redirect('/accueil?page=' + totalPages);
         }
 
-        res.render('page.ejs', {elements: items, totalPages: totalPages, currentPage: currentPage});
+        res.render('page.ejs', {elements: items, totalPages: totalPages, currentPage: currentPage,prixTotal: getPrixTotalCookie(req)});
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal server error');
@@ -125,7 +129,7 @@ server.get('/commandes', async (req, res) => {
             return res.redirect('/commandes?page=' + totalPages);
         }
 
-        res.render('commandes.ejs', {elements: items, totalPages: totalPages, currentPage: currentPage});
+        res.render('commandes.ejs', {elements: items, totalPages: totalPages, currentPage: currentPage,prixTotal: getPrixTotalCookie(req)});
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal server error');
@@ -147,33 +151,6 @@ function updatePanier(panier, newProduit) {
 
     return panier;
 }
-
-/*
-// Ajoute un produit au panier
-server.post('/ajoutePanier', function(req, res) {
-    const id = req.body.id_produit;
-    const valTaille = req.body.taille;
-    const accessoireId = req.body.accessoire;
-
-    const currentPanier= req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
-
-    const produit = {
-        produitId: id,
-        size: valTaille,
-        quantity: 1,
-        accessoireId: accessoireId,
-    };
-
-    const updatedPanier = updatePanier(currentPanier, produit);
-
-    // on remplace l'ancien cookie par le nouveau
-    res.cookie('panier', JSON.stringify(updatedPanier), {maxAge: 86400000 });
-
-    // res.cookie(`Produit${produitId}`, JSON.stringify(productData), {maxAge: 86400000});
-    // res.cookie(`Produit${produitId}`, valTaille, { maxAge: 86400000 }); // expire après 1 jour
-    res.redirect('/panier');
-});
-*/
 
 // gère la requête AJAX de l'ajout au panier d'un produit
 server.post('/ajoutePanierAjax', function(req, res) {
@@ -210,12 +187,26 @@ server.post('/delete-basket', function(req, res) {
     res.json({success: true});
 });
 
+server.post('/update-total-Ajax', function (req, res) {
+    const prix = parseFloat(req.body.prix);
+
+    const currentPrixTotal = getPrixTotalCookie(req);
+    //  on récupère le prix total du panier courrant
+    const newPrixTotal = currentPrixTotal + prix;
+
+    // on met à jour le cookie
+    res.cookie('prixTotal', newPrixTotal, {maxAge: 86400000, sameSite: 'lax'});
+
+    // on retourne au client le nouveau prix total pour le mettre à jour sur la page
+    res.json({newTotal: newPrixTotal});
+});
+
 server.get('/panier', async (req, res) => {
     try {
         const panier = req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
 
         if (panier.length === 0) {
-            res.render('panier.ejs', {elements: []});
+            res.render('panier.ejs', {elements: [],prixTotal: getPrixTotalCookie(req)});
         }
         else {
             const tab = [];
@@ -240,7 +231,7 @@ server.get('/panier', async (req, res) => {
                 tab.push(element);
             }
 
-            res.render('panier.ejs', {elements: tab});
+            res.render('panier.ejs', {elements: tab,prixTotal: getPrixTotalCookie(req)});
         }
     } catch (err) {
         console.error(err);
@@ -263,7 +254,7 @@ server.get('/produit/:num', async (req, res) => {
         const result4 = await db.query(accLieReq,[req.params.num]);
 
         res.render('produit.ejs', {idprod: req.params.num,
-            elements: result.rows, accessoires: result2.rows, tailles:result3.rows, accLie:result4.rows});
+            elements: result.rows, accessoires: result2.rows, tailles:result3.rows,accLie:result4.rows,prixTotal: getPrixTotalCookie(req)});
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal server error');
@@ -287,7 +278,7 @@ server.get('/search',async (req, res) => {
             return res.redirect('/search?recherche=' + encodeURIComponent(search_input) + '&page=' + totalPages);
         }
 
-        res.render('page.ejs', {elements: items, totalPages: totalPages, currentPage: currentPage});
+        res.render('page.ejs', {elements: items, totalPages: totalPages, currentPage: currentPage,prixTotal: getPrixTotalCookie(req)});
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal server error');
@@ -328,7 +319,7 @@ server.get('/:type',middlewares.validateCategory,async (req, res) => {
             return res.redirect(`/${req.params.type}?page=${totalPages}`);
         }
 
-        res.render('page.ejs', {elements: items, totalPages: totalPages, currentPage: currentPage});
+        res.render('page.ejs', {elements: items, totalPages: totalPages, currentPage: currentPage,prixTotal: getPrixTotalCookie(req)});
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal server error');
