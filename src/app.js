@@ -22,6 +22,45 @@ server.get('/',(req, res) => {
     res.redirect('/accueil');
 });
 
+async function getAccessoires() {
+    const accessoiresReq = `SELECT *
+                            FROM accessoires`;
+    const result = await db.query(accessoiresReq);
+    return result.rows;
+}
+
+async function getSpecificAccessoires(accessoireId) {
+    const accessoiresReq = `SELECT *
+                            FROM accessoires
+                            WHERE id_accessoire = $1`;
+    const result = await db.query(accessoiresReq, [accessoireId]);
+    return result.rows;
+}
+
+async function getProduit(productId) {
+    const request = `SELECT *
+                     FROM produits
+                     WHERE id_produit = $1`;
+    const result = await db.query(request, [productId]);
+    return result.rows;
+}
+
+async function getTaillesProduit(productId) {
+    const disposReq = `SELECT *
+                       FROM dispo_tailles
+                       WHERE id_produit = $1`;
+    const result = await db.query(disposReq, [productId]);
+    return result.rows;
+}
+
+async function getAccessoireLie(productId) {
+    const accLieReq = `SELECT *
+                       FROM produits_accessoires
+                       WHERE id_produit = $1`;
+    const result = await db.query(accLieReq, [productId]);
+    return result.rows;
+}
+
 function getPrixTotalCookie(req){
     return req.cookies.prixTotal ? parseFloat(req.cookies.prixTotal) : 0;
 }
@@ -50,8 +89,8 @@ function combineCombinaisons(rows) {
         if (!combinaisons[row.id_combinaison]) {
             combinaisons[row.id_combinaison] = {
                 id_combinaison: row.id_combinaison,
+                prix: row.prix,
                 type: row.type,
-                prix_combi: row.prix,
                 products: []
             };
         }
@@ -60,14 +99,13 @@ function combineCombinaisons(rows) {
             nom_produit: row.nom_produit,
             type_produit: row.type_produit,
             marque: row.marque,
-            genre: row.genre,
-            prix: row.prix,
+            genre: row.genre
         });
     });
     return Object.values(combinaisons);
 }
 
-async function getPaginatedItems(type, currentPage, searchTerm, limit = 20) {
+async function getPaginatedItems(type, currentPage, searchTerm, limit = 10) {
     // on calcule l'offset de la requête SQL en fonction de la page courante et de la limite
     const offset = (currentPage - 1) * limit;
     let totalResult;
@@ -75,49 +113,95 @@ async function getPaginatedItems(type, currentPage, searchTerm, limit = 20) {
 
     try {
         if (type === 'search') {
-            totalResult = await db.query(`SELECT * FROM produits
-                                               WHERE LOWER(nom_produit) LIKE LOWER($1)`, [`%${searchTerm}%`]);
-            itemsResult = await db.query(`SELECT * FROM produits
-                                          WHERE LOWER(nom_produit) LIKE LOWER($1) ORDER BY createddate
-                                          LIMIT $2 OFFSET $3`, [`%${searchTerm}%`, limit, offset]);
+            totalResult = await db.query(`SELECT *
+                                          FROM produits p
+                                          WHERE LOWER(nom_produit) LIKE LOWER($1)
+                                            AND p.id_produit NOT IN
+                                                (SELECT id_produit
+                                                 FROM combinaisons_parts cp
+                                                 WHERE cp.id_produit = p.id_produit)`, [`%${searchTerm}%`]);
+
+            itemsResult = await db.query(`SELECT *
+                                          FROM produits p
+                                          WHERE LOWER(nom_produit) LIKE LOWER($1)
+                                            AND p.id_produit NOT IN
+                                                (SELECT id_produit
+                                                 FROM combinaisons_parts cp
+                                                 WHERE cp.id_produit = p.id_produit)
+                                          ORDER BY createddate
+                                          LIMIT $2 OFFSET $3 `,
+                [`%${searchTerm}%`, limit, offset]);
         }
-        else if (type === 'all') {
-            totalResult = await db.query(`SELECT * FROM produits`);
-            itemsResult = await db.query('SELECT * FROM produits ORDER BY createddate LIMIT $1 OFFSET $2', [limit, offset]);
+        else if (type === 'accueil') {
+            totalResult = await db.query(`SELECT *
+                                          FROM produits p
+                                          WHERE p.id_produit NOT IN
+                                                (SELECT id_produit
+                                                 FROM combinaisons_parts cp
+                                                 WHERE cp.id_produit = p.id_produit)`);
+
+            itemsResult = await db.query(`SELECT *
+                                          FROM produits p
+                                          WHERE p.id_produit NOT IN
+                                                (SELECT id_produit
+                                                 FROM combinaisons_parts cp
+                                                 WHERE cp.id_produit = p.id_produit)
+                                          ORDER BY createddate
+                                          LIMIT $1 OFFSET $2`, [limit, offset]);
         }
-        else if (type === 'orders') {
-            totalResult = await db.query(`SELECT c.id_client, c.id_commande, p.nom_produit,pc.quantite
+        else if (type === 'commandes') {
+            totalResult = await db.query(`SELECT c.id_client, c.id_commande, p.nom_produit, pc.quantite
                                           FROM commandes c
-                                              JOIN produits_commandes pc ON c.id_commande = pc.id_commande
-                                              JOIN produits p ON pc.id_produit = p.id_produit
+                                                   JOIN produits_commandes pc ON c.id_commande = pc.id_commande
+                                                   JOIN produits p ON pc.id_produit = p.id_produit
                                           ORDER BY c.id_commande;`);
-            itemsResult = await db.query(`SELECT c.id_client, c.id_commande, p.nom_produit,pc.quantite
+            itemsResult = await db.query(`SELECT c.id_client, c.id_commande, p.nom_produit, pc.quantite
                                           FROM commandes c
-                                              JOIN produits_commandes pc ON c.id_commande = pc.id_commande
-                                              JOIN produits p ON pc.id_produit = p.id_produit
-                                          ORDER BY c.id_commande LIMIT $1 OFFSET $2`, [limit, offset]);
+                                                   JOIN produits_commandes pc ON c.id_commande = pc.id_commande
+                                                   JOIN produits p ON pc.id_produit = p.id_produit
+                                          ORDER BY c.id_commande
+                                          LIMIT $1 OFFSET $2`, [limit, offset]);
         }
-        else if(type === 'combinaisons') {
-            totalResult = await db.query(`SELECT * FROM combinaisons`);
-            itemsResult = await db.query(`SELECT c.id_combinaison, c.type, c.prix, cp.id_partie, p.id_produit, p.nom_produit, p.type_produit, p.marque, p.genre
-                                  FROM combinaisons c
-                                  JOIN combinaisons_parts cp ON c.id_combinaison = cp.id_combi
-                                  JOIN produits p ON cp.id_produit = p.id_produit
-                                  ORDER BY c.id_combinaison, cp.id_partie
-                                  LIMIT $1 OFFSET $2`, [limit, offset]);
+        else if (type === 'combinaisons') {
+            totalResult = await db.query(`SELECT *
+                                          FROM combinaisons`);
+            itemsResult = await db.query(`SELECT c.id_combinaison,
+                                                 c.type,
+                                                 c.prix,
+                                                 p.id_produit,
+                                                 p.nom_produit,
+                                                 p.type_produit,
+                                                 p.marque,
+                                                 p.genre
+                                          FROM combinaisons c
+                                                   JOIN combinaisons_parts cp ON c.id_combinaison = cp.id_combi
+                                                   JOIN produits p ON cp.id_produit = p.id_produit
+                                          ORDER BY c.id_combinaison, cp.id_partie
+                                          LIMIT $1 OFFSET $2`, [limit, offset]);
         }
         else {
-            totalResult = await db.query(`SELECT * FROM produits
-                                               WHERE type_produit = $1`, [type]);
-            itemsResult = await db.query(`SELECT * FROM produits
-                                          WHERE type_produit = $1 ORDER BY createddate
+            totalResult = await db.query(`SELECT *
+                                          FROM produits p
+                                          WHERE type_produit = $1
+                                            AND p.id_produit NOT IN
+                                                (SELECT id_produit
+                                                 FROM combinaisons_parts cp
+                                                 WHERE cp.id_produit = p.id_produit)`, [type]);
+            itemsResult = await db.query(`SELECT *
+                                          FROM produits p
+                                          WHERE type_produit = $1
+                                            AND p.id_produit NOT IN
+                                                (SELECT id_produit
+                                                 FROM combinaisons_parts cp
+                                                 WHERE cp.id_produit = p.id_produit)
+                                          ORDER BY createddate
                                           LIMIT $2 OFFSET $3`, [type, limit, offset]);
         }
 
         const totalLength = totalResult.rows.length;
         const totalPages = Math.ceil(totalLength / limit);
         let items;
-        if(type === 'orders') {
+        if(type === 'commandes') {
             items = combineCommandes(itemsResult.rows);
         }
         else if(type === 'combinaisons') {
@@ -137,6 +221,76 @@ async function getPaginatedItems(type, currentPage, searchTerm, limit = 20) {
     }
 }
 
+// fonction pour gérer la redirection en fonction du nom de routage
+function getRedirectUrl(routeName, search_input, page) {
+    if (routeName === 'search') {
+        return `/search?recherche=${encodeURIComponent(search_input)}&page=${page}`;
+    }
+    else if(routeName === 'accueil'){
+        return `/${routeName}?page=${page}`;
+    }
+}
+
+
+// fonction middleware pour gérer le render des fichiers EJS et la pagination
+async function handleRendering(req, res, next) {
+    try {
+        // on récupère le nom de routage sans le /
+        const routeName = req.params.type || req.route.path.slice(1);
+        // on récupère le getter de recherche si présent
+        const search_input = req.query.recherche || '';
+
+        // on récupère la page courante
+        const currentPage = parseInt(req.query.page) || 1;
+        if (currentPage < 1) {
+            return res.redirect(getRedirectUrl(routeName, search_input, 1));
+        }
+
+        // on récupère une partie des données en fonction de la page courage
+        const {items, totalPages} = await getPaginatedItems(routeName, currentPage, search_input);
+        if (currentPage > totalPages && items.length !== 0) {
+            return res.redirect(getRedirectUrl(routeName, search_input, totalPages));
+        }
+
+        res.locals = {
+            elements: items,
+            totalPages: totalPages,
+            currentPage: currentPage,
+            prixTotal: getPrixTotalCookie(req),
+        };
+
+        // on change le routeName pour le bon rendering dans le routage correspondant
+        if (routeName === 'accueil' || routeName === 'search' || req.params.type) {
+            res.locals.viewName = 'page';
+        }
+        else {
+            res.locals.viewName = routeName;
+        }
+
+        next();
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal server error');
+    }
+}
+
+server.get('/accueil', handleRendering, (req, res) => {
+    res.render(`${res.locals.viewName}.ejs`, res.locals);
+});
+
+server.get('/combinaisons', handleRendering, (req, res) => {
+    res.render(`${res.locals.viewName}.ejs`, res.locals);
+});
+
+server.get('/commandes', handleRendering, (req, res) => {
+    res.render(`${res.locals.viewName}.ejs`, res.locals);
+});
+
+server.get('/search', handleRendering, (req, res) => {
+    res.render(`${res.locals.viewName}.ejs`, res.locals);
+});
+
+/*
 server.get('/accueil', async (req, res) => {
     try {
         // on récupère la page courante
@@ -198,9 +352,38 @@ server.get('/commandes', async (req, res) => {
     }
 });
 
+// routage du formulaire de la barre de recherche
+server.get('/search',async (req, res) => {
+    // on récupère la valeur du formulaire
+    const search_input = req.query.recherche;
+    try {
+        // on récupère la page courante
+        const currentPage = parseInt(req.query.page) || 1;
+        if (currentPage < 1) {
+            return res.redirect('/search?recherche=' + encodeURIComponent(search_input) + '&page=1');
+        }
+
+        // on récupère les informations de la base de données en fonciton de la page courante et du formulaire
+        const {items, totalPages} = await getPaginatedItems('search',currentPage,search_input);
+        if (currentPage > totalPages && items.length !== 0) {
+            return res.redirect('/search?recherche=' + encodeURIComponent(search_input) + '&page=' + totalPages);
+        }
+
+        res.render('page.ejs', {elements: items, totalPages: totalPages, currentPage: currentPage,prixTotal: getPrixTotalCookie(req)});
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal server error');
+    }
+});
+ */
+
+function getCookiePanierIndex(panier, produit) {
+    return panier.findIndex(produitPanier => produitPanier.produitId === produit.produitId
+        && produitPanier.size === produit.size && produitPanier.accessoireId === produit.accessoireId);
+}
 
 function updatePanier(panier, newProduit) {
-    const index = panier.findIndex(product => product.produitId === newProduit.produitId && product.size === newProduit.size && product.accessoireId === newProduit.accessoireId);
+    const index = getCookiePanierIndex(panier, newProduit);
 
     if (index !== -1) {
         // augment la quantité si existant
@@ -215,7 +398,8 @@ function updatePanier(panier, newProduit) {
 }
 
 function deleteProduit(panier, deleteProduct) {
-    const index = panier.findIndex(product => product.produitId === deleteProduct.produitId && product.size === deleteProduct.size && product.accessoireId === deleteProduct.accessoireId);
+    const index = getCookiePanierIndex(panier, deleteProduct);
+
     if (index !== -1) {
         panier[index].quantity -= deleteProduct.quantity;
         if(panier[index].quantity<1){
@@ -308,20 +492,24 @@ server.get('/panier', async (req, res) => {
 
             for (const produit of panier) {
                 // on récupère le produit correspondant
-                const resultatProduit = await db.query(`SELECT * FROM produits WHERE id_produit = $1`,
-                    [produit.produitId]);
+                const resultatProduit = await getProduit(produit.produitId);
 
-                // on récupère l'accessoire correspondant
-                const resultatAccessoire = await db.query(`SELECT * FROM accessoires WHERE id_accessoire = $1`,
-                    [produit.accessoireId]);
+                let resultatAccessoire;
+                if (produit.accessoireId !== "-1") {
+                    resultatAccessoire = await getSpecificAccessoires(produit.accessoireId);
+                }
+                else {
+                    resultatAccessoire = [{ id_accessoire: -1 }];
+                }
 
                 // on combine les éléments du premier tableau avec ceux du dexuième ainsi que le reste des éléments
                 const element = {
-                    ...resultatProduit.rows[0],
-                    ...resultatAccessoire.rows[0],
+                    ...resultatProduit[0],
+                    ...resultatAccessoire[0],
                     size: produit.size,
                     quantity: produit.quantity,
                 };
+                console.log(element);
 
                 tab.push(element);
             }
@@ -335,6 +523,24 @@ server.get('/panier', async (req, res) => {
 });
 
 server.get('/produit/:num', async (req, res) => {
+    try {
+        const productId = req.params.num;
+
+        const result = await getProduit(productId);
+        const result2 = await getAccessoires();
+        const result3 = await getTaillesProduit(productId);
+        const result4 = await getAccessoireLie(productId);
+
+        res.render('produit.ejs', {idprod: productId,
+            elements: result, accessoires: result2, tailles:result3, accLie:result4, prixTotal: getPrixTotalCookie(req)});
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal server error');
+    }
+});
+
+/*
+server.get('/combinaison/:num', async (req, res) => {
     try {
         const request = `SELECT * FROM produits WHERE id_produit = $1`;
         const result = await db.query(request, [req.params.num]);
@@ -355,30 +561,7 @@ server.get('/produit/:num', async (req, res) => {
         res.status(500).send('Internal server error');
     }
 });
-
-// routage du formulaire de la barre de recherche
-server.get('/search',async (req, res) => {
-    // on récupère la valeur du formulaire
-    const search_input = req.query.recherche;
-    try {
-        // on récupère la page courante
-        const currentPage = parseInt(req.query.page) || 1;
-        if (currentPage < 1) {
-            return res.redirect('/search?recherche=' + encodeURIComponent(search_input) + '&page=1');
-        }
-
-        // on récupère les informations de la base de données en fonciton de la page courante et du formulaire
-        const {items, totalPages} = await getPaginatedItems('search',currentPage,search_input);
-        if (currentPage > totalPages && items.length !== 0) {
-            return res.redirect('/search?recherche=' + encodeURIComponent(search_input) + '&page=' + totalPages);
-        }
-
-        res.render('page.ejs', {elements: items, totalPages: totalPages, currentPage: currentPage,prixTotal: getPrixTotalCookie(req)});
-    } catch (err) {
-        console.error(err);
-        res.status(500).send('Internal server error');
-    }
-});
+ */
 
 server.post('/delete-order', async (req, res) => {
     const id_commande = req.body.id_commande;
@@ -401,6 +584,13 @@ server.post('/delete-order', async (req, res) => {
 });
 
 // routage sur les catégories de vêtements
+server.get('/:type', middlewares.validateCategory, handleRendering, (req, res) => {
+    res.render(`${res.locals.viewName}.ejs`, res.locals);
+});
+
+/*
+
+// routage sur les catégories de vêtements
 server.get('/:type',middlewares.validateCategory,async (req, res) => {
     try {
         // on récupère la page courante
@@ -420,3 +610,4 @@ server.get('/:type',middlewares.validateCategory,async (req, res) => {
         res.status(500).send('Internal server error');
     }
 });
+ */

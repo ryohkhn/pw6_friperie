@@ -15,7 +15,7 @@ $(document).ready(function () {
                 id_produit: id_produit,
                 size: size,
                 id_accessoire: id_accessoire,
-                prix:prix
+                prix: prix
             },
             success: function (response) {
                 console.log(response);
