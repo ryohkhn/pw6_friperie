@@ -38,8 +38,8 @@
                 <input type="text" class="form-control" id="inputLogin" name="inputLogin" placeholder="Pseudo" required="required">
             </div>
             <div class="form-group col-md-5">
-                <label for="inputNum">Numéro</label>
-                <input type="text" class="form-control" id="inputNum" name="inputNum" placeholder="Numéro" required="required">
+                <label for="inputNum">Numéro de téléphone</label>
+                <input type="text" class="form-control" id="inputNum" name="inputNum" placeholder="Numéro de téléphone" required="required">
             </div>
         </div>
         <% if (erreurs.loginLetters) { %>
@@ -50,6 +50,11 @@
         <% if (erreurs.loginExists) { %>
             <div class="alert alert-danger">
               <%= erreurs.loginExists %>
+            </div>
+        <% } %>
+        <% if (erreurs.num) { %>
+            <div class="alert alert-danger">
+              <%= erreurs.num %>
             </div>
         <% } %>
         <div class="form-group">

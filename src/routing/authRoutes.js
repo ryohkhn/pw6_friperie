@@ -78,15 +78,15 @@ router.post('/verify_register', (req, res) => {
             errors.adresse2="Les informations complémentaires contiennent des caractères invalides.";
         }
     }
-    if (!ville.match(alphaRegex)) {
-        errors.ville= "La ville doit être composée de lettres uniquement.";
+    if (!ville.match(adresseRegex)) {
+        errors.ville= "La ville est invalide.";
     }
     if (!code.match(codeRegex)) {
         errors.code = "Le code postal doit être composé de 5 chiffres.";
     }
 
 
-    let request=`SELECT * FROM gerants,clients WHERE login = '${login}'`;
+    let request=`SELECT * FROM gerants,clients WHERE gerants.login = '${login}' OR clients.login = '${login}' `;
     db.query(request,(err,result)=>{
         if (err) {
             console.log(err);
@@ -95,7 +95,7 @@ router.post('/verify_register', (req, res) => {
         else if (result.rows.length > 0) {
             errors.loginExists = "Le pseudo entré n'est pas disponible.";
         }
-        let emailReq = `SELECT * FROM gerants,clients WHERE email = '${email}'`;
+        let emailReq = `SELECT * FROM clients WHERE email = '${email}'`;
         db.query(emailReq, (err, result2) => {
             if (err) {
                 console.log(err);
@@ -104,10 +104,9 @@ router.post('/verify_register', (req, res) => {
                 errors.emailExists = "L'adresse mail entrée n'est pas disponible.";
             }
             if(Object.keys(errors).length === 0){
-                const hashed_mdp = crypto.createHash('sha256').update(password).digest();
-                //TODO : créer la session et ajouter dans la base de données
-                const reqInsert = `INSERT INTO clients (nom, prenom, tel, adresse, adresse2, ville, code, login, mdp)
-                VALUES ('${nom}', '${prenom}', '${num}','${email}', '${adresse}', '${adresse2}', '${ville}', '${code}', '${hashed_mdp}','${login}');`
+                const hashed_mdp = crypto.createHash('sha256').update(password).digest('hex');                //TODO : créer la session et ajouter dans la base de données
+                const reqInsert = `INSERT INTO clients (nom, prenom, tel, email, adresse, adresse2, ville, code, login, mdp)
+                VALUES ('${nom}', '${prenom}', '${num}','${email}', '${adresse}', '${adresse2}', '${ville}', '${code}','${login}', '${hashed_mdp}');`
 
                 db.query(reqInsert,(err, result3) => {
                     if (err) {
@@ -117,6 +116,7 @@ router.post('/verify_register', (req, res) => {
                         res.render('login_page.ejs', {failed: false, login_type_val: "clients"});
                     }
                 });
+
             }else{
                 res.render('register_page.ejs',{erreurs:errors});
             }
@@ -142,7 +142,7 @@ router.post('/verify_login', async (req, res) => {
         const result = await db.query(request, [login]);
         if (result.rows.length === 1) {
             const hashed_db_mdp = result.rows[0].mdp;
-            const hashed_mdp = crypto.createHash('sha256').update(mdp).digest();
+            const hashed_mdp = crypto.createHash('sha256').update(mdp).digest('hex');
 
             // remove the first '\x'
             const hexString = hashed_db_mdp.substring(2);
