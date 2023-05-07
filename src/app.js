@@ -8,7 +8,7 @@ const session = require('express-session');
 
 server.use(session({
     secret: 'secret',
-    resave:false,
+    resave: false,
     cookie: {maxAge : 86400000},
     saveUninitialized: false
 }));
@@ -71,7 +71,8 @@ function combineCommandes(data) {
 
         if (existing) {
             existing.produits.push({nom_produit: item.nom_produit, quantite: item.quantite});
-        } else {
+        }
+        else {
             acc.push({
                 id_client: item.id_client,
                 id_commande: item.id_commande,
@@ -91,6 +92,7 @@ function combineCombinaisons(rows) {
                 id_combinaison: row.id_combinaison,
                 prix: row.prix,
                 type: row.type,
+                image: row.image,
                 products: []
             };
         }
@@ -99,6 +101,7 @@ function combineCombinaisons(rows) {
             nom_produit: row.nom_produit,
             type_produit: row.type_produit,
             marque: row.marque,
+            image_prod: row.image,
             genre: row.genre
         });
     });
@@ -150,12 +153,12 @@ async function getPaginatedItems(type, currentPage, searchTerm, limit = 10) {
                                           LIMIT $1 OFFSET $2`, [limit, offset]);
         }
         else if (type === 'commandes') {
-            totalResult = await db.query(`SELECT c.id_commande, c.prenom, c.nom, p.nom_produit, pc.quantite
+            totalResult = await db.query(`SELECT c.id_commande, p.nom_produit, pc.quantite
                                           FROM commandes c
                                                    JOIN produits_commandes pc ON c.id_commande = pc.id_commande
                                                    JOIN produits p ON pc.id_produit = p.id_produit
                                           ORDER BY c.id_commande;`);
-            itemsResult = await db.query(`SELECT c.id_commande, c.prenom, c.nom, p.nom_produit, pc.quantite
+            itemsResult = await db.query(`SELECT c.nom, c.prenom, c.id_commande, p.nom_produit, pc.quantite
                                           FROM commandes c
                                                    JOIN produits_commandes pc ON c.id_commande = pc.id_commande
                                                    JOIN produits p ON pc.id_produit = p.id_produit
@@ -168,6 +171,7 @@ async function getPaginatedItems(type, currentPage, searchTerm, limit = 10) {
             itemsResult = await db.query(`SELECT c.id_combinaison,
                                                  c.type,
                                                  c.prix,
+                                                 c.image,
                                                  p.id_produit,
                                                  p.nom_produit,
                                                  p.type_produit,

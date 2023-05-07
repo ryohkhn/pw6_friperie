@@ -36,6 +36,7 @@ CREATE TABLE produits(
     marque VARCHAR(255) NOT NULL,
     genre VARCHAR(255) NOT NULL,
     prix DECIMAL(10,2) NOT NULL,
+    image TEXT NOT NULL,
     createdDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -66,6 +67,7 @@ CREATE TABLE combinaisons(
     id_combinaison SERIAL,
     type VARCHAR(255) NOT NULL,
     prix DECIMAL(10,2) NOT NULL,
+    image TEXT NOT NULL,
     PRIMARY KEY (id_combinaison)
 );
 
