@@ -150,12 +150,12 @@ async function getPaginatedItems(type, currentPage, searchTerm, limit = 10) {
                                           LIMIT $1 OFFSET $2`, [limit, offset]);
         }
         else if (type === 'commandes') {
-            totalResult = await db.query(`SELECT c.id_client, c.id_commande, p.nom_produit, pc.quantite
+            totalResult = await db.query(`SELECT c.id_commande, c.prenom, c.nom, p.nom_produit, pc.quantite
                                           FROM commandes c
                                                    JOIN produits_commandes pc ON c.id_commande = pc.id_commande
                                                    JOIN produits p ON pc.id_produit = p.id_produit
                                           ORDER BY c.id_commande;`);
-            itemsResult = await db.query(`SELECT c.id_client, c.id_commande, p.nom_produit, pc.quantite
+            itemsResult = await db.query(`SELECT c.id_commande, c.prenom, c.nom, p.nom_produit, pc.quantite
                                           FROM commandes c
                                                    JOIN produits_commandes pc ON c.id_commande = pc.id_commande
                                                    JOIN produits p ON pc.id_produit = p.id_produit

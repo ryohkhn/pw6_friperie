@@ -131,7 +131,7 @@ router.post('/verify_login', async (req, res) => {
         const login = (req.body.username);
         const mdp = (req.body.password);
         const login_type = (req.body.login_type);
-        console.log(login_type);
+        
 
         const validLogins = ['gerants', 'clients'];
         if (!validLogins.includes(login_type)) {
@@ -141,21 +141,25 @@ router.post('/verify_login', async (req, res) => {
         const request = `SELECT * FROM ${login_type} WHERE login = $1`;
         const result = await db.query(request, [login]);
         if (result.rows.length === 1) {
-            const hashed_db_mdp = result.rows[0].mdp;
-            const hashed_mdp = crypto.createHash('sha256').update(mdp).digest('hex');
+            const hashed_db_mdp = result.rows[0].mdp.substring(2);
+            const hashed_mdp = crypto.createHash('sha256').update(mdp).digest('hex'); 
 
-            // remove the first '\x'
-            const hexString = hashed_db_mdp.substring(2);
-            // splits the string into groups of two characters each
-            // using a regular expression and converts each group of two hexadecimal characters into a decimal number
-            const byteArray = hexString.match(/.{1,2}/g).map(byte => parseInt(byte, 16));
-            const hashed_db_mdp_buff = Buffer.from(byteArray);
-
-            // console.log(hashed_db_mdp_buff);
-            // console.log(hashed_mdp);
-
-            if (hashed_mdp.equals(hashed_db_mdp_buff)) {
-                req.session.userId = result.rows[0].id; // Stocke l'identifiant de l'utilisateur dans la session
+            if (hashed_mdp===hashed_db_mdp) {
+                if(login_type==='clients'){
+                    req.session.user = {
+                        loginType: login_type,
+                        userId: result.rows[0].id,
+                        email: result.rows[0].email
+                    };
+                }else{
+                    req.session.user = {
+                        loginType: login_type,
+                        userId: result.rows[0].id,
+                    };
+                }
+                if (req.session) {
+                    console.log(req.session);
+                }
                 res.redirect('/');
             }
             else {
