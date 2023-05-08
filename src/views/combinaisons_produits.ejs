@@ -75,57 +75,52 @@
     </div>
     <div class="container-fluid px-0 main-frame">
         <div class="container">
-            <div class="card mb-6">
-                <div class="card-body text-left">
-                    <img src="/ressources/placeholder.png" class="card-img-top" alt="product's image">
-                    <h5 class="card-title"><%= elements[0].nom_produit %></h5>
-                    <h6 class="card-subtitle mb-2 text-muted" id="prix_produit"><%= elements[0].prix %> €</h6>
-                    <p class="card-text"><%= elements[0].marque %></p>
-                    <form method="post" action="/" id="add-to-panier-form">
-                        <input type="hidden" name="id_produit" value="<%= elements[0].id_produit %>">
-                        <% let etat = {enRupture: true};
-                        for(let i = 0; i < tailles.length ; i++){
-                            if(tailles[i].quantite > 0){
-                            if(etat.enRupture){ %>
-                            <select name="taille">
-                                <% }
-                                    etat.enRupture = false; %>
-                                <option value="<%= tailles[i].taille %>"><%= tailles[i].taille %></option>
-                                <% }
-                                }
-                                if(!etat.enRupture){ %>
-                            </select>
+            <div class="row">
+                <!-- Colonne des images -->
+                <div class="col-md-6">
+                    <% combinedCombinaison.products.forEach((product, index) => { %>
+                        <div class="mb-3 d-flex justify-content-center">
+                            <img src="<%= product.image_prod %>" class="img-fluid product-image w-100" alt="<%= product.nom_produit %>">
+                        </div>
+                    <% }); %>
+                </div>
 
-                            <% if(accLie.length === 0){ %>
-                            <select name="accessoire">
-                                <% }else{ %>
-                                <select name="accessoire" disabled>
-                                    <% } %>
-                                    <option value="-1">Pas d'accessoire</option>
-                                    <%
-                                    for(let i = 0; i < accessoires.length ; i++){
-                                    if(accLie.length > 0){
-                                    if(accLie[0].id_accessoire === accessoires[i].id_accessoire){ %>
-                                        <option value="<%= accessoires[i].id_accessoire %>"
-                                                selected><%= accessoires[i].nom_accessoire %></option>
-                                    <% }
-                                    }else{
-                                    if(elements[0].type_produit === accessoires[i].type_produit){ %>
-                                        <option value="<%= accessoires[i].id_accessoire %>"><%= accessoires[i].nom_accessoire %></option>
-                                    <% }
-                                    }
-                                    } %>
+                <!-- Colonne des infos produits -->
+                <div class="col-md-6">
+                    <% let disableButton = false; %>
+                    <h3><%= combinedCombinaison.type %></h3>
+                    <% combinedCombinaison.products.forEach((produit, index) => { %>
+                        <div class="mb-5">
+                            <div class="form-group">
+                                <h5><%= produit.nom_produit %></h5>
+                                <label for="size-select-<%= index %>">Taille</label>
+                                <!-- On désactive le bouton d'ajout au panier si une des tailles n'est pas disponible -->
+                                <% if (produit.tailles.length === 0) {
+                                    disableButton = true; %>
+                                <select class="form-control" id="size-select-<%= index %>" disabled>
+                                    <option value="-1">Aucune taille</option>
                                 </select>
-                                <button type="submit" id="add-to-panier-btn" class="btn btn-primary">Ajouter au panier
-                                </button>
-                                <%
-                                }else{ %>
-                                    <button type="submit" id="add-to-panier-btn" class="btn btn-primary disabled">En rupture
-                                        de stock
-                                    </button>
+                                <% }
+                                else { %>
+                                    <select class="form-control" id="size-select-<%= index %>">
+                                        <% produit.tailles.forEach((taille) => { %>
+                                            <option value="<%= taille.taille %>"><%= taille.taille %></option>
+                                        <% }); %>
+                                    </select>
                                 <% } %>
-                        </select>
-                    </form>
+                            </div>
+                            <% if (produit.accessoire.length > 0) { %>
+                                <p>Accessoire: <%= produit.accessoire[0].nom_accessoire %></p>
+                            <% } %>
+                        </div>
+                    <% }); %>
+                    <h6 class="card-subtitle mb-2 text-muted" id="prix_produit"><%= combinedCombinaison.prix %> €</h6>
+                    <% if (disableButton){ %>
+                        <button type="button" class="btn btn-primary" disabled>Rupture de stock</button>
+                    <% }
+                    else{ %>
+                        <button type="button" class="btn btn-primary">Ajouter au panier</button>
+                    <% } %>
                 </div>
             </div>
         </div>

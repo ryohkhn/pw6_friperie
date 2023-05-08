@@ -150,13 +150,12 @@ INSERT INTO produits_accessoires (id_produit, id_accessoire) VALUES
 (44, 14),
 (45, 15),
 (46,16),
-(33, 6),
 (35, 10),
 (47, 11);
 
 INSERT INTO combinaisons (type,prix,image) VALUES
-('Combinaison de base',40,'/resources/combinaisons.png'),
-('Combinaison de base',40,'/resources/combinaisons.png'),
+('Combinaison de base',60,'/resources/combinaisons.png'),
+('Combinaison de base',60,'/resources/combinaisons.png'),
 ('Combinaison business',100,'/resources/combinaisons.png'),
 ('Combinaison de luxe',200,'/resources/combinaisons.png'),
 ('Combinaison de luxe',200,'/resources/combinaisons.png');

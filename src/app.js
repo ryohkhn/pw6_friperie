@@ -45,6 +45,26 @@ async function getProduit(productId) {
     return result.rows;
 }
 
+async function getCombinaison(combiId) {
+    const request = `SELECT c.id_combinaison,
+                            c.type,
+                            c.prix,
+                            c.image,
+                            p.id_produit,
+                            p.nom_produit,
+                            p.type_produit,
+                            p.marque,
+                            p.genre,
+                            p.image AS prodimg
+                     FROM combinaisons c
+                              JOIN combinaisons_parts cp ON c.id_combinaison = cp.id_combi
+                              JOIN produits p ON cp.id_produit = p.id_produit
+                     WHERE c.id_combinaison = $1
+                     ORDER BY c.id_combinaison, cp.id_partie`;
+    const result = await db.query(request, [combiId]);
+    return result.rows;
+}
+
 async function getTaillesProduit(productId) {
     const disposReq = `SELECT *
                        FROM dispo_tailles
@@ -101,7 +121,7 @@ function combineCombinaisons(rows) {
             nom_produit: row.nom_produit,
             type_produit: row.type_produit,
             marque: row.marque,
-            image_prod: row.image,
+            image_prod: row.prodimg,
             genre: row.genre
         });
     });
@@ -180,8 +200,7 @@ async function getPaginatedItems(type, currentPage, searchTerm, limit = 10) {
                                           FROM combinaisons c
                                                    JOIN combinaisons_parts cp ON c.id_combinaison = cp.id_combi
                                                    JOIN produits p ON cp.id_produit = p.id_produit
-                                          ORDER BY c.id_combinaison, cp.id_partie
-                                          LIMIT $1 OFFSET $2`, [limit, offset]);
+                                          ORDER BY c.id_combinaison, cp.id_partie`);
         }
         else {
             totalResult = await db.query(`SELECT *
@@ -543,29 +562,30 @@ server.get('/produit/:num', async (req, res) => {
     }
 });
 
-/*
 server.get('/combinaison/:num', async (req, res) => {
     try {
-        const request = `SELECT * FROM produits WHERE id_produit = $1`;
-        const result = await db.query(request, [req.params.num]);
+        const combiId = req.params.num;
 
-        const accessoiresReq = `SELECT * FROM accessoires`;
-        const result2 = await db.query(accessoiresReq);
-
-        const disposReq = `SELECT * FROM dispo_tailles WHERE id_produit = $1`;
-        const result3 = await db.query(disposReq,[req.params.num]);
-
-        const accLieReq = `SELECT * FROM produits_accessoires WHERE id_produit = $1`;
-        const result4 = await db.query(accLieReq,[req.params.num]);
-
-        res.render('produit.ejs', {idprod: req.params.num,
-            elements: result.rows, accessoires: result2.rows, tailles:result3.rows,accLie:result4.rows,prixTotal: getPrixTotalCookie(req)});
+        const result = await getCombinaison(combiId);
+        const accessoires = await getAccessoires();
+        const combinedCombinaison = combineCombinaisons(result);
+        console.log(combinedCombinaison);
+        for (const produit of combinedCombinaison[0].products) {
+            produit.tailles = await getTaillesProduit(produit.id_produit);
+            const accLie = await getAccessoireLie(produit.id_produit);
+            let acc = [];
+            if(accLie.length>0){
+                acc = await getSpecificAccessoires(accLie[0].id_accessoire);
+            }
+            console.log(acc);
+            produit.accessoire = acc;
+        }
+        res.render('combinaisons_produits.ejs', {combinedCombinaison: combinedCombinaison[0],prixTotal: getPrixTotalCookie(req)});
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal server error');
     }
 });
- */
 
 server.post('/delete-order', async (req, res) => {
     const id_commande = req.body.id_commande;

@@ -27,6 +27,10 @@ body{
     }
 }
 
+.product-image {
+    max-width: 450px;
+}
+
 .row-centered{
     justify-content: center;
 }
