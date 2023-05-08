@@ -51,7 +51,7 @@
             </div>
         </nav>
         <div class="container-fluid px-0">
-            <nav class="navbar navbar-expand-md navbar-light navcolor" id="categ">
+            <nav class="navbar navbar-expand-xl navbar-light navcolor" id="categ">
                 <button class="navbar-toggler bg-light" type="button" data-toggle="collapse" data-target="#navArticles"
                         aria-controls="navArticles" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -87,6 +87,7 @@
 
                 <!-- Colonne des infos produits -->
                 <div class="col-md-6">
+                    <form method="post" action="/" id="add-to-panier-combinaison-form">
                     <% let disableButton = false; %>
                     <h3><%= combinedCombinaison.type %></h3>
                     <% combinedCombinaison.products.forEach((produit, index) => { %>
@@ -114,13 +115,14 @@
                             <% } %>
                         </div>
                     <% }); %>
-                    <h6 class="card-subtitle mb-2 text-muted" id="prix_produit"><%= combinedCombinaison.prix %> €</h6>
+                        <h6 class="card-subtitle mb-2 text-muted" id="prix_produit"><%= combinedCombinaison.prix %> €</h6>
                     <% if (disableButton){ %>
                         <button type="button" class="btn btn-primary" disabled>Rupture de stock</button>
                     <% }
                     else{ %>
-                        <button type="button" class="btn btn-primary">Ajouter au panier</button>
+                        <button type="submit" class="btn btn-primary" id="add-to-panier-btn">Ajouter au panier</button>
                     <% } %>
+                    </form>
                 </div>
             </div>
         </div>

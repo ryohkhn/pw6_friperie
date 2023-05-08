@@ -44,6 +44,24 @@ $(document).ready(function () {
         });
     });
 
+    $('#add-to-panier-combinaison-form').on('submit', function (event) {
+        // éviter la redirection par défaut du formulaire
+        event.preventDefault();
+        console.log($(this).serialize());
+
+        $.ajax({
+            url: '/ajoutePanierCombiAjax',
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function (response) {
+                console.log(response);
+            },
+            error: function (xhr, status, error) {
+                console.error('Erreur ajout produit au panier:', error);
+            }
+        });
+    });
+
     $('#add-to-panier-btn').on('click', function() {
         const prixProduitElem = document.getElementById('prix_produit');
         const prixProduit = parseFloat(prixProduitElem.textContent);

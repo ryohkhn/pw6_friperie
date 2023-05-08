@@ -460,6 +460,35 @@ server.post('/ajoutePanierAjax', function(req, res) {
     res.json({ price: productPrice });
 });
 
+server.post('/ajoutePanierCombiAjax', function(req, res) {
+    console.log(req.body);
+    /*
+    const id = req.body.id_produit;
+    const valTaille = req.body.taille;
+    const accessoireId = req.body.accessoire;
+
+    // on récupère le panier courant
+    const currentPanier= req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
+
+    const produit = {
+        produitId: id,
+        size: valTaille,
+        quantity: 1,
+        accessoireId: accessoireId,
+    };
+
+    // on ajoute le nouveau produit au cookie
+    const updatedPanier = updatePanier(currentPanier, produit);
+
+    // on remplace l'ancien cookie par le nouveau
+    res.cookie('panier', JSON.stringify(updatedPanier), {maxAge: 86400000 });
+
+    // Return the product price instead of redirecting
+    const productPrice = 0;
+    res.json({ price: productPrice });
+     */
+});
+
 server.post('/delete-basket', function(req, res) {
     const id_produit = req.body.id_produit;
     const valTaille = req.body.size;
@@ -567,9 +596,7 @@ server.get('/combinaison/:num', async (req, res) => {
         const combiId = req.params.num;
 
         const result = await getCombinaison(combiId);
-        const accessoires = await getAccessoires();
         const combinedCombinaison = combineCombinaisons(result);
-        console.log(combinedCombinaison);
         for (const produit of combinedCombinaison[0].products) {
             produit.tailles = await getTaillesProduit(produit.id_produit);
             const accLie = await getAccessoireLie(produit.id_produit);
@@ -577,7 +604,6 @@ server.get('/combinaison/:num', async (req, res) => {
             if(accLie.length>0){
                 acc = await getSpecificAccessoires(accLie[0].id_accessoire);
             }
-            console.log(acc);
             produit.accessoire = acc;
         }
         res.render('combinaisons_produits.ejs', {combinedCombinaison: combinedCombinaison[0],prixTotal: getPrixTotalCookie(req)});

@@ -51,7 +51,7 @@
             </div>
         </nav>
         <div class="container-fluid px-0">
-            <nav class="navbar navbar-expand-md navbar-light navcolor" id="categ">
+            <nav class="navbar navbar-expand-xl navbar-light navcolor" id="categ">
                 <button class="navbar-toggler bg-light" type="button" data-toggle="collapse" data-target="#navArticles"
                         aria-controls="navArticles" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -95,28 +95,34 @@
                                 }
                                 if(!etat.enRupture){%>
                         </select>
-                            <select name="accessoire">
-                            <%if(accLie.length===0){%>
+                        <select name="accessoire">
+                            <% if(accLie.length === 0){ %>
                                 <option value="-1">Pas d'accessoire</option>
                             <%
                             }
-                            for(let i = 0; i < accessoires.length ; i++){ 
-                                if(accLie.length>0){
-                                    if(accLie[0].id_accessoire===accessoires[i].id_accessoire){%>
-                                        <option value="<%= accessoires[i].id_accessoire %>" selected><%=accessoires[i].nom_accessoire %></option>
-                                  <%  }
-                                }else{
-                                    if(elements[0].type_produit===accessoires[i].type_produit){%>
-                                        <option value="<%= accessoires[i].id_accessoire %>"><%=accessoires[i].nom_accessoire %></option>
-                                <%  }
+                            for(let i = 0; i < accessoires.length ; i++){
+                                if(accLie.length > 0){
+                                if(accLie[0].id_accessoire === accessoires[i].id_accessoire){ %>
+                                    <option value="<%= accessoires[i].id_accessoire %>"
+                                            selected><%= accessoires[i].nom_accessoire %>
+                                    </option>
+                                <% }
+                            }else{
+                                if(elements[0].type_produit === accessoires[i].type_produit){ %>
+                                    <option value="<%= accessoires[i].id_accessoire %>">
+                                        <%= accessoires[i].nom_accessoire %>
+                                    </option>
+                                <% }
                                 }
                             } %>
                         </select>
                         <button type="submit" id="add-to-panier-btn" class="btn btn-primary">Ajouter au panier</button>
-                            <%
-                            }else{%>
-                            <button type="submit" id="add-to-panier-btn" class="btn btn-primary disabled">En rupture de stock</button>
-                        <% }%>                        
+                        <% }
+                        else{ %>
+                            <button type="submit" class="btn btn-primary disabled">
+                                En rupture de stock
+                            </button>
+                        <% } %>
                     </form>
                 </div>
             </div>
