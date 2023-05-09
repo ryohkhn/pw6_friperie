@@ -75,7 +75,7 @@
         </div>
         <div class="container-fluid main-frame">
             <div class="container">
-                <form method="post" action="http://localhost:8080/verify_register">
+                <form method="post" action="http://localhost:8080/verify_payment">
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="inputPrenom">Prénom</label>
@@ -100,7 +100,7 @@
                     <div class="form-row">
                         <div class="form-group col-md-5">
                             <label for="inputHeure">Heure de livraison</label>
-                            <select name="inputHeure">
+                            <select class="form-control" name="inputHeure">
                                 <% for (var i = 9; i <= 19; i++) { %>
                                     <% for (var j = 0; j < 60; j += 30) { %>
                                         <% var heure = i + "h" + (j === 0 ? "00" : "30"); %>
@@ -155,11 +155,11 @@
                     <div class="form-row">
                     <div class="form-group col-md-8">
                         <label for="inputVille">Ville</label>
-                        <input type="text" class="form-control" id="inputVille" name="inputVille" required="required">
+                        <input type="text" class="form-control" id="inputVille" name="inputVille" placeholder="Paris" required="required">
                     </div>
                     <div class="form-group col-md-4">
                         <label for="inputCode">Code Postal</label>
-                        <input type="text" class="form-control" id="inputCode" name="inputCode" required="required">
+                        <input type="text" class="form-control" id="inputCode" name="inputCode" placeholder="75001" required="required">
                     </div>
                     </div>
                     <% if (erreurs.ville) { %>
@@ -174,7 +174,6 @@
                     <% } %>
                     <button type="submit" class="btn btn-primary">Valider</button>
                 </form>
-                
             </div>
         </div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

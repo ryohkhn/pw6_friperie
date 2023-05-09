@@ -128,15 +128,14 @@ router.post('/verify_register', (req, res) => {
 router.post('/verify_payment', (req, res) => {
     const prenom = (req.body.inputPrenom);
     const nom = (req.body.inputNom);
-    const email = (req.body.inputEmail);
     const heure = (req.body.inputHeure);
     const num = (req.body.inputNum);
+    const email = (req.body.inputEmail);
     const adresse = (req.body.inputAdresse);
     const adresse2 = (req.body.inputAdresse2);
     const ville = (req.body.inputVille);
     const code = (req.body.inputCode);
 
-    const alphaNumericRegex = /^[a-zA-Z0-9]+$/;
     const alphaRegex = /^[a-zA-Z]+$/;
     const emailRegex = /\S+@\S+\.\S+/;
     const phoneNumberRegex = /^[0-9]{10}$/;
@@ -174,6 +173,10 @@ router.post('/verify_payment', (req, res) => {
     }
 
     let emailReq = `SELECT * FROM clients WHERE email = '${email}'`;
+    if(req.session && req.session.userInfos){
+        console.log(req.session);
+        emailReq += ` AND id_client <> '${req.session.userInfos.id_client}'`
+    }
         db.query(emailReq, (err, result) => {
             if (err) {
                 console.log(err);
@@ -183,7 +186,7 @@ router.post('/verify_payment', (req, res) => {
             }
             if(Object.keys(errors).length === 0){
 
-                const reqInsert = `INSERT INTO commmandes (nom, prenom, heureLivraison, tel, email, adresse, adresse2, ville, code)
+                const reqInsert = `INSERT INTO commandes (nom, prenom, heureLivraison, tel, email, adresse, adresse2, ville, code)
                 VALUES ('${nom}', '${prenom}', '${heure}', '${num}','${email}', '${adresse}', '${adresse2}', '${ville}', '${code}');`
 
                 db.query(reqInsert,(err, result3) => {
@@ -191,7 +194,10 @@ router.post('/verify_payment', (req, res) => {
                         console.log(err);
                         res.render('error.ejs',{errorCode: err});
                     }else{
-                        res.render('confirmation.ejs', {mail:email});
+                       // res.render('confirmation.ejs', {mail:email});
+                       res.clearCookie('panier');
+                       res.clearCookie('prixTotal');
+                       res.redirect('/');
                     }
                 });
 
@@ -223,10 +229,20 @@ router.post('/verify_login', async (req, res) => {
 
             if (hashed_mdp===hashed_db_mdp) {
                 if(login_type==='clients'){
+                    const userinfos= {
+                        id_client: result.rows[0].id_client,
+                        nom: result.rows[0].nom,
+                        prenom: result.rows[0].prenom,
+                        tel: result.rows[0].tel,
+                        email: result.rows[0].email,
+                        adresse: result.rows[0].adresse,
+                        adresse2: result.rows[0].adresse2,
+                        ville: result.rows[0].ville,
+                        code: result.rows[0].code
+                    };
                     req.session.user = {
                         loginType: login_type,
-                        userId: result.rows[0].id,
-                        email: result.rows[0].email
+                        userInfos: userinfos
                     };
                 }else{
                     req.session.user = {

@@ -565,12 +565,19 @@ server.get('/panier', async (req, res) => {
 
                 tab.push(element);
             }
-
-            res.render('panier.ejs', {elements: tab,prixTotal: getPrixTotalCookie(req)});
+            res.render('panier.ejs', {elements: tab, prixTotal: getPrixTotalCookie(req)});
         }
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal server error');
+    }
+});
+
+server.get('/paiement', async (req, res) => {
+    if(req.session && req.session.userInfos){
+        res.render("paiement.ejs",{activeSession:true, userinfos:req.session.userInfos, prixTotal: getPrixTotalCookie(req), erreurs:{}});
+    }else{
+        res.render("paiement.ejs",{activeSession:false, prixTotal: getPrixTotalCookie(req), erreurs:{}});
     }
 });
 
