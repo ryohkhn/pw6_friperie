@@ -125,6 +125,83 @@ router.post('/verify_register', (req, res) => {
 }
 );
 
+router.post('/verify_payment', (req, res) => {
+    const prenom = (req.body.inputPrenom);
+    const nom = (req.body.inputNom);
+    const email = (req.body.inputEmail);
+    const heure = (req.body.inputHeure);
+    const num = (req.body.inputNum);
+    const adresse = (req.body.inputAdresse);
+    const adresse2 = (req.body.inputAdresse2);
+    const ville = (req.body.inputVille);
+    const code = (req.body.inputCode);
+
+    const alphaNumericRegex = /^[a-zA-Z0-9]+$/;
+    const alphaRegex = /^[a-zA-Z]+$/;
+    const emailRegex = /\S+@\S+\.\S+/;
+    const phoneNumberRegex = /^[0-9]{10}$/;
+    const adresseRegex = /^[a-zA-Z0-9\s,'-]+$/;
+    const codeRegex = /^\d{5}$/;
+
+
+    let errors = {};
+
+    if (!prenom.match(alphaRegex)) {
+        errors.prenom ="Le prénom doit être composé de lettres uniquement.";
+    }
+    if (!nom.match(alphaRegex)) {
+        errors.nom = "Le nom doit être composé de lettres uniquement.";
+    }
+    if (!email.match(emailRegex)) {
+        errors.email= "L'adresse e-mail est invalide.";
+    }
+    if (!num.match(phoneNumberRegex)){
+        errors.num= "Le numéro de téléphone doit être une combinaison de 8 chiffres.";
+    }
+    if (!adresse.match(adresseRegex)) {
+        errors.adresse = "L'adresse est invalide.";
+    }
+    if(adresse2){
+        if (!adresse2.match(adresseRegex)) {
+            errors.adresse2="Les informations complémentaires contiennent des caractères invalides.";
+        }
+    }
+    if (!ville.match(adresseRegex)) {
+        errors.ville= "La ville est invalide.";
+    }
+    if (!code.match(codeRegex)) {
+        errors.code = "Le code postal doit être composé de 5 chiffres.";
+    }
+
+    let emailReq = `SELECT * FROM clients WHERE email = '${email}'`;
+        db.query(emailReq, (err, result) => {
+            if (err) {
+                console.log(err);
+                res.render('error.ejs',{errorCode: err});
+            }else if (result.rows.length > 0) {
+                errors.emailExists = "L'adresse mail entrée appartient à un utilisateur.";
+            }
+            if(Object.keys(errors).length === 0){
+
+                const reqInsert = `INSERT INTO commmandes (nom, prenom, heureLivraison, tel, email, adresse, adresse2, ville, code)
+                VALUES ('${nom}', '${prenom}', '${heure}', '${num}','${email}', '${adresse}', '${adresse2}', '${ville}', '${code}');`
+
+                db.query(reqInsert,(err, result3) => {
+                    if (err) {
+                        console.log(err);
+                        res.render('error.ejs',{errorCode: err});
+                    }else{
+                        res.render('confirmation.ejs', {mail:email});
+                    }
+                });
+
+            }else{
+                res.render('register_page.ejs',{erreurs:errors});
+            }
+        });
+}
+);
+
 // Verify login/password
 router.post('/verify_login', async (req, res) => {
     try {

@@ -84,13 +84,13 @@ CREATE TABLE commandes(
     id_commande SERIAL,
     nom VARCHAR(50) NOT NULL,
     prenom VARCHAR(50) NOT NULL,
+    heureLivraison VARCHAR(10) NOT NULL,
     tel VARCHAR(12) NOT NULL,
     email VARCHAR(255) NOT NULL,
     adresse VARCHAR(255) NOT NULL,
     adresse2 VARCHAR(255) NOT NULL,
     ville VARCHAR(255) NOT NULL,
     code VARCHAR(10) NOT NULL,
-    heureLivraison VARCHAR(10) NOT NULL,
     PRIMARY KEY (id_commande)
 );
 
