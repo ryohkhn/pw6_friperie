@@ -287,6 +287,8 @@ async function handleRendering(req, res, next) {
             elements: items,
             totalPages: totalPages,
             currentPage: currentPage,
+            activeSession: middlewares.isAuthentificated(req),
+            user: middlewares.isAuthentificated(req) ? req.session.user : {},
             prixTotal: getPrixTotalCookie(req),
             lieu: routeName
         };
@@ -595,9 +597,13 @@ server.get('/panier', async (req, res) => {
         const panier = req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
 
         if (panier.length === 0) {
-            res.render('panier.ejs', {elements: [],prixTotal: getPrixTotalCookie(req)});
-        }
-        else {
+            res.render('panier.ejs', {
+                elements: [],
+                prixTotal: getPrixTotalCookie(req),
+                activeSession: middlewares.isAuthentificated(req),
+                user: middlewares.isAuthentificated(req) ? req.session.user : {}
+            });
+        } else {
             const tab = [];
 
             for (const element of panier) {
@@ -620,8 +626,12 @@ server.get('/panier', async (req, res) => {
                     tab.push(combinaisonElement);
                 }
             }
-            
-            res.render('panier.ejs', {elements: tab, prixTotal: getPrixTotalCookie(req)});
+            res.render('panier.ejs', {
+                elements: tab,
+                prixTotal: getPrixTotalCookie(req),
+                activeSession: middlewares.isAuthentificated(req),
+                user: middlewares.isAuthentificated(req) ? req.session.user : {}
+            });
         }
     } catch (err) {
         console.error(err);
@@ -648,7 +658,11 @@ server.get('/produit/:num', async (req, res) => {
         const result4 = await getAccessoireLie(productId);
 
         res.render('produit.ejs', {idprod: productId,
-            elements: result, accessoires: result2, tailles:result3, accLie:result4, prixTotal: getPrixTotalCookie(req)});
+            elements: result, accessoires: result2,
+            tailles:result3, accLie:result4,
+            prixTotal: getPrixTotalCookie(req),
+            activeSession: middlewares.isAuthentificated(req),
+            user: middlewares.isAuthentificated(req) ? req.session.user : {}});
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal server error');
@@ -670,8 +684,12 @@ server.get('/combinaison/:num', async (req, res) => {
             }
             produit.accessoire = acc;
         }
-
-        res.render('combinaisons_produits.ejs', {combinedCombinaison: combinedCombinaison[0],prixTotal: getPrixTotalCookie(req)});
+        res.render('combinaisons_produits.ejs', {
+            combinedCombinaison: combinedCombinaison[0],
+            prixTotal: getPrixTotalCookie(req),
+            activeSession: middlewares.isAuthentificated(req),
+            user: middlewares.isAuthentificated(req) ? req.session.user : {}
+        });
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal server error');

@@ -35,11 +35,14 @@
                                     <i class="fa-solid fa-user fa-xl logos m-md-2 m-1"></i>
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenu">
-                                    <a class="dropdown-item" href="/login">Connexion</a>
-                                    <a class="dropdown-item" href="/register">S'enregistrer</a>
-                                    <a class="dropdown-item" href="/options">Gérer</a>
-                                    <a class="dropdown-item" href="/commandes">Commandes</a>
-                                    <a class="dropdown-item" href="/disconnect">Déconnexion</a>
+                                   <%if(activeSession){%>
+                                        <a class="dropdown-item" href="/options">Gérer</a>
+                                        <a class="dropdown-item" href="/commandes">Commandes</a>
+                                        <a class="dropdown-item" href="/disconnect">Déconnexion</a>
+                                    <%}else{%>
+                                        <a class="dropdown-item" href="/login">Connexion</a>
+                                        <a class="dropdown-item" href="/register">S'enregistrer</a>
+                                    <%}%>
                                 </div>
                             </div>
                             <a href="/panier">
@@ -80,7 +83,7 @@
                         <div class="form-group col-md-6">
                             <label for="inputPrenom">Prénom</label>
                             <input type="text" class="form-control" id="inputPrenom" name="inputPrenom" placeholder="Prénom" 
-                            <% if (activeSession) { %>
+                            <% if (activeSession && user.loginType === 'clients') { %>
                                 value="<%= user.prenom %>"
                             <% }%>
                             required="required">
@@ -88,7 +91,7 @@
                         <div class="form-group col-md-6">
                             <label for="inputNom">Nom</label>
                             <input type="text" class="form-control" id="inputNom" name="inputNom" placeholder="Nom" 
-                            <% if (activeSession) { %>
+                            <% if (activeSession && user.loginType === 'clients') { %>
                                 value="<%= user.nom %>"
                             <% }%>
                             required="required">
@@ -120,7 +123,7 @@
                         <div class="form-group col-md-7">
                             <label for="inputNum">Numéro de téléphone</label>
                             <input type="text" class="form-control" id="inputNum" name="inputNum" placeholder="Numéro de téléphone"
-                            <% if (activeSession) { %>
+                            <% if (activeSession && user.loginType === 'clients') { %>
                                 value="<%= user.tel %>"
                             <% }%>
                             required="required">
@@ -135,7 +138,7 @@
                     <div class="form-group">
                         <label for="inputEmail">Email</label>
                         <input type="email" class="form-control" id="inputEmail" name="inputEmail" placeholder="Email"
-                        <% if (activeSession) { %>
+                        <% if (activeSession && user.loginType === 'clients') { %>
                             value="<%= user.email %>"
                         <% }%>
                         required="required">
@@ -153,7 +156,7 @@
                     <div class="form-group">
                         <label for="inputAdresse">Adresse</label>
                         <input type="text" class="form-control" id="inputAdresse" name="inputAdresse" placeholder="Adresse"
-                        <% if (activeSession) { %>
+                        <% if (activeSession && user.loginType === 'clients') { %>
                             value="<%= user.adresse %>"
                         <% }%>
                         required="required">
@@ -166,7 +169,7 @@
                     <div class="form-group">
                     <label for="inputAdresse2">Adresse 2</label>
                     <input type="text" class="form-control" id="inputAdresse2" name="inputAdresse2" placeholder="Informations complémentaires"
-                    <% if (activeSession) { %>
+                    <% if (activeSession && user.loginType === 'clients') { %>
                         value="<%= user.adresse2 %>"
                     <% }%>
                     >
@@ -181,7 +184,7 @@
                         <label for="inputVille">Ville</label>
                         <input type="text" class="form-control" id="inputVille" name="inputVille" placeholder="Ville"
                         
-                        <% if (activeSession) { %>
+                        <% if (activeSession && user.loginType === 'clients') { %>
                             value="<%= user.ville %>"
                         <% }%>
                         required="required">
@@ -189,7 +192,7 @@
                     <div class="form-group col-md-4">
                         <label for="inputCode">Code Postal</label>
                         <input type="text" class="form-control" id="inputCode" name="inputCode" placeholder="code"
-                        <% if (activeSession) { %>
+                        <% if (activeSession && user.loginType === 'clients') { %>
                             value="<%= user.code %>"
                         <% }%>
                         required="required">

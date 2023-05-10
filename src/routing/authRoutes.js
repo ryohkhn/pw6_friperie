@@ -4,15 +4,44 @@ const crypto = require("crypto");
 const router = express.Router();
 
 router.get('/login', (req, res) => {
-    res.render('login_page.ejs', {failed: false, login_type_val: "clients", prixTotal: getPrixTotalCookie(req)});
+    if(isAuthentificated(req)){
+        res.redirect('/');
+    }
+    res.render('login_page.ejs', {
+        failed: false,
+        activeSession: isAuthentificated(req),
+        login_type_val: "clients",
+        prixTotal: getPrixTotalCookie(req)});
 });
 
 router.get('/register', (req, res) => {
-    res.render('register_page.ejs', {erreurs:{}, prixTotal: getPrixTotalCookie(req)});
+    if(isAuthentificated(req)){
+        res.redirect('/');
+    }
+    res.render('register_page.ejs', {erreurs:{},activeSession: isAuthentificated(req), prixTotal: getPrixTotalCookie(req)});
 });
 
 router.get('/gerant', (req, res) => {
-    res.render('login_page.ejs', {failed: false, login_type_val: "gerants", prixTotal: getPrixTotalCookie(req)});
+    if(!isAuthentificated(req) || req.session.user.loginType!=='gerants'){
+        res.redirect('/');
+    }
+    res.render('login_page.ejs', {
+        failed: false,
+        login_type_val: "gerants",
+        activeSession: isAuthentificated(req),
+        prixTotal: getPrixTotalCookie(req)});
+});
+
+router.get('/disconnect',(req, res) => {
+    if(isAuthentificated(req)){
+        req.session.destroy(function(err) {
+            if (err) {
+              console.log(err);
+            }
+        });
+    }
+    res.redirect('/');
+
 });
 
 function fullLetter(text){
@@ -27,7 +56,7 @@ function fullLetter(text){
 }
 
 function getPrixTotalCookie(req){
-    return req.cookies ? (req.cookies.prixTotal ? parseFloat(req.cookies.prixTotal) : 0):0;
+    return (req.cookies ? (req.cookies.prixTotal ? parseFloat(req.cookies.prixTotal) : 0) : 0);
 }
 
 function isAuthentificated(req){
@@ -98,7 +127,7 @@ router.post('/verify_register', (req, res) => {
     db.query(request,(err,result)=>{
         if (err) {
             console.log(err);
-            res.render('error.ejs',{errorCode: err,prixTotal: getPrixTotalCookie(req)});
+            res.render('error.ejs',{errorCode: err});
         }
         else if (result.rows.length > 0) {
             errors.loginExists = "Le pseudo entré n'est pas disponible.";
@@ -119,14 +148,22 @@ router.post('/verify_register', (req, res) => {
                 db.query(reqInsert,(err, result3) => {
                     if (err) {
                         console.log(err);
-                        res.render('error.ejs',{errorCode: err, prixTotal: getPrixTotalCookie(req)});
+                        res.render('error.ejs',{errorCode: err});
                     }else{
-                        res.render('login_page.ejs', {failed: false, login_type_val: "clients", prixTotal: getPrixTotalCookie(req)});
+                        res.render('login_page.ejs', {
+                            failed: false,
+                            login_type_val:'clients',
+                            prixTotal: getPrixTotalCookie(req),
+                            activeSession: isAuthentificated(req),                        });
                     }
                 });
 
             }else{
-                res.render('register_page.ejs',{erreurs:errors});
+                res.render('register_page.ejs',{
+                    erreurs:errors,
+                    activeSession: isAuthentificated(req),
+                    user: isAuthentificated(req) ? req.session.user : {}
+                });
             }
         });
     });
@@ -200,7 +237,7 @@ router.post('/verify_payment', (req, res) => {
                 db.query(reqInsert,(err, result3) => {
                     if (err) {
                         console.log(err);
-                        res.render('error.ejs',{errorCode: err, prixTotal: getPrixTotalCookie(req)});
+                        res.render('error.ejs',{errorCode: err});
                     }else{
                        // res.render('confirmation.ejs', {mail:email});
                        res.clearCookie('panier');
@@ -267,11 +304,21 @@ router.post('/verify_login', async (req, res) => {
                 res.redirect('/');
             }
             else {
-                res.render('login_page.ejs', {failed: true, login_type_val: login_type});
+                res.render('login_page.ejs', {
+                    failed: true,
+                    login_type_val: login_type,
+                    prixTotal: getPrixTotalCookie(req),
+                    activeSession: isAuthentificated(req),
+                });
             }
         }
         else {
-            res.render('login_page.ejs', {failed: true, login_type_val: login_type});
+            res.render('login_page.ejs', {
+                failed: true,
+                login_type_val: login_type,
+                prixTotal: getPrixTotalCookie(req),
+                activeSession: isAuthentificated(req),
+            });
         }
     } catch (err) {
         console.error(err);
