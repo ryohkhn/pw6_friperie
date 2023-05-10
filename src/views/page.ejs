@@ -2,7 +2,15 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Le grenier de mamie</title>
+    <title>
+        <% if(lieu === 'search'){
+            %>Recherche<%
+        }
+        else{
+            let tmp = lieu.charAt(0).toUpperCase() + lieu.slice(1); %>
+            <%= tmp %>
+        <%}%>
+        - Le grenier de mamie</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <link href="/stylesheets/style.css" rel="stylesheet" type="text/css">

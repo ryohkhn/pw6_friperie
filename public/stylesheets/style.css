@@ -59,3 +59,20 @@ body{
 .main-frame {
     margin-top: 2%;
 }
+
+.img-panier {
+    max-height: 200px;
+}
+
+@media (max-width: 768px) {
+    .img-panier {
+        max-height: 400px;
+    }
+}
+
+@media (max-width: 768px) {
+    .panier-name {
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+}

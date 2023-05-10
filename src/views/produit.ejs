@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Le grenier de mamie</title>
+    <title><%= elements[0].nom_produit %> - Le grenier de mamie</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <link href="/stylesheets/style.css" rel="stylesheet" type="text/css">
@@ -77,60 +77,63 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <img src="<%= elements[0].image %>" class="card-img-top img-fluid product-image w-100" alt="product's image">
+                    <img src="<%= elements[0].image %>" class="card-img-top img-fluid product-image w-100"
+                         alt="product's image">
                 </div>
                 <div class="col-md-6">
                     <form method="post" action="/" id="add-to-panier-form">
-                    <h4><%= elements[0].nom_produit %></h4>
-                    <h5><%= elements[0].marque %></h5>
-                    <div class="mb-5">
-                        <div class="form-group">
-                            <input type="hidden" name="id_produit" value="<%= elements[0].id_produit %>">
-                                <% let etat = { enRupture: true };
-                                    for(let i = 0; i < tailles.length ; i++){
-                                        if(tailles[i].quantite>0){
-                                            if(etat.enRupture){%>
-                                                <label for="taille">Taille</label>
-                                                <select class="form-control" name="taille">
-                                            <%}
-                                            etat.enRupture=false;%>
-                                            <option value="<%=tailles[i].taille%>"><%=tailles[i].taille%></option>
-                                    <%  }
+                        <h4><%= elements[0].nom_produit %></h4>
+                        <h5><%= elements[0].marque %></h5>
+                        <div class="mb-5">
+                            <div class="form-group">
+                                <input type="hidden" name="id_produit" value="<%= elements[0].id_produit %>">
+                                <% let etat = {enRupture: true};
+                                for(let i = 0; i < tailles.length ; i++){
+                                if(tailles[i].quantite > 0){
+                                if(etat.enRupture){ %>
+                                    <label for="taille">Taille</label>
+                                <select class="form-control" name="taille">
+                                    <% }
+                                        etat.enRupture = false; %>
+                                    <option value="<%= tailles[i].taille %>"><%= tailles[i].taille %></option>
+                                    <% }
                                     }
-                                    if(!etat.enRupture){%>
-                            </select>
-                            <label for="accessoire">Accessoire</label>
+                                    if(!etat.enRupture){ %>
+                                </select>
+                                <label for="accessoire">Accessoire</label>
 
-                            <select class="form-control" name="accessoire">
-                                <% if(accLie.length === 0){ %>
-                                    <option value="-1">Pas d'accessoire</option>
-                                <%
-                                }
-                                for(let i = 0; i < accessoires.length ; i++){
+                                <select class="form-control" name="accessoire">
+                                    <% if(accLie.length === 0){ %>
+                                        <option value="">Pas d'accessoire</option>
+                                    <%
+                                    }
+                                    for(let i = 0; i < accessoires.length ; i++){
                                     if(accLie.length > 0){
                                     if(accLie[0].id_accessoire === accessoires[i].id_accessoire){ %>
                                         <option value="<%= accessoires[i].id_accessoire %>"
                                                 selected><%= accessoires[i].nom_accessoire %>
                                         </option>
                                     <% }
-                                }else{
+                                    }else{
                                     if(elements[0].type_produit === accessoires[i].type_produit){ %>
                                         <option value="<%= accessoires[i].id_accessoire %>">
                                             <%= accessoires[i].nom_accessoire %>
                                         </option>
                                     <% }
                                     }
-                                } %>
-                            </select>
-                    </div>
-                    <h6 class="mb-2 text-muted" id="prix_produit"><%= elements[0].prix %> €</h6>
-                        <button type="submit" id="add-to-panier-btn" class="btn btn-primary">Ajouter au panier</button>
-                        <% }
-                        else{ %>
-                            <button type="submit" class="btn btn-primary disabled">
-                                En rupture de stock
+                                    } %>
+                                </select>
+                            </div>
+                            <h6 class="mb-2 text-muted" id="prix_produit"><%= elements[0].prix %> €</h6>
+                            <button type="submit" id="add-to-panier-btn" class="btn btn-primary">Ajouter au panier
                             </button>
-                        <% } %>
+                            <% }
+                            else{ %>
+                                <button type="submit" class="btn btn-primary disabled">
+                                    En rupture de stock
+                                </button>
+                            <% } %>
+                        </div>
                     </form>
                 </div>
             </div>

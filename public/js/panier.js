@@ -47,17 +47,25 @@ $(document).ready(function () {
     $('#add-to-panier-combinaison-form').on('submit', function (event) {
         // éviter la redirection par défaut du formulaire
         event.preventDefault();
-        console.log($(this).serialize());
+
+        const combinaisonId = $('input[name="id_combi"]').val();
+        const produitsData = [];
+        $(this).find('.form-group').each(function (index, groupe) {
+            const produitId = $(groupe).find('.id_produit').val();
+            const taille = $(groupe).find('.taille-select').val();
+            const accessoireId = $(groupe).find('.accessoire_lie').val() || null;
+            produitsData.push({produitId, taille, accessoireId});
+        });
 
         $.ajax({
             url: '/ajoutePanierCombiAjax',
             type: 'POST',
-            data: $(this).serialize(),
+            data: {combinaisonId: combinaisonId, produits: produitsData},
             success: function (response) {
                 console.log(response);
             },
             error: function (xhr, status, error) {
-                console.error('Erreur ajout produit au panier:', error);
+                console.error('Erreur ajout combinaison au panier:', error);
             }
         });
     });

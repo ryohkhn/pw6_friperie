@@ -45,7 +45,15 @@ async function getProduit(productId) {
     return result.rows;
 }
 
-async function getCombinaison(combiId) {
+async function getCombinaison(combiId){
+     const request = `SELECT *
+                     FROM combinaisons 
+                     WHERE id_combinaison = $1`;
+    const result = await db.query(request, [combiId]);
+    return result.rows;
+}
+
+async function getCombinaisonAll(combiId) {
     const request = `SELECT c.id_combinaison,
                             c.type,
                             c.prix,
@@ -280,6 +288,7 @@ async function handleRendering(req, res, next) {
             totalPages: totalPages,
             currentPage: currentPage,
             prixTotal: getPrixTotalCookie(req),
+            lieu: routeName
         };
 
         // on change le routeName pour le bon rendering dans le routage correspondant
@@ -401,20 +410,60 @@ server.get('/search',async (req, res) => {
  */
 
 function getCookiePanierIndex(panier, produit) {
-    return panier.findIndex(produitPanier => produitPanier.produitId === produit.produitId
+    // on vérifie qu'il s'agit bien du même produit dans le panier
+    return panier.findIndex(produitPanier => produitPanier.type === 'produit' && produitPanier.produitId === produit.produitId
         && produitPanier.size === produit.size && produitPanier.accessoireId === produit.accessoireId);
 }
 
+function getCookiePanierCombinaisonIndex(panier, newCombinaison) {
+    // on retourne l'index de l'élément qui correspondant à la règle
+    return panier.findIndex(combinaison => {
+        // on vérifie qu'il s'agit bien du même id de combinaison
+        if ( combinaison.type !== 'combinaison' || combinaison.combinaisonId !== newCombinaison.combinaisonId) {
+            return false;
+        }
+
+        // on vérifie que les tailles sont les même pour les produits de la même combinaison
+        for (let i = 0; i < combinaison.produits.length; i++) {
+            const produitCombi = combinaison.produits[i];
+            const produitCorrespondant = newCombinaison.produits.find(p => p.produitId === produitCombi.produitId);
+
+            if (!produitCorrespondant || produitCombi.taille !== produitCorrespondant.taille) {
+                return false;
+            }
+        }
+
+        return true;
+    });
+}
+
 function updatePanier(panier, newProduit) {
+    newProduit.type = 'produit';
     const index = getCookiePanierIndex(panier, newProduit);
 
     if (index !== -1) {
-        // augment la quantité si existant
-        panier[index].quantity += newProduit.quantity;
+        // augmente la quantité si existant
+        panier[index].quantity += 1;
     }
     else {
-        // Add the new product to the basket data
+        // ajoute le produit au cookie du panier
         panier.push(newProduit);
+    }
+
+    return panier;
+}
+
+function updatePanierCombinaisons(panier, newCombinaison) {
+    newCombinaison.type = 'combinaison';
+    const index = getCookiePanierCombinaisonIndex(panier, newCombinaison);
+
+    if (index !== -1) {
+        // augmente la quantité si existant
+        panier[index].quantity += 1;
+    }
+    else {
+        // ajoute la combinaison au cookie du panier
+        panier.push(newCombinaison);
     }
 
     return panier;
@@ -444,7 +493,7 @@ server.post('/ajoutePanierAjax', function(req, res) {
 
     const produit = {
         produitId: id,
-        size: valTaille,
+        taille: valTaille,
         quantity: 1,
         accessoireId: accessoireId,
     };
@@ -455,38 +504,27 @@ server.post('/ajoutePanierAjax', function(req, res) {
     // on remplace l'ancien cookie par le nouveau
     res.cookie('panier', JSON.stringify(updatedPanier), {maxAge: 86400000 });
 
-    // Return the product price instead of redirecting
-    const productPrice = 0;
-    res.json({ price: productPrice });
+    // on retourne success
+    res.sendStatus(200);
 });
 
+
+
 server.post('/ajoutePanierCombiAjax', function(req, res) {
-    console.log(req.body);
-    /*
-    const id = req.body.id_produit;
-    const valTaille = req.body.taille;
-    const accessoireId = req.body.accessoire;
+    const combinaisonData = req.body;
+    combinaisonData.quantity = 1;
 
     // on récupère le panier courant
-    const currentPanier= req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
-
-    const produit = {
-        produitId: id,
-        size: valTaille,
-        quantity: 1,
-        accessoireId: accessoireId,
-    };
+    const currentPanier = req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
 
     // on ajoute le nouveau produit au cookie
-    const updatedPanier = updatePanier(currentPanier, produit);
+    const updatedPanier = updatePanierCombinaisons(currentPanier, combinaisonData);
 
     // on remplace l'ancien cookie par le nouveau
     res.cookie('panier', JSON.stringify(updatedPanier), {maxAge: 86400000 });
 
     // Return the product price instead of redirecting
-    const productPrice = 0;
-    res.json({ price: productPrice });
-     */
+    res.sendStatus(200);
 });
 
 server.post('/delete-basket', function(req, res) {
@@ -532,6 +570,26 @@ server.post('/update-total-Ajax', function (req, res) {
     res.json({newTotal: newPrixTotal});
 });
 
+async function processCookieProduit(produit) {
+    const resultatProduit = await getProduit(produit.produitId);
+
+    let resultatAccessoire;
+    if (produit.accessoireId !== '') {
+        resultatAccessoire = await getSpecificAccessoires(produit.accessoireId);
+    }
+    else {
+        resultatAccessoire = [{ id_accessoire: '' }];
+    }
+
+    // Combine the elements of the first array with those of the second as well as the rest of the elements
+    return {
+        ...resultatProduit[0],
+        ...resultatAccessoire[0],
+        taille: produit.taille,
+        quantity: produit.quantity,
+    };
+}
+
 server.get('/panier', async (req, res) => {
     try {
         const panier = req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
@@ -542,29 +600,27 @@ server.get('/panier', async (req, res) => {
         else {
             const tab = [];
 
-            for (const produit of panier) {
-                // on récupère le produit correspondant
-                const resultatProduit = await getProduit(produit.produitId);
-
-                let resultatAccessoire;
-                if (produit.accessoireId !== "-1") {
-                    resultatAccessoire = await getSpecificAccessoires(produit.accessoireId);
+            for (const element of panier) {
+                if (element.type === 'produit') {
+                    const processedProduit = await processCookieProduit(element);
+                    tab.push(processedProduit);
                 }
-                else {
-                    resultatAccessoire = [{ id_accessoire: -1 }];
+                else if (element.type === 'combinaison') {
+                    const produits = [];
+                    const combi = await getCombinaison(element.combinaisonId);
+                    element.nom = combi[0].type;
+                    element.image = combi[0].image;
+                    element.prix = combi[0].prix;
+
+                    for (const produit of element.produits) {
+                        const processedProduit = await processCookieProduit(produit);
+                        produits.push(processedProduit);
+                    }
+                    const combinaisonElement = { ...element, produits };
+                    tab.push(combinaisonElement);
                 }
-
-                // on combine les éléments du premier tableau avec ceux du dexuième ainsi que le reste des éléments
-                const element = {
-                    ...resultatProduit[0],
-                    ...resultatAccessoire[0],
-                    size: produit.size,
-                    quantity: produit.quantity,
-                };
-                console.log(element);
-
-                tab.push(element);
             }
+            
             res.render('panier.ejs', {elements: tab, prixTotal: getPrixTotalCookie(req)});
         }
     } catch (err) {
@@ -602,7 +658,7 @@ server.get('/combinaison/:num', async (req, res) => {
     try {
         const combiId = req.params.num;
 
-        const result = await getCombinaison(combiId);
+        const result = await getCombinaisonAll(combiId);
         const combinedCombinaison = combineCombinaisons(result);
         for (const produit of combinedCombinaison[0].products) {
             produit.tailles = await getTaillesProduit(produit.id_produit);
@@ -613,6 +669,7 @@ server.get('/combinaison/:num', async (req, res) => {
             }
             produit.accessoire = acc;
         }
+
         res.render('combinaisons_produits.ejs', {combinedCombinaison: combinedCombinaison[0],prixTotal: getPrixTotalCookie(req)});
     } catch (err) {
         console.error(err);

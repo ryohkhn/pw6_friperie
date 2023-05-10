@@ -136,6 +136,8 @@ INSERT INTO dispo_tailles(id_produit, taille, quantite) VALUES
 (33, 'S', 1),
 (33, 'M', 2),
 (5, 'M', 1),
+(30, 'S', 1),
+(30, 'M', 2),
 (5, 'L', 1);
 
 INSERT INTO produits_accessoires (id_produit, id_accessoire) VALUES

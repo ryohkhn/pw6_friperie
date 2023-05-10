@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Le grenier de mamie</title>
+    <title><%= combinedCombinaison.type %> - Le grenier de mamie</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <link href="/stylesheets/style.css" rel="stylesheet" type="text/css">
@@ -88,40 +88,44 @@
                 <!-- Colonne des infos produits -->
                 <div class="col-md-6">
                     <form method="post" action="/" id="add-to-panier-combinaison-form">
-                    <% let disableButton = false; %>
-                    <h3><%= combinedCombinaison.type %></h3>
-                    <% combinedCombinaison.products.forEach((produit, index) => { %>
-                        <div class="mb-5">
-                            <div class="form-group">
-                                <h5><%= produit.nom_produit %></h5>
-                                <label for="size-select-<%= index %>">Taille</label>
-                                <!-- On désactive le bouton d'ajout au panier si une des tailles n'est pas disponible -->
-                                <% if (produit.tailles.length === 0) {
-                                    disableButton = true; %>
-                                <select class="form-control" id="size-select-<%= index %>" disabled>
-                                    <option value="-1">Aucune taille</option>
-                                </select>
-                                <% }
-                                else { %>
-                                    <select class="form-control" id="size-select-<%= index %>">
-                                        <% produit.tailles.forEach((taille) => { %>
-                                            <option value="<%= taille.taille %>"><%= taille.taille %></option>
-                                        <% }); %>
+                        <input type="hidden" name="id_combi" value="<%= combinedCombinaison.id_combinaison %>">
+                        <% let disableButton = false; %>
+                        <h3><%= combinedCombinaison.type %></h3>
+                        <% combinedCombinaison.products.forEach((produit, index) => { %>
+                            <div class="mb-5" >
+                                <div class="form-group">
+                                    <input type="hidden" name="id_produit" class="id_produit" value="<%= produit.id_produit %>">
+                                    <% if(produit.accessoire.length > 0){ %>
+                                        <input type="hidden" name="accessoire_lie" class="accessoire_lie" value="<%= produit.accessoire[0].id_accessoire %>">
+                                    <%}%>
+                                    <h5 ><%= produit.nom_produit %></h5>
+                                    <label for="size-select-<%= index %>">Taille</label>
+                                    <% if (produit.tailles.length === 0) {
+                                        disableButton = true; %>
+                                    <select class="form-control" id="size-select-<%= index %>" disabled>
+                                        <option value="-1">Aucune taille</option>
                                     </select>
+                                    <% }
+                                    else { %>
+                                        <select class="form-control taille-select" id="size-select-<%= index %>">
+                                            <% produit.tailles.forEach((taille) => { %>
+                                                <option value="<%= taille.taille %>"><%= taille.taille %></option>
+                                            <% }); %>
+                                        </select>
+                                    <% } %>
+                                </div>
+                                <% if (produit.accessoire.length > 0) { %>
+                                    <p class="accessoire_lie">Accessoire: <%= produit.accessoire[0].nom_accessoire %></p>
                                 <% } %>
                             </div>
-                            <% if (produit.accessoire.length > 0) { %>
-                                <p>Accessoire: <%= produit.accessoire[0].nom_accessoire %></p>
-                            <% } %>
-                        </div>
-                    <% }); %>
-                        <h6 class="mb-2 text-muted" id="prix_produit"><%= combinedCombinaison.prix %> €</h6>
-                    <% if (disableButton){ %>
-                        <button type="button" class="btn btn-primary" disabled>Rupture de stock</button>
-                    <% }
-                    else{ %>
-                        <button type="submit" class="btn btn-primary" id="add-to-panier-btn">Ajouter au panier</button>
-                    <% } %>
+                        <% }); %>
+                            <h6 class="mb-2 text-muted" id="prix_produit"><%= combinedCombinaison.prix %> €</h6>
+                        <% if (disableButton){ %>
+                            <button type="button" class="btn btn-primary" disabled>Rupture de stock</button>
+                        <% }
+                        else{ %>
+                            <button type="submit" class="btn btn-primary" id="add-to-panier-btn">Ajouter au panier</button>
+                        <% } %>
                     </form>
                 </div>
             </div>

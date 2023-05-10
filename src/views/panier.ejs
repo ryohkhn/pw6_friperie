@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Le grenier de mamie</title>
+    <title>Panier - Le grenier de mamie</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <link href="/stylesheets/style.css" rel="stylesheet" type="text/css">
@@ -74,6 +74,7 @@
         </div>
     </div>
     <div class="container-fluid main-frame">
+        <!--
         <div class="container">
             <table id="table" class="table table-image">
                 <%
@@ -98,6 +99,113 @@
                 } %>
             </table>
             <a href="/paiement" class="w-25 text-center btn btn-primary">Payer</a>
+        </div>
+
+        <div class="container">
+            <table id="table" class="table table-image table-responsive">
+                <% if(elements.length === 0) { %>
+                    <p class="w-25 text-center">Aucun produit dans le panier</p>
+                <% } else {
+                for (let i = 0; i < elements.length; i++) {
+                    const element = elements[i];
+                if (element.type === 'combinaison') { %>
+                    <tr data-basket-id="<%= element.combinaisonId %>" class="text-center">
+                        <td><img src="<%= element.image %>" class="img-fluid img-thumbnail" alt="Combinaison image">
+                        </td>
+                        <td class="align-middle">
+                            <p><strong>Combinaison:</strong></p>
+                            <% element.produits.forEach((produit) => { %>
+                                <p><strong><%= produit.nom_produit %>:</strong> Taille <%= produit.taille %></p>
+                            <% }); %>
+                        </td>
+                        <td class="align-middle"><%= element.quantity %></td>
+                        <td class="align-middle"><%= element.prix %> €</td>
+                        <td class="align-middle">
+                            <button class="btn btn-danger delete-basket-btn">Supprimer</button>
+                        </td>
+                    </tr>
+                <% } else { %>
+                    <tr data-basket-id="<%= element.id_produit %>" data-basket-size="<%= element.size %>"
+                        data-basket-accessoire="<%= element.id_accessoire %>" data-basket-prix="<%= element.prix %>"
+                        class="text-center">
+                        <td><img src="<%= element.image %>" class="img-fluid img-thumbnail" alt="Product image"></td>
+                        <td class="align-middle">
+                            <p><strong><%= element.nom_produit %>:</strong> Taille <%= element.taille %></p>
+                        </td>
+                        <td class="align-middle"><%= element.quantity %></td>
+                        <td class="align-middle"><%= element.prix * element.quantity %> €</td>
+                        <td class="align-middle">
+                            <button class="btn btn-danger delete-basket-btn">Supprimer</button>
+                        </td>
+                    </tr>
+                <% }
+                }
+                } %>
+            </table>
+            <a href="#" class="w-25 text-center btn btn-primary">Payer</a>
+        </div>
+        -->
+        <div class="container">
+            <% if(elements.length === 0) { %>
+                <p class="w-25 text-center">Aucun produit dans le panier</p>
+            <% } else {
+            for (let i = 0; i < elements.length; i++) {
+                const element = elements[i];
+                if (element.type === 'combinaison') { %>
+                    <div class="row border-bottom pb-3 mb-3">
+                        <div class="col-md-3 text-center">
+                            <img src="<%= element.image %>" class="img-fluid img-panier" alt="Combinaison image">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-sm-6 panier-name" style="text-transform: uppercase"><strong><%= element.nom %>:</strong></div>
+                                <div class="col-sm-3 text-md-end panier-name"><strong>Quantité: <%= element.quantity %></strong></div>
+                                <div class="col-sm-3 text-md-end panier-name"><%= element.prix %> €</div>
+                            </div>
+                            <% element.produits.forEach((produit) => { %>
+                                <div class="row">
+                                    <div class="col-sm-6"><%= produit.nom_produit %><strong>  <%= produit.taille %></strong></div>
+                                </div>
+                                <% if (produit.id_accessoire !== '') { %>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <h6 class="card-subtitle m-1 text-muted"><%= produit.nom_accessoire %></h6>
+                                        </div>
+                                    </div>
+                                <% } %>
+                            <% }); %>
+                        </div>
+                        <div class="col-md-1">
+                            <button class="btn btn-danger delete-basket-btn panier-name">Supprimer</button>
+                        </div>
+                    </div>
+                <% } else { %>
+                    <div class="row border-bottom pb-3 mb-3">
+                        <div class="col-md-3 text-center">
+                            <img src="<%= element.image %>" class="img-fluid img-panier" alt="Product image">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row">
+                                <div class="col-sm-6 panier-name" style="text-transform: uppercase"><strong><%= element.nom_produit %></strong></div>
+                                <div class="col-sm-3 text-md-end panier-name"><strong>Quantité: <%= element.quantity %></strong></div>
+                                <div class="col-sm-3 text-md-end panier-name"><%= element.prix %> €</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-6"><strong><%= element.taille %></strong></div>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <button class="btn btn-danger delete-basket-btn panier-name">Supprimer</button>
+                        </div>
+                    </div>
+                <% }
+                }
+            } %>
+            <div class="row">
+                <div class="col text-center">
+                    <a href="#" class="btn btn-primary">Payer</a>
+                </div>
+            </div>
         </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
