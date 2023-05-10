@@ -30,6 +30,10 @@ function getPrixTotalCookie(req){
     return req.cookies ? (req.cookies.prixTotal ? parseFloat(req.cookies.prixTotal) : 0):0;
 }
 
+function isAuthentificated(req){
+    return((req.session && req.session.user));
+}
+
 router.post('/verify_register', (req, res) => {
     const prenom = (req.body.inputPrenom);
     const nom = (req.body.inputNom);
@@ -178,8 +182,8 @@ router.post('/verify_payment', (req, res) => {
 
     let emailReq = `SELECT * FROM clients WHERE email = '${email}'`;
     console.log(req.session);
-    if(req.session && req.session.user.userInfos){
-        emailReq += ` AND id_client != '${req.session.user.userInfos.id_client}'`
+    if(isAuthentificated(req)){
+        emailReq += ` AND id_client != '${req.session.user.id_client}'`
     }
         db.query(emailReq, (err, result) => {
             if (err) {
@@ -207,7 +211,12 @@ router.post('/verify_payment', (req, res) => {
 
             }else{
                 
-                res.render('paiement.ejs',{erreurs:errors, prixTotal: getPrixTotalCookie(req)});
+                res.render('paiement.ejs',{
+                    erreurs:errors,
+                    prixTotal: getPrixTotalCookie(req),
+                    activeSession: isAuthentificated(req),
+                    user: isAuthentificated(req) ? req.session.user : {}
+                });
             }
         });
 }
@@ -234,7 +243,8 @@ router.post('/verify_login', async (req, res) => {
 
             if (hashed_mdp===hashed_db_mdp) {
                 if(login_type==='clients'){
-                    const userinfos= {
+                    req.session.user = {
+                        loginType: login_type,
                         id_client: result.rows[0].id_client,
                         nom: result.rows[0].nom,
                         prenom: result.rows[0].prenom,
@@ -244,10 +254,6 @@ router.post('/verify_login', async (req, res) => {
                         adresse2: result.rows[0].adresse2,
                         ville: result.rows[0].ville,
                         code: result.rows[0].code
-                    };
-                    req.session.user = {
-                        loginType: login_type,
-                        userInfos: userinfos
                     };
                 }else{
                     req.session.user = {

@@ -9,7 +9,8 @@ function validateCategory(req, res, next) {
     }
 }
 
-function isAuthenticated(req, res, next) {
+function isAuthentificated(req){
+    return((req.session && req.session.user));
 }
 
 function hasRole(requiredRole) {
@@ -17,6 +18,6 @@ function hasRole(requiredRole) {
 
 module.exports = {
     validateCategory,
-    isAuthenticated,
+    isAuthentificated,
     hasRole,
 };

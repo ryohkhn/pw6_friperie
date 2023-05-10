@@ -79,11 +79,19 @@
                     <div class="form-row">
                         <div class="form-group col-md-6">
                             <label for="inputPrenom">Prénom</label>
-                            <input type="text" class="form-control" id="inputPrenom" name="inputPrenom" placeholder="Prénom" required="required">
+                            <input type="text" class="form-control" id="inputPrenom" name="inputPrenom" placeholder="Prénom" 
+                            <% if (activeSession) { %>
+                                value="<%= user.prenom %>"
+                            <% }%>
+                            required="required">
                         </div>
                         <div class="form-group col-md-6">
                             <label for="inputNom">Nom</label>
-                            <input type="text" class="form-control" id="inputNom" name="inputNom" placeholder="Nom" required="required">
+                            <input type="text" class="form-control" id="inputNom" name="inputNom" placeholder="Nom" 
+                            <% if (activeSession) { %>
+                                value="<%= user.nom %>"
+                            <% }%>
+                            required="required">
                         </div>
                     </div>
                     <% if (erreurs.prenom) { %>
@@ -111,7 +119,11 @@
                         </div>
                         <div class="form-group col-md-7">
                             <label for="inputNum">Numéro de téléphone</label>
-                            <input type="text" class="form-control" id="inputNum" name="inputNum" placeholder="Numéro de téléphone" required="required">
+                            <input type="text" class="form-control" id="inputNum" name="inputNum" placeholder="Numéro de téléphone"
+                            <% if (activeSession) { %>
+                                value="<%= user.tel %>"
+                            <% }%>
+                            required="required">
                         </div>
                     </div>
 
@@ -122,7 +134,11 @@
                     <% } %>
                     <div class="form-group">
                         <label for="inputEmail">Email</label>
-                        <input type="email" class="form-control" id="inputEmail" name="inputEmail" placeholder="Email" required="required">
+                        <input type="email" class="form-control" id="inputEmail" name="inputEmail" placeholder="Email"
+                        <% if (activeSession) { %>
+                            value="<%= user.email %>"
+                        <% }%>
+                        required="required">
                     </div>
                     <% if (erreurs.email) { %>
                         <div class="alert alert-danger">
@@ -136,7 +152,11 @@
                     <% } %>
                     <div class="form-group">
                         <label for="inputAdresse">Adresse</label>
-                        <input type="text" class="form-control" id="inputAdresse" name="inputAdresse" placeholder="2 rue victor hugo" required="required">
+                        <input type="text" class="form-control" id="inputAdresse" name="inputAdresse" placeholder="Adresse"
+                        <% if (activeSession) { %>
+                            value="<%= user.adresse %>"
+                        <% }%>
+                        required="required">
                     </div>
                     <% if (erreurs.adresse) { %>
                         <div class="alert alert-danger">
@@ -145,7 +165,11 @@
                     <% } %>
                     <div class="form-group">
                     <label for="inputAdresse2">Adresse 2</label>
-                    <input type="text" class="form-control" id="inputAdresse2" name="inputAdresse2" placeholder="Informations complémentaires">
+                    <input type="text" class="form-control" id="inputAdresse2" name="inputAdresse2" placeholder="Informations complémentaires"
+                    <% if (activeSession) { %>
+                        value="<%= user.adresse2 %>"
+                    <% }%>
+                    >
                     </div>
                     <% if (erreurs.adresse2) { %>
                         <div class="alert alert-danger">
@@ -155,11 +179,20 @@
                     <div class="form-row">
                     <div class="form-group col-md-8">
                         <label for="inputVille">Ville</label>
-                        <input type="text" class="form-control" id="inputVille" name="inputVille" placeholder="Paris" required="required">
+                        <input type="text" class="form-control" id="inputVille" name="inputVille" placeholder="Ville"
+                        
+                        <% if (activeSession) { %>
+                            value="<%= user.ville %>"
+                        <% }%>
+                        required="required">
                     </div>
                     <div class="form-group col-md-4">
                         <label for="inputCode">Code Postal</label>
-                        <input type="text" class="form-control" id="inputCode" name="inputCode" placeholder="75001" required="required">
+                        <input type="text" class="form-control" id="inputCode" name="inputCode" placeholder="code"
+                        <% if (activeSession) { %>
+                            value="<%= user.code %>"
+                        <% }%>
+                        required="required">
                     </div>
                     </div>
                     <% if (erreurs.ville) { %>

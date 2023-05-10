@@ -630,11 +630,12 @@ server.get('/panier', async (req, res) => {
 });
 
 server.get('/paiement', async (req, res) => {
-    if(req.session && req.session.userInfos){
-        res.render("paiement.ejs",{activeSession:true, userinfos:req.session.userInfos, prixTotal: getPrixTotalCookie(req), erreurs:{}});
-    }else{
-        res.render("paiement.ejs",{activeSession:false, prixTotal: getPrixTotalCookie(req), erreurs:{}});
-    }
+    res.render("paiement.ejs",{
+        activeSession: middlewares.isAuthentificated(req),
+        user: middlewares.isAuthentificated(req) ? req.session.user : {},
+        prixTotal: getPrixTotalCookie(req),
+        erreurs:{}
+    });
 });
 
 server.get('/produit/:num', async (req, res) => {
