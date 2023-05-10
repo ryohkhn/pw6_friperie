@@ -172,7 +172,7 @@
                                 <% if (produit.id_accessoire !== '') { %>
                                     <div class="row">
                                         <div class="col-sm-6">
-                                            <h6 class="card-subtitle m-1 text-muted"><%= produit.nom_accessoire %></h6>
+                                            <h6 class="card-subtitle m-1 text-muted">Accessoire: <%= produit.nom_accessoire %></h6>
                                         </div>
                                     </div>
                                 <% } %>
@@ -190,9 +190,22 @@
                         <div class="col-md-8">
                             <div class="row">
                                 <div class="col-sm-6 panier-name" style="text-transform: uppercase"><strong><%= element.nom_produit %></strong></div>
+                                <% if (element.id_accessoire !== '') { %>
+                                    <div class="col-sm-6 accessoire_small">
+                                        <h6 class="card-subtitle m-1 text-muted">
+                                            Accessoire: <%= element.nom_accessoire %></h6>
+                                    </div>
+                                <% } %>
                                 <div class="col-sm-3 text-md-end panier-name"><strong>Quantité: <%= element.quantity %></strong></div>
                                 <div class="col-sm-3 text-md-end panier-name"><%= element.prix %> €</div>
                             </div>
+                            <% if (element.id_accessoire !== '') { %>
+                                <div class="row accessoire_big">
+                                    <div class="col-sm-6">
+                                        <h6 class="card-subtitle m-1 text-muted">Accessoire: <%= element.nom_accessoire %></h6>
+                                    </div>
+                                </div>
+                            <% } %>
                             <div class="row">
                                 <div class="col-sm-6"><strong><%= element.taille %></strong></div>
                             </div>

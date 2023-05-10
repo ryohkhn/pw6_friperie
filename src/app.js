@@ -414,7 +414,7 @@ server.get('/search',async (req, res) => {
 function getCookiePanierIndex(panier, produit) {
     // on vérifie qu'il s'agit bien du même produit dans le panier
     return panier.findIndex(produitPanier => produitPanier.type === 'produit' && produitPanier.produitId === produit.produitId
-        && produitPanier.size === produit.size && produitPanier.accessoireId === produit.accessoireId);
+        && produitPanier.taille === produit.taille && produitPanier.accessoireId === produit.accessoireId);
 }
 
 function getCookiePanierCombinaisonIndex(panier, newCombinaison) {

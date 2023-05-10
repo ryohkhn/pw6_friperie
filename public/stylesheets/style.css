@@ -66,7 +66,7 @@ body{
 
 @media (max-width: 768px) {
     .img-panier {
-        max-height: 400px;
+        max-height: inherit;
     }
 }
 
@@ -74,5 +74,25 @@ body{
     .panier-name {
         margin-top: 10px;
         margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .accessoire_big {
+        display: none;
+        /* Your CSS rules for xs screens here */
+    }
+    .accessoire_small {
+        display: flex;
+    }
+}
+
+@media (min-width: 576px) {
+    .accessoire_big {
+        display: flex;
+        /* Your CSS rules for xs screens here */
+    }
+    .accessoire_small {
+        display: none;
     }
 }
