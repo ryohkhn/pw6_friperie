@@ -1,40 +1,102 @@
 <!DOCTYPE HTML>
-<html>
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Le grenier de mamie</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
     <link href="/stylesheets/style.css" rel="stylesheet" type="text/css">
 </head>
-<body>
-<div class="container-fluid px-0">
-    <nav class="navbar-expand navcolor">
-        <div class="container-fluid px-0 d-flex justify-content-center">
-            <a class="navbar-brand" href="/">
-                <img src="/resources/logo.png" alt="Le grenier de mamie" id="logo_brand_center">
-            </a>
+    <body>
+        <div class="container-fluid px-0">
+            <nav class="navbar-expand navcolor">
+                <div class="container-fluid px-0">
+                    <div class="row w-100">
+                        <div class="col-3 d-flex align-items-center">
+                            <a class="navbar-brand" href="/">
+                                <img src="/resources/logo.png" alt="Le grenier de mamie" id="logo_brand">
+                            </a>
+                        </div>
+                        <div class="col-6 d-flex align-items-center justify-content-center">
+                            <form class="form-inline d-flex w-100" method="get" action="http://localhost:8080/search">
+                                <div class="input-group w-100 w-sm-75 w-md-60 w-lg-80">
+                                    <input class="form-control" id="searchbar" name="recherche" type="search"
+                                           placeholder="Rechercher"/>
+                                    <button id="search-button" type="button" class="btn bg-light">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-3 d-flex align-items-center justify-content-end flex-wrap">
+                            <div class="dropdown">
+                                <a href="/profil" role="button" id="userMenu" data-toggle="dropdown"
+                                   aria-haspopup="true" aria-expanded="false">
+                                    <i class="fa-solid fa-user fa-xl logos m-md-2 m-1"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenu">
+                                    <a class="dropdown-item" href="/login">Connexion</a>
+                                    <a class="dropdown-item" href="/register">S'enregistrer</a>
+                                    <a class="dropdown-item" href="/options">Gérer</a>
+                                    <a class="dropdown-item" href="/commandes">Commandes</a>
+                                    <a class="dropdown-item" href="/disconnect">Déconnexion</a>
+                                </div>
+                            </div>
+                            <a href="/panier">
+                                <i class="fa-solid fa-cart-shopping fa-xl logos m-md-2 m-1"></i>
+                            </a>
+                            <p id="total-panier" class="d-flex align-items-center justify-content-end mb-0"><%= prixTotal %>€</p>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            <div class="container-fluid px-0">
+                <nav class="navbar navbar-expand-xl navbar-light navcolor" id="categ">
+                    <button class="navbar-toggler bg-light" type="button" data-toggle="collapse" data-target="#navArticles"
+                            aria-controls="navArticles" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="collapse navbar-collapse justify-content-center" id="navArticles">
+                        <div class="navbar-nav">
+                            <a class="nav-item nav-link categorie" href="/pantalons">pantalons</a>
+                            <a class="nav-item nav-link categorie" href="/shorts">shorts</a>
+                            <a class="nav-item nav-link categorie" href="/chemises">chemises</a>
+                            <a class="nav-item nav-link categorie" href="/vestes">vestes</a>
+                            <a class="nav-item nav-link categorie" href="/pulls">pulls</a>
+                            <a class="nav-item nav-link categorie" href="/costumes">costumes</a>
+                            <a class="nav-item nav-link categorie" href="/manteaux">manteaux</a>
+                            <a class="nav-item nav-link categorie" href="/robes">robes</a>
+                            <a class="nav-item nav-link categorie" href="/chaussettes">chaussettes</a>
+                            <a class="nav-item nav-link categorie" href="/combinaisons">combinaisons</a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
         </div>
-    </nav>
-    <div class="container-fluid d-flex justify-content-center align-items-center" id="login-form">
-        <% if(failed){ %>
-            <h3>Mauvais login ou mot de passe</h3>
-        <% } %>
-        <form method="post" action="http://localhost:8080/verify_login">
-            <label for="username">Username:</label>
-            <input type="hidden" name="login_type" value=<%= login_type_val %>>
-
-            <input type="text" id="username" name="username" required>
-
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-
-            <button type="submit">Login</button>
-        </form>
-    </div>
-</div>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-<script src="https://kit.fontawesome.com/607cb4a3b6.js" crossorigin="anonymous"></script>
-</body>
+        <div class="container-fluid main-frame">
+            <div class="container">
+                <% if(failed){ %>
+                    <h3>Mauvais login ou mot de passe</h3>
+                <% } %>
+                <form method="post" action="http://localhost:8080/verify_login">
+                    <input type="hidden" name="login_type" value=<%= login_type_val %>>
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <label for="Login">Login :</label>
+                            <input type="text" class="form-control"  id="username" name="username" placeholder="Login"required>
+                        </div>
+                        <div class="form-group col-md-12">
+                            <label for="password">Mot de passe :</label>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Mot de passe" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary" >Se connecter</button>
+                </form>
+            </div>
+        </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+        <script src="https://kit.fontawesome.com/607cb4a3b6.js" crossorigin="anonymous"></script>
+    </body>
 </html>

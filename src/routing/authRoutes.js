@@ -4,15 +4,15 @@ const crypto = require("crypto");
 const router = express.Router();
 
 router.get('/login', (req, res) => {
-    res.render('login_page.ejs', {failed: false, login_type_val: "clients"});
+    res.render('login_page.ejs', {failed: false, login_type_val: "clients", prixTotal: getPrixTotalCookie(req)});
 });
 
 router.get('/register', (req, res) => {
-    res.render('register_page.ejs', {erreurs:{}});
+    res.render('register_page.ejs', {erreurs:{}, prixTotal: getPrixTotalCookie(req)});
 });
 
 router.get('/gerant', (req, res) => {
-    res.render('login_page.ejs', {failed: false, login_type_val: "gerants"});
+    res.render('login_page.ejs', {failed: false, login_type_val: "gerants", prixTotal: getPrixTotalCookie(req)});
 });
 
 function fullLetter(text){
@@ -24,6 +24,10 @@ function fullLetter(text){
         text.focus();
         return false;
     }
+}
+
+function getPrixTotalCookie(req){
+    return req.cookies ? (req.cookies.prixTotal ? parseFloat(req.cookies.prixTotal) : 0):0;
 }
 
 router.post('/verify_register', (req, res) => {
@@ -90,7 +94,7 @@ router.post('/verify_register', (req, res) => {
     db.query(request,(err,result)=>{
         if (err) {
             console.log(err);
-            res.render('error.ejs',{errorCode: err});
+            res.render('error.ejs',{errorCode: err,prixTotal: getPrixTotalCookie(req)});
         }
         else if (result.rows.length > 0) {
             errors.loginExists = "Le pseudo entré n'est pas disponible.";
@@ -111,9 +115,9 @@ router.post('/verify_register', (req, res) => {
                 db.query(reqInsert,(err, result3) => {
                     if (err) {
                         console.log(err);
-                        res.render('error.ejs',{errorCode: err});
+                        res.render('error.ejs',{errorCode: err, prixTotal: getPrixTotalCookie(req)});
                     }else{
-                        res.render('login_page.ejs', {failed: false, login_type_val: "clients"});
+                        res.render('login_page.ejs', {failed: false, login_type_val: "clients", prixTotal: getPrixTotalCookie(req)});
                     }
                 });
 
@@ -173,9 +177,9 @@ router.post('/verify_payment', (req, res) => {
     }
 
     let emailReq = `SELECT * FROM clients WHERE email = '${email}'`;
-    if(req.session && req.session.userInfos){
-        console.log(req.session);
-        emailReq += ` AND id_client <> '${req.session.userInfos.id_client}'`
+    console.log(req.session);
+    if(req.session && req.session.user.userInfos){
+        emailReq += ` AND id_client != '${req.session.user.userInfos.id_client}'`
     }
         db.query(emailReq, (err, result) => {
             if (err) {
@@ -192,7 +196,7 @@ router.post('/verify_payment', (req, res) => {
                 db.query(reqInsert,(err, result3) => {
                     if (err) {
                         console.log(err);
-                        res.render('error.ejs',{errorCode: err});
+                        res.render('error.ejs',{errorCode: err, prixTotal: getPrixTotalCookie(req)});
                     }else{
                        // res.render('confirmation.ejs', {mail:email});
                        res.clearCookie('panier');
@@ -202,7 +206,8 @@ router.post('/verify_payment', (req, res) => {
                 });
 
             }else{
-                res.render('register_page.ejs',{erreurs:errors});
+                
+                res.render('paiement.ejs',{erreurs:errors, prixTotal: getPrixTotalCookie(req)});
             }
         });
 }
