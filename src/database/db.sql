@@ -3,7 +3,9 @@ DROP TABLE IF EXISTS accessoires cascade;
 DROP TABLE IF EXISTS produits_accessoires cascade;
 DROP TABLE IF EXISTS clients cascade;
 DROP TABLE IF EXISTS produits cascade;
-DROP TABLE IF EXISTS produits_commandes cascade;
+DROP TABLE IF EXISTS produit_commande cascade;
+DROP TABLE IF EXISTS produits_uniques_commandes;
+DROP TABLE IF EXISTS combinaisons_commandes;
 DROP TABLE IF EXISTS commandes cascade;
 DROP TABLE IF EXISTS gerants;
 DROP TABLE IF EXISTS combinaisons_parts cascade;
@@ -94,13 +96,39 @@ CREATE TABLE commandes(
     PRIMARY KEY (id_commande)
 );
 
-CREATE TABLE produits_commandes(
+CREATE TABLE produit_commande(
+    id_produit_commande SERIAL,
     id_produit INT NOT NULL,
-    id_commande INT NOT NULL,
+    id_accessoire INT,
     taille VARCHAR(10) NOT NULL,
-    quantite INT NOT NULL,
-    PRIMARY KEY (id_produit, id_commande, taille),
+    PRIMARY KEY (id_produit_commande),
     FOREIGN KEY (id_produit) REFERENCES produits(id_produit),
-    FOREIGN KEY (id_commande) REFERENCES commandes(id_commande),
+    FOREIGN KEY (id_accessoire) REFERENCES accessoires(id_accessoire),
     FOREIGN KEY (id_produit, taille) REFERENCES dispo_tailles(id_produit, taille)
+);
+
+CREATE TABLE produits_uniques_commandes(
+    id_produit_unique SERIAL,
+    id_produit_commande INT NOT NULL,
+    id_commande INT NOT NULL,
+    quantite INT NOT NULL,
+    PRIMARY KEY (id_produit_unique),
+    FOREIGN KEY (id_produit_commande) REFERENCES produit_commande(id_produit_commande),
+    FOREIGN KEY (id_commande) REFERENCES commandes(id_commande)
+);
+
+CREATE TABLE combinaisons_commandes(
+    id_combinaison_commande SERIAL,
+    id_combinaison INT NOT NULL,
+    id_commande INT NOT NULL,
+    id_produit_commande1 INT NOT NULL,
+    id_produit_commande2 INT NOT NULL,
+    id_produit_commande3 INT NOT NULL,
+    quantite INT NOT NULL,
+    PRIMARY KEY (id_combinaison_commande),
+    FOREIGN KEY (id_combinaison) REFERENCES combinaisons(id_combinaison),
+    FOREIGN KEY (id_commande) REFERENCES commandes(id_commande),
+    FOREIGN KEY (id_produit_commande1) REFERENCES produit_commande(id_produit_commande),
+    FOREIGN KEY (id_produit_commande2) REFERENCES produit_commande(id_produit_commande),
+    FOREIGN KEY (id_produit_commande3) REFERENCES produit_commande(id_produit_commande)
 );
