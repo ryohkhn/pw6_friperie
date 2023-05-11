@@ -1,6 +1,7 @@
-const express = require('express');
+const { server, express } = require('../express_config');
 const db = require("../database_pool.local");
 const crypto = require("crypto");
+
 const router = express.Router();
 
 router.get('/login', (req, res) => {
@@ -22,7 +23,7 @@ router.get('/register', (req, res) => {
 });
 
 router.get('/gerant', (req, res) => {
-    if(!isAuthentificated(req) || req.session.user.loginType!=='gerants'){
+    if(isAuthentificated(req)){
         res.redirect('/');
     }
     res.render('login_page.ejs', {

@@ -80,7 +80,6 @@ body{
 @media (max-width: 575.98px) {
     .accessoire_big {
         display: none;
-        /* Your CSS rules for xs screens here */
     }
     .accessoire_small {
         display: flex;
@@ -90,7 +89,6 @@ body{
 @media (min-width: 576px) {
     .accessoire_big {
         display: flex;
-        /* Your CSS rules for xs screens here */
     }
     .accessoire_small {
         display: none;
