@@ -64,6 +64,16 @@ function isAuthentificated(req){
     return((req.session && req.session.user));
 }
 
+async function insertProduitCommande(element) {
+    const id_access = (element.accessoireId.length === 0) ? 'NULL' : element.accessoireId;
+    const reqProdCommande = `INSERT INTO produit_commande (id_produit, id_accessoire, taille)
+                      VALUES ('${element.produitId}',${id_access},'${element.taille}')
+                      RETURNING id_produit_commande`;
+    const resultProdCommande = await db.query(reqProdCommande);
+    return resultProdCommande;
+}
+  
+
 router.post('/verify_register', (req, res) => {
     const prenom = (req.body.inputPrenom);
     const nom = (req.body.inputNom);
@@ -219,7 +229,6 @@ router.post('/verify_payment', async (req, res) => {
     }
 
     let emailReq = `SELECT * FROM clients WHERE email = '${email}'`;
-    console.log(req.session);
     if(isAuthentificated(req)){
         emailReq += ` AND id_client != '${req.session.user.id_client}'`
     }
@@ -239,16 +248,30 @@ router.post('/verify_payment', async (req, res) => {
 
             for (const element of panier) {
                 if (element.type === 'produit') {
-                    const resProd = `INSERT INTO produit_commandes (id_produit, id_accessoire, taille)
-                VALUES ('${element.produitId}','${element.accessoireId}','${element.taille}')`;
+                    
+                    const resultProdCommande = await insertProduitCommande(element);
+
+                    const reqProdUnique = `INSERT INTO produits_uniques_commandes (id_produit_commande, id_commande, quantite)
+                    VALUES ('${resultProdCommande.rows[0].id_produit_commande}','${commandeId}','${element.quantity}');`;
+                    const resultProdUnique = await db.query(reqProdUnique);
+
                 } else if (element.type === 'combinaison') {
-                // insert combi
+                    const resultProdCommande1 = await insertProduitCommande(element.produits[0]);
+                    const resultProdCommande2 = await insertProduitCommande(element.produits[1]);
+                    const resultProdCommande3 = await insertProduitCommande(element.produits[2]);
+
+                    const reqCombi = `INSERT INTO combinaisons_commandes (id_combinaison, id_commande, id_produit_commande1, id_produit_commande2, id_produit_commande3, quantite)
+                    VALUES ('${element.combinaisonId}','${commandeId}', '${resultProdCommande1.rows[0].id_produit_commande}', '${resultProdCommande2.rows[0].id_produit_commande}', '${resultProdCommande3.rows[0].id_produit_commande}', '${element.quantity}')`;
+                    const resultCombi = await db.query(reqCombi);
                 }
             }
-
             res.clearCookie('panier');
             res.clearCookie('prixTotal');
-            res.redirect('/');
+            res.render('confirmation.ejs',{
+                prixTotal: getPrixTotalCookie(req),
+                activeSession: isAuthentificated(req),
+                user: isAuthentificated(req) ? req.session.user : {}
+            });
         }else{
             res.render('paiement.ejs',{
                 erreurs:errors,
@@ -301,9 +324,6 @@ router.post('/verify_login', async (req, res) => {
                         loginType: login_type,
                         userId: result.rows[0].id,
                     };
-                }
-                if (req.session) {
-                    console.log(req.session);
                 }
                 res.redirect('/');
             }
