@@ -87,6 +87,7 @@ async function processCookieProduit(produit) {
     return {
         ...resultatProduit[0],
         ...resultatAccessoire[0],
+        type: 'produit',
         taille: produit.taille,
         quantity: produit.quantity,
     };

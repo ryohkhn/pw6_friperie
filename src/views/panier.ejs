@@ -161,7 +161,7 @@
             for (let i = 0; i < elements.length; i++) {
                 const element = elements[i];
                 if (element.type === 'combinaison') { %>
-                    <div class="row border-bottom pb-3 mb-3">
+                    <div class="row border-bottom pb-3 mb-3" data-panier-id="<%= element.combinaisonId %>" data-panier-type="<%= element.type %>" data-panier-quantity="<%= element.quantity %>" data-panier-price="<%= element.prix %>">
                         <div class="col-md-3 text-center">
                             <img src="<%= element.image %>" class="img-fluid img-panier" alt="Combinaison image">
                         </div>
@@ -172,7 +172,9 @@
                                 <div class="col-sm-3 text-md-end panier-name"><%= element.prix * element.quantity %> €</div>
                             </div>
                             <% element.produits.forEach((produit) => { %>
-                                <div class="row">
+                                <div class="row" data-panier-produitid="<%= produit.id_produit %>"
+                                     data-panier-produittaille="<%= produit.taille %>"
+                                     data-panier-accessoire="<%= produit.id_accessoire %>">
                                     <div class="col-sm-6"><%= produit.nom_produit %><strong>  <%= produit.taille %></strong></div>
                                 </div>
                                 <% if (produit.id_accessoire !== '') { %>
@@ -189,7 +191,11 @@
                         </div>
                     </div>
                 <% } else { %>
-                    <div class="row border-bottom pb-3 mb-3">
+                    <div class="row border-bottom pb-3 mb-3"
+                         data-panier-id="<%= element.id_produit %>"
+                         data-panier-type="<%= element.type %>" data-panier-quantity="<%= element.quantity %>"
+                         data-panier-price="<%= element.prix %>" data-panier-produittaille="<%= element.taille %>"
+                         data-panier-accessoire="<%= element.id_accessoire %>">
                         <div class="col-md-3 text-center">
                             <img src="<%= element.image %>" class="img-fluid img-panier" alt="Product image">
                         </div>

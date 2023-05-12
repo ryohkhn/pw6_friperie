@@ -1,5 +1,46 @@
 $(document).ready(function () {
     $('.delete-basket-btn').on('click', function () {
+        let parentDiv = $(this).closest('.row');
+        let type = parentDiv.data('panier-type');
+        let id, taille, accessoire, prix;
+        const produitsId = [];
+
+        id = parentDiv.data('panier-id');
+        prix = parentDiv.data('panier-price');
+        if (type === 'produit') {
+            taille = parentDiv.data('panier-produittaille');
+            accessoire = parentDiv.data('panier-accessoire');
+        }
+        else if (type === 'combinaison') {
+            taille = [];
+            // Si chaque produit a son propre accessoire
+            accessoire = [];
+            parentDiv.find('.row[data-panier-produitid]').each(function () {
+                produitsId.push($(this).data('panier-produitid'));
+                taille.push($(this).data('panier-produittaille'));
+                accessoire.push($(this).data('panier-accessoire'));
+            });
+        }
+        $.ajax({
+            url: '/deletePanierAjax',
+            method: 'POST',
+            data: {
+                type: type,
+                id: id,
+                taille: taille,
+                accessoire: accessoire,
+                prix: prix,
+                produitsId: produitsId
+            },
+            success: function (response) {
+                console.log(response);
+                location.reload();
+            }
+        });
+    });
+
+    /*
+    $('.delete-basket-btn').on('click', function () {
         const id_produit = $(this).closest('tr').data('basket-id');
         const size = $(this).closest('tr').data('basket-size');
         const id_accessoire = $(this).closest('tr').data('basket-accessoire');
@@ -26,6 +67,8 @@ $(document).ready(function () {
             }
         });
     });
+
+     */
 
     $('#add-to-panier-form').on('submit', function (event) {
         // éviter la redirection par défaut du formulaire

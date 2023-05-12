@@ -119,6 +119,86 @@ router.post('/ajoutePanierCombiAjax', function(req, res) {
     res.sendStatus(200);
 });
 
+// Vérifier si deux tableaux de produits sont les mêmes
+function sameProduits(prod1, prod2) {
+    if (prod1.length !== prod2.length) return false;
+
+    for (let i = 0; i < prod1.length; i++) {
+        const p1 = prod1[i];
+        const p2 = prod2.find(p => p.produitId === p1.produitId && p.taille === p1.taille && p.accessoireId === p1.accessoireId);
+        if (!p2) return false;
+    }
+
+    return true;
+}
+
+function deleteElement(panier, element) {
+    const index = panier.findIndex((p) => {
+        if (p.type === 'produit') {
+            return p.produitId === element.produitId && p.taille === element.taille && p.accessoireId === element.accessoireId;
+        }
+        else if (p.type === 'combinaison') {
+            // Vérifier si la combinaison a le même id et les mêmes produits
+            return p.combinaisonId === element.combinaisonId && sameProduits(p.produits, element.produits);
+        }
+        return false;
+    });
+
+    if (index !== -1) {
+        panier[index].quantity -= element.quantity;
+        if (panier[index].quantity < 1){
+            panier.splice(index, 1);
+        }
+    }
+
+    return panier;
+}
+
+router.post('/deletePanierAjax', function(req, res) {
+    const type = req.body.type;
+    const id = req.body.id;
+    const taille = req.body.taille;
+    const accessoire = req.body.accessoire;
+    const prix = req.body.prix;
+
+    // On récupère le panier courant
+    let currentPanier = req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
+
+    let element = {};
+
+    if (type === 'produit') {
+        element = {
+            type: type,
+            produitId: id,
+            taille: taille,
+            quantity: 1,
+            accessoireId: accessoire,
+        };
+    }
+    else if (type === 'combinaison') {
+        const produitsId = req.body.produitsId;
+        element = {
+            type: type,
+            combinaisonId: id,
+            produits: taille.map((val, index) => ({produitId: produitsId[index], taille: val, accessoireId: accessoire[index]})),
+            quantity: 1,
+        };
+    }
+
+    // On supprime l'élément du cookie
+    currentPanier = deleteElement(currentPanier, element);
+
+    // On remplace l'ancien cookie par le nouveau
+    res.cookie('panier', JSON.stringify(currentPanier), {maxAge: 86400000 });
+
+    // Calcul du nouveau prix total
+    const currentPrixTotal = utils.getPrixTotalCookie(req);
+    const newPrixTotal = currentPrixTotal - parseFloat(prix);
+    res.cookie('prixTotal', newPrixTotal, {maxAge: 86400000, sameSite: 'lax'});
+
+    res.json({ status: "success" });
+});
+
 router.post('/delete-basket', function(req, res) {
     const id_produit = req.body.id_produit;
     const valTaille = req.body.size;
