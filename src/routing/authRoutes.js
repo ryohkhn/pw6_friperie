@@ -171,7 +171,7 @@ router.post('/verify_register', (req, res) => {
 }
 );
 
-router.post('/verify_payment', (req, res) => {
+router.post('/verify_payment', async (req, res) => {
     const prenom = (req.body.inputPrenom);
     const nom = (req.body.inputNom);
     const heure = (req.body.inputHeure);
@@ -223,42 +223,45 @@ router.post('/verify_payment', (req, res) => {
     if(isAuthentificated(req)){
         emailReq += ` AND id_client != '${req.session.user.id_client}'`
     }
-        db.query(emailReq, (err, result) => {
-            if (err) {
-                console.log(err);
-                res.render('error.ejs',{errorCode: err});
-            }else if (result.rows.length > 0) {
-                errors.emailExists = "L'adresse mail entrée appartient à un utilisateur.";
+    try {
+        const result = await db.query(emailReq);
+        if (result.rows.length > 0) {
+            errors.emailExists = "L'adresse mail entrée appartient à un utilisateur.";
+        }
+        if(Object.keys(errors).length === 0){
+            const reqInsert = `INSERT INTO commandes (nom, prenom, heureLivraison, tel, email, adresse, adresse2, ville, code)
+            VALUES ('${nom}', '${prenom}', '${heure}', '${num}', '${email}', '${adresse}', '${adresse2}', '${ville}', '${code}')
+            RETURNING id_commande`;
+            const result3 = await db.query(reqInsert);
+            const commandeId = result3.rows[0].id_commande;
+
+            const panier = req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
+
+            for (const element of panier) {
+                if (element.type === 'produit') {
+                    const resProd = `INSERT INTO produit_commandes (id_produit, id_accessoire, taille)
+                VALUES ('${element.produitId}','${element.accessoireId}','${element.taille}')`;
+                } else if (element.type === 'combinaison') {
+                // insert combi
+                }
             }
-            if(Object.keys(errors).length === 0){
 
-                const reqInsert = `INSERT INTO commandes (nom, prenom, heureLivraison, tel, email, adresse, adresse2, ville, code)
-                VALUES ('${nom}', '${prenom}', '${heure}', '${num}','${email}', '${adresse}', '${adresse2}', '${ville}', '${code}');`
-
-                db.query(reqInsert,(err, result3) => {
-                    if (err) {
-                        console.log(err);
-                        res.render('error.ejs',{errorCode: err});
-                    }else{
-                       // res.render('confirmation.ejs', {mail:email});
-                       res.clearCookie('panier');
-                       res.clearCookie('prixTotal');
-                       res.redirect('/');
-                    }
-                });
-
-            }else{
-                
-                res.render('paiement.ejs',{
-                    erreurs:errors,
-                    prixTotal: getPrixTotalCookie(req),
-                    activeSession: isAuthentificated(req),
-                    user: isAuthentificated(req) ? req.session.user : {}
-                });
-            }
-        });
-}
-);
+            res.clearCookie('panier');
+            res.clearCookie('prixTotal');
+            res.redirect('/');
+        }else{
+            res.render('paiement.ejs',{
+                erreurs:errors,
+                prixTotal: getPrixTotalCookie(req),
+                activeSession: isAuthentificated(req),
+                user: isAuthentificated(req) ? req.session.user : {}
+            });
+        }
+    } catch (err) {
+        console.log(err);
+        res.render('error.ejs',{errorCode: err});
+    }
+});
 
 // Verify login/password
 router.post('/verify_login', async (req, res) => {
