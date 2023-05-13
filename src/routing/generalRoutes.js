@@ -113,6 +113,10 @@ router.get('/search', middlewares.handleRendering, (req, res) => {
     res.render(`${res.locals.viewName}.ejs`, res.locals);
 });
 
+router.get('/stock', middlewares.handleRendering, (req, res) => {
+    res.render(`${res.locals.viewName}.ejs`, res.locals);
+});
+
 router.get('/panier', async (req, res) => {
     try {
         const panier = req.cookies.panier ? JSON.parse(req.cookies.panier) : [];

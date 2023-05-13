@@ -61,6 +61,23 @@ async function getAccueilItems(limit, offset) {
     return { totalResult, itemsResult };
 }
 
+async function getStockItems(limit, offset) {
+    const commonQuery = `FROM produits p`;
+    const countQuery = `SELECT * ${commonQuery}`;
+    const itemsQuery = `SELECT * ${commonQuery} ORDER BY createddate LIMIT $1 OFFSET $2`;
+
+    const totalResult = await queryItems(countQuery, []);
+    const itemsResult = await queryItems(itemsQuery, [limit, offset]);
+
+    // on récupère et ajoute les tailles associées aux produits
+    for (let i = 0; i < itemsResult.length; i++) {
+        const sizesQuery = `SELECT * FROM dispo_tailles WHERE id_produit=${itemsResult[i].id_produit}`;
+        itemsResult[i].tailles = await queryItems(sizesQuery, []);
+    }
+
+    return { totalResult, itemsResult };
+}
+
 async function getCommandesItems(limit, offset) {
     const countQuery = `SELECT c.id_commande, p.nom_produit, pc.quantite
                         FROM commandes c
@@ -145,6 +162,10 @@ async function getPaginatedItems(type, currentPage, searchTerm, limit = 10) {
             case 'combinaisons':
                 ({totalResult, itemsResult} = await getCombinaisonsItems(limit, offset));
                 break;
+            case 'stock':
+                ({totalResult, itemsResult} = await getStockItems(limit, offset));
+                console.log(itemsResult);
+                break;
             default:
                 ({totalResult, itemsResult} = await getDefaultItems(type, limit, offset));
         }
@@ -173,125 +194,8 @@ async function getPaginatedItems(type, currentPage, searchTerm, limit = 10) {
     }
 }
 
-/*
-async function getPaginatedItems(type, currentPage, searchTerm, limit = 10) {
-    // on calcule l'offset de la requête SQL en fonction de la page courante et de la limite
-    const offset = (currentPage - 1) * limit;
-    let totalResult;
-    let itemsResult;
-
-    try {
-        if (type === 'search') {
-            totalResult = await db.query(`SELECT *
-                                          FROM produits p
-                                          WHERE LOWER(nom_produit) LIKE LOWER($1)
-                                            AND p.id_produit NOT IN
-                                                (SELECT id_produit
-                                                 FROM combinaisons_parts cp
-                                                 WHERE cp.id_produit = p.id_produit)`, [`%${searchTerm}%`]);
-
-            itemsResult = await db.query(`SELECT *
-                                          FROM produits p
-                                          WHERE LOWER(nom_produit) LIKE LOWER($1)
-                                            AND p.id_produit NOT IN
-                                                (SELECT id_produit
-                                                 FROM combinaisons_parts cp
-                                                 WHERE cp.id_produit = p.id_produit)
-                                          ORDER BY createddate
-                                          LIMIT $2 OFFSET $3 `,
-                [`%${searchTerm}%`, limit, offset]);
-        }
-        else if (type === 'accueil') {
-            totalResult = await db.query(`SELECT *
-                                          FROM produits p
-                                          WHERE p.id_produit NOT IN
-                                                (SELECT id_produit
-                                                 FROM combinaisons_parts cp
-                                                 WHERE cp.id_produit = p.id_produit)`);
-
-            itemsResult = await db.query(`SELECT *
-                                          FROM produits p
-                                          WHERE p.id_produit NOT IN
-                                                (SELECT id_produit
-                                                 FROM combinaisons_parts cp
-                                                 WHERE cp.id_produit = p.id_produit)
-                                          ORDER BY createddate
-                                          LIMIT $1 OFFSET $2`, [limit, offset]);
-        }
-        else if (type === 'commandes') {
-            totalResult = await db.query(`SELECT c.id_commande, p.nom_produit, pc.quantite
-                                          FROM commandes c
-                                                   JOIN produits_commandes pc ON c.id_commande = pc.id_commande
-                                                   JOIN produits p ON pc.id_produit = p.id_produit
-                                          ORDER BY c.id_commande;`);
-            itemsResult = await db.query(`SELECT c.nom, c.prenom, c.id_commande, p.nom_produit, pc.quantite
-                                          FROM commandes c
-                                                   JOIN produits_commandes pc ON c.id_commande = pc.id_commande
-                                                   JOIN produits p ON pc.id_produit = p.id_produit
-                                          ORDER BY c.id_commande
-                                          LIMIT $1 OFFSET $2`, [limit, offset]);
-        }
-        else if (type === 'combinaisons') {
-            totalResult = await db.query(`SELECT *
-                                          FROM combinaisons`);
-            itemsResult = await db.query(`SELECT c.id_combinaison,
-                                                 c.type,
-                                                 c.prix,
-                                                 c.image,
-                                                 p.id_produit,
-                                                 p.nom_produit,
-                                                 p.type_produit,
-                                                 p.marque,
-                                                 p.genre
-                                          FROM combinaisons c
-                                                   JOIN combinaisons_parts cp ON c.id_combinaison = cp.id_combi
-                                                   JOIN produits p ON cp.id_produit = p.id_produit
-                                          ORDER BY c.id_combinaison, cp.id_partie`);
-        }
-        else {
-            totalResult = await db.query(`SELECT *
-                                          FROM produits p
-                                          WHERE type_produit = $1
-                                            AND p.id_produit NOT IN
-                                                (SELECT id_produit
-                                                 FROM combinaisons_parts cp
-                                                 WHERE cp.id_produit = p.id_produit)`, [type]);
-            itemsResult = await db.query(`SELECT *
-                                          FROM produits p
-                                          WHERE type_produit = $1
-                                            AND p.id_produit NOT IN
-                                                (SELECT id_produit
-                                                 FROM combinaisons_parts cp
-                                                 WHERE cp.id_produit = p.id_produit)
-                                          ORDER BY createddate
-                                          LIMIT $2 OFFSET $3`, [type, limit, offset]);
-        }
-
-        const totalLength = totalResult.rows.length;
-        const totalPages = Math.ceil(totalLength / limit);
-        let items;
-        if(type === 'commandes') {
-            items = combineCommandes(itemsResult.rows);
-        }
-        else if(type === 'combinaisons') {
-            items = utils.combineCombinaisons(itemsResult.rows);
-        }
-        else{
-            items = itemsResult.rows;
-        }
-
-        return {
-            items,
-            totalPages,
-        };
-    } catch (err) {
-        console.error(err);
-        throw new Error('Internal server error');
-    }
-}
-
-*/
 /**
+ *
  * Fonction pour gérer la redirection en fonction du nom de routage
  * @param routeName routage à analyser
  * @param search_input entrée de la recherche si présente

@@ -77,6 +77,57 @@ function deleteProduit(panier, deleteProduct) {
     return panier;
 }
 
+async function getQuantiteTailleProduit(productId,taille) {
+    const disposReq = `SELECT *
+                       FROM dispo_tailles
+                       WHERE id_produit = $1 AND taille = $2`;
+    const result = await db.query(disposReq, [productId,taille]);
+    return result.rows;
+}
+
+async function addQuantiteToTaille(productId,taille,quantite){
+    const disposReq = `UPDATE dispo_tailles SET
+                       quantite = quantite + $1 
+                       WHERE id_produit = $2 AND taille = $3`;
+    const result = await db.query(disposReq, [quantite,productId,taille]);
+    return result.rows;
+}
+
+async function insertQuantiteToTaille(productId,taille,quantite){
+    const disposReq = `INSERT INTO dispo_tailles VALUES ($1,$2,$3)`;
+    const result = await db.query(disposReq, [productId,taille,quantite]);
+    return result.rows;
+}
+
+/**
+ * Routage pour les requêtes POST d'ajout de stock à la base de données
+ * Le serveur reçoit l'id du produit, la taille ainsi que la quantité demandée
+ */
+router.post('/ajouterStockAjax', async (req, res) => {
+    try {
+        const id = req.body.id;
+        const taille = req.body.taille;
+        const quantite = req.body.quantite;
+
+        // on récupère les informations sur les tailles disponibles avec cet id et cette taille
+        const tailles_dispos = await getQuantiteTailleProduit(id,taille);
+        // s'il existe déjà une quantité pour la taille on l'incrémente, sinon on insère la valeur
+        if(tailles_dispos.length>0){
+            await addQuantiteToTaille(id,taille,quantite);
+            // on retourne la valeur au client pour mettre à jour la valeur
+            res.json({ nouveauStock: tailles_dispos[0].quantite + parseInt(quantite, 10)});
+        }
+        else{
+            await insertQuantiteToTaille(id,taille,quantite);
+            // on retourne la valeur au client pour mettre à jour la valeur
+            res.json({ nouveauStock: quantite});
+        }
+    } catch (error) {
+        console.error('Erreur suppression commande:', error);
+        res.status(500).json({error: 'Internal server error'});
+    }
+});
+
 router.post('/ajoutePanierAjax', function(req, res) {
     const id = req.body.id_produit;
     const valTaille = req.body.taille;
@@ -85,6 +136,7 @@ router.post('/ajoutePanierAjax', function(req, res) {
     // on récupère le panier courant
     const currentPanier= req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
 
+    // on crée l'objet pour le comparer à ceux des cookies
     const produit = {
         produitId: id,
         taille: valTaille,
@@ -115,7 +167,6 @@ router.post('/ajoutePanierCombiAjax', function(req, res) {
     // on remplace l'ancien cookie par le nouveau
     res.cookie('panier', JSON.stringify(updatedPanier), {maxAge: 86400000 });
 
-    // Return the product price instead of redirecting
     res.sendStatus(200);
 });
 

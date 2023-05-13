@@ -44,7 +44,7 @@
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenu">
                                     <%if(activeSession){%>
-                                         <a class="dropdown-item" href="/stock">Gérer</a>
+                                         <a class="dropdown-item" href="/options">Gérer</a>
                                          <a class="dropdown-item" href="/commandes">Commandes</a>
                                          <a class="dropdown-item" href="/disconnect">Déconnexion</a>
                                      <%}else{%>
@@ -86,30 +86,45 @@
         </div>
         <div class="container-fluid main-frame">
             <div class="container">
-                <div class="row row-centered">
+                <div class="row">
                     <% if(elements.length === 0){ %>
-                        <h4>Aucun résultat</h4>
+                        <h4 class="col-12 text-center">Aucun résultat</h4>
                     <% }
-                    else{
+                    else {
+                        const tailles = ['XS','S','M','L','XL','XXL'];
                         elements.forEach(elem => { %>
                             <div class="col-xl-5 col-lg-3 col-md-4 col-sm-6">
-                                <a href="/produit/<%= elem.id_produit %>" class="card-link">
-                                    <div class="card mb-4">
-                                        <img src="<%= elem.image %>" class="card-img-top product"
-                                             alt="product's image">
-                                        <div class="card-body text-left">
-                                            <h5 class="card-title product"><%= elem.nom_produit %></h5>
-                                            <p class="card-text product"><%= elem.prix %> €</p>
-                                            <p class="card-text product"><%= elem.marque %></p>
-                                        </div>
+                                <div class="card mb-4">
+                                    <img src="<%= elem.image %>" class="card-img-top product"
+                                         alt="product's image">
+                                    <div class="card-body text-left">
+                                        <h5 class="card-title product"><%= elem.nom_produit %></h5>
+                                        <p class="card-text product"><%= elem.marque %></p>
+
+                                        <select id="taille-select-<%= elem.id_produit %>"
+                                                name="taille-select-<%= elem.id_produit %>"
+                                                class="form-control mb-3">
+                                            <% tailles.forEach(taille => {
+                                                const productSize = elem.tailles.find(s => s.taille === taille) || {quantite: 0};
+                                            %>
+                                            <option value="<%= taille %>"
+                                                    data-stock="<%= productSize.quantite %>"><%= taille %></option>
+                                            <% }); %>
+                                        </select>
+                                        <p id="stock-<%= elem.id_produit %>">Stock: </p>
+                                        <input id="quantite-select-<%= elem.id_produit %>" type="number" min="1" max="10"
+                                               value="1" class="form-control mb-3"
+                                               name=quantite-select-<%= elem.id_produit %>>
+                                        <button id="add-button-<%= elem.id_produit %>" class="btn btn-primary">Ajouter
+                                        </button>
                                     </div>
-                                </a>
+                                </div>
                             </div>
                         <% });
                     } %>
                 </div>
             </div>
-            <% if(totalPages>1){ %>
+        <% if(totalPages > 1){ %>
                 <div class="container justify-content-center">
                     <input id="total-pages" type="hidden" value="<%= totalPages %>">
                     <input id="current-page" type="hidden" value="<%= currentPage %>">
@@ -121,6 +136,7 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="/js/pagination.js"></script>
         <script src="/js/panier.js"></script>
+        <script src="/js/stock.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
         <script src="https://kit.fontawesome.com/607cb4a3b6.js" crossorigin="anonymous"></script>
