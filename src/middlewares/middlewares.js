@@ -1,11 +1,6 @@
 const db = require("../database_pool.local");
 const utils = require('../utils/utils');
 
-/**
- *
- * @param data
- * @returns {*}
- */
 function combineCommandes(data) {
     return data.reduce((acc, item) => {
         const existing = acc.find(x => x.id_commande === item.id_commande);
@@ -25,11 +20,25 @@ function combineCommandes(data) {
     }, []);
 }
 
+/**
+ * Fonction qui effectue la requête `queryString` avec les paramètres `params`
+ * à la base de données
+ * @param queryString requête à effectuer
+ * @param params paramètres de la requête
+ * @returns {Promise<*>} le résultat de la requête
+ */
 async function queryItems(queryString, params) {
     const result = await db.query(queryString, params);
     return result.rows;
 }
 
+/**
+ * Fonction qui génère la requête pour le résultat de la barre de recherche
+ * @param searchTerm le pattern à chercher
+ * @param limit le nombre d'éléments à récupérer pour la pagination
+ * @param offset le décalage en fonction de la page courante
+ * @returns {Promise<{totalResult: *, itemsResult: *}>} résultat de la requête
+ */
 async function getSearchItems(searchTerm, limit, offset) {
     const commonQuery = `FROM produits p
                          WHERE LOWER(nom_produit) LIKE LOWER($1)
@@ -38,14 +47,22 @@ async function getSearchItems(searchTerm, limit, offset) {
                                 FROM combinaisons_parts cp
                                 WHERE cp.id_produit = p.id_produit)`;
     const countQuery = `SELECT * ${commonQuery}`;
-    const itemsQuery = `SELECT * ${commonQuery} ORDER BY createddate LIMIT $2 OFFSET $3`;
+    const itemsQuery = `SELECT * ${commonQuery} ORDER BY createddate 
+                        LIMIT $2 OFFSET $3`;
 
     const totalResult = await queryItems(countQuery, [`%${searchTerm}%`]);
-    const itemsResult = await queryItems(itemsQuery, [`%${searchTerm}%`, limit, offset]);
+    const itemsResult = await queryItems(itemsQuery,
+        [`%${searchTerm}%`, limit, offset]);
 
     return { totalResult, itemsResult };
 }
 
+/**
+ * Fonction qui génère la requête pour la page d'accueil
+ * @param limit le nombre d'éléments à récupérer pour la pagination
+ * @param offset le décalage en fonction de la page courante
+ * @returns {Promise<{totalResult: *, itemsResult: *}>} résultat de la requête
+ */
 async function getAccueilItems(limit, offset) {
     const commonQuery = `FROM produits p
                          WHERE p.id_produit NOT IN
@@ -61,6 +78,12 @@ async function getAccueilItems(limit, offset) {
     return { totalResult, itemsResult };
 }
 
+/**
+ * Fonction qui génère la requête pour la gestion du stock
+ * @param limit le nombre d'éléments à récupérer pour la pagination
+ * @param offset le décalage en fonction de la page courante
+ * @returns {Promise<{totalResult: *, itemsResult: *}>} résultat de la requête
+ */
 async function getStockItems(limit, offset) {
     const commonQuery = `FROM produits p`;
     const countQuery = `SELECT * ${commonQuery}`;
@@ -78,6 +101,12 @@ async function getStockItems(limit, offset) {
     return { totalResult, itemsResult };
 }
 
+/**
+ * Fonction qui génère la requête pour la gestion des commandes
+ * @param limit le nombre d'éléments à récupérer pour la pagination
+ * @param offset le décalage en fonction de la page courante
+ * @returns {Promise<{totalResult: *, itemsResult: *}>} résultat de la requête
+ */
 async function getCommandesItems(limit, offset) {
     const countQuery = `SELECT c.id_commande, p.nom_produit, pc.quantite
                         FROM commandes c
@@ -97,6 +126,12 @@ async function getCommandesItems(limit, offset) {
     return { totalResult, itemsResult };
 }
 
+/**
+ * Fonction qui génère la requête pour la page de la combinaison
+ * @param limit le nombre d'éléments à récupérer pour la pagination
+ * @param offset le décalage en fonction de la page courante
+ * @returns {Promise<{totalResult: *, itemsResult: *}>} résultat de la requête
+ */
 async function getCombinaisonsItems(limit, offset) {
     const countQuery = `SELECT *
                         FROM combinaisons`;
@@ -121,11 +156,11 @@ async function getCombinaisonsItems(limit, offset) {
 }
 
 /**
- * Fonction pour récupérer les produits d'un certain type
+ * Fonction qui génère la requête pour chaque type de produit
  * @param type type de produit
- * @param limit la nombre de produits à récupérer
- * @param offset le décalage de pagination
- * @returns {Promise<{totalResult: *, itemsResult: *}>}
+ * @param limit le nombre d'éléments à récupérer pour la pagination
+ * @param offset le décalage en fonction de la page courante
+ * @returns {Promise<{totalResult: *, itemsResult: *}>} résultat de la requête
  */
 async function getDefaultItems(type, limit, offset) {
     const commonQuery = `FROM produits p
@@ -143,7 +178,17 @@ async function getDefaultItems(type, limit, offset) {
     return { totalResult, itemsResult };
 }
 
+/**
+ * Fonction qui retourne les données en fonction de la page courante
+ * @param type type de données demandées
+ * @param currentPage la page courante
+ * @param searchTerm le terme cherché s'il s'agit du type recherche
+ * @param limit le nombre de produits demandés, 10 initialement
+ * @returns {Promise<{totalPages: number, items: *[]}>} les données récupérées
+ */
 async function getPaginatedItems(type, currentPage, searchTerm, limit = 10) {
+    // on calcule le décalage en fonction de la page courante et
+    // le nombre d'éléments à afficher
     const offset = (currentPage - 1) * limit;
     let totalResult;
     let itemsResult;
@@ -170,6 +215,8 @@ async function getPaginatedItems(type, currentPage, searchTerm, limit = 10) {
                 ({totalResult, itemsResult} = await getDefaultItems(type, limit, offset));
         }
 
+        // on calcule le nombre d'éléments dans la requête pour connaître
+        // le nombre total de pages
         const totalLength = totalResult.length;
         const totalPages = Math.ceil(totalLength / limit);
 
@@ -195,7 +242,6 @@ async function getPaginatedItems(type, currentPage, searchTerm, limit = 10) {
 }
 
 /**
- *
  * Fonction pour gérer la redirection en fonction du nom de routage
  * @param routeName routage à analyser
  * @param search_input entrée de la recherche si présente
@@ -211,6 +257,16 @@ function getRedirectUrl(routeName, search_input, page) {
     }
 }
 
+/**
+ * Fonction qui met à jour les variables locales de la réponse res
+ * @param req
+ * @param res
+ * @param routeName le path d'origine
+ * @param items les données récupérées
+ * @param totalPages le nombre total de pages
+ * @param currentPage la page courante
+ * @returns {Promise<void>}
+ */
 async function setResLocals(req, res, routeName, items, totalPages, currentPage) {
     res.locals = {
         elements: items,
@@ -222,7 +278,7 @@ async function setResLocals(req, res, routeName, items, totalPages, currentPage)
         lieu: routeName
     };
 
-    // on change le routeName pour le bon rendering dans le routage correspondant
+    // on change le routeName pour afficher le bon fichier EJS
     if (routeName === 'accueil' || routeName === 'search' || req.params.type) {
         res.locals.viewName = 'page';
     }
@@ -231,10 +287,16 @@ async function setResLocals(req, res, routeName, items, totalPages, currentPage)
     }
 }
 
-// fonction middleware pour gérer le render des fichiers EJS et la pagination
+/**
+ * Fonction qui gère le render des fichiers EJS couplé à la pagination
+ * @param req
+ * @param res
+ * @param next
+ * @returns {Promise<*>}
+ */
 async function handleRendering(req, res, next) {
     try {
-        // on récupère le nom de routage sans le /
+        // on récupère le nom de routage sans le '/'
         const routeName = req.params.type || req.route.path.slice(1);
         // on récupère le getter de recherche si présent
         const search_input = req.query.recherche || '';
@@ -262,13 +324,14 @@ async function handleRendering(req, res, next) {
 
 /**
  * Fonction qui vérifie que le path demandé correspond à une des catégories
- * Redirige vers la page principale sinon
+ * et redirige vers la page principale sinon
  * @param req
  * @param res
  * @param next
  */
 function validateCategory(req, res, next) {
-    const allowedCategories = ['pantalons', 'shorts', 'chemises','vestes','pulls','costumes','manteaux','robes','chaussettes'];
+    const allowedCategories = ['pantalons', 'shorts', 'chemises','vestes',
+        'pulls','costumes','manteaux','robes','chaussettes'];
     const type = req.params.type;
 
     if (allowedCategories.includes(type)) {
@@ -278,6 +341,11 @@ function validateCategory(req, res, next) {
     }
 }
 
+/**
+ * Fonction qui vérifie dans la session que l'utilisateur est connecté
+ * @param req
+ * @returns {*} un booléen
+ */
 function isAuthentificated(req){
     return((req.session && req.session.user));
 }
