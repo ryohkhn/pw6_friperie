@@ -1,5 +1,6 @@
 const { Client } = require('pg');
 
+// configuration du module de Postresql
 const client = new Client({
     user: 'postgres',
     host: 'localhost',

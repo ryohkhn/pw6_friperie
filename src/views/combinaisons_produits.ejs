@@ -79,7 +79,6 @@
     <div class="container-fluid px-0 main-frame">
         <div class="container">
             <div class="row">
-                <!-- Colonne des images -->
                 <div class="col-md-6">
                     <% combinedCombinaison.products.forEach((product, index) => { %>
                         <div class="mb-3 d-flex justify-content-center">
@@ -88,7 +87,6 @@
                     <% }); %>
                 </div>
 
-                <!-- Colonne des infos produits -->
                 <div class="col-md-6">
                     <form method="post" action="/" id="add-to-panier-combinaison-form">
                         <input type="hidden" name="id_combi" value="<%= combinedCombinaison.id_combinaison %>">

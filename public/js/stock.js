@@ -1,25 +1,30 @@
 $(document).ready(function() {
-    // For each size selector
+    /**
+     * Event handler sur le selecteur de taille de chaque produit.
+     * A chaque changement, le stock correspondant est dynamiquement changé.
+     */
     $('select[id^="taille-select-"]').each(function() {
-        // Get the product ID from the size selector's id
         const productId = $(this).attr('id').split('-')[2];
 
-        // On size change
+        // event handler sur le selecteur
         $(this).change(function() {
-            // Get the selected size
             const selectedSize = $(this).val();
 
-            // Get the stock for the selected size
-            const stock = $(this).find(`option[value=${selectedSize}]`).data('stock');
+            // on récupère le stock correspondant à la taille
+            const stock =
+                $(this).find(`option[value=${selectedSize}]`).data('stock');
 
-            // Update the stock display
+            // changement dynamique du stock
             $(`#stock-${productId}`).text(`Stock: ${stock}`);
         });
 
-        // Trigger change event on page load to display the stock of the first size
+        // affiche le stock sur la première taille au chargement de la page
         $(this).trigger('change');
     });
 
+    /**
+     * Event handler sur le bouton d'ajout de stock
+     */
     $('button[id^="add-button-"]').click(function () {
         // on récupère l'id du produit dont le stock dont le stock a été ajouté
         const productId = $(this).attr('id').split('-')[2];
@@ -28,9 +33,9 @@ $(document).ready(function() {
         const taille = $(`#taille-select-${productId}`).val();
         const quantite = $(`#quantite-select-${productId}`).val();
 
-        // Send AJAX request to your specific route
+        // envoi de la requête Ajax au serveur
         $.ajax({
-            url: '/ajouterStockAjax', // Replace with your specific route
+            url: '/ajouterStockAjax',
             type: 'POST',
             data: {
                 id: productId,
@@ -43,7 +48,8 @@ $(document).ready(function() {
                 $(`#stock-${productId}`).text(`Stock: ${nouveauStock}`);
 
                 // on met à jour la valeur data cachée dans le selecteur des tailles
-                $(`#taille-select-${productId} option:selected`).data('stock', nouveauStock);
+                $(`#taille-select-${productId} option:selected`)
+                    .data('stock', nouveauStock);
             },
             error: function (xhr, status, error) {
                 console.error('Erreur d`ajout de stock à la BD:', error);
