@@ -36,7 +36,7 @@
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenu">
                                 <%if(activeSession){%>
-                                     <a class="dropdown-item" href="/options">Gérer</a>
+                                     <a class="dropdown-item" href="/stock">Gérer</a>
                                      <a class="dropdown-item" href="/commandes">Commandes</a>
                                      <a class="dropdown-item" href="/disconnect">Déconnexion</a>
                                  <%}else{%>
@@ -77,77 +77,6 @@
         </div>
     </div>
     <div class="container-fluid main-frame">
-        <!--
-        <div class="container">
-            <table id="table" class="table table-image">
-                <%
-                if(elements.length === 0){ %>
-                    <p class="w-25 text-center">Aucun produit dans le panier</p>
-                <%
-                }
-                else{
-                for (let i = 0; i < elements.length; i++) { %>
-                    <tr data-basket-id="<%= elements[i].id_produit %>" data-basket-size="<%= elements[i].size %>" data-basket-accessoire="<%= elements[i].id_accessoire%>" data-basket-prix="<%= elements[i].prix%>" class="text-center">
-                        <td><img src="<%= elements[i].image %>" class="img-fluid" alt="product's image"></td>
-                        <td class="align-middle"><p><strong><%= elements[i].nom_produit %></strong></p></td>
-                        <td class="align-middle"><p><%= elements[i].nom_accessoire %></p></td>
-                        <td class="align-middle"><%= elements[i].prix * elements[i].quantity %> €</td>
-                        <td class="align-middle"><%= elements[i].size %></td>
-                        <td class="align-middle"><%= elements[i].quantity %></td>
-                        <td class="align-middle">
-                            <button class="btn btn-danger delete-basket-btn">Supprimer</button>
-                        </td>
-                    </tr>
-                <% }
-                } %>
-            </table>
-            <a href="/paiement" class="w-25 text-center btn btn-primary">Payer</a>
-        </div>
-
-        <div class="container">
-            <table id="table" class="table table-image table-responsive">
-                <% if(elements.length === 0) { %>
-                    <p class="w-25 text-center">Aucun produit dans le panier</p>
-                <% } else {
-                for (let i = 0; i < elements.length; i++) {
-                    const element = elements[i];
-                if (element.type === 'combinaison') { %>
-                    <tr data-basket-id="<%= element.combinaisonId %>" class="text-center">
-                        <td><img src="<%= element.image %>" class="img-fluid img-thumbnail" alt="Combinaison image">
-                        </td>
-                        <td class="align-middle">
-                            <p><strong>Combinaison:</strong></p>
-                            <% element.produits.forEach((produit) => { %>
-                                <p><strong><%= produit.nom_produit %>:</strong> Taille <%= produit.taille %></p>
-                            <% }); %>
-                        </td>
-                        <td class="align-middle"><%= element.quantity %></td>
-                        <td class="align-middle"><%= element.prix %> €</td>
-                        <td class="align-middle">
-                            <button class="btn btn-danger delete-basket-btn">Supprimer</button>
-                        </td>
-                    </tr>
-                <% } else { %>
-                    <tr data-basket-id="<%= element.id_produit %>" data-basket-size="<%= element.size %>"
-                        data-basket-accessoire="<%= element.id_accessoire %>" data-basket-prix="<%= element.prix %>"
-                        class="text-center">
-                        <td><img src="<%= element.image %>" class="img-fluid img-thumbnail" alt="Product image"></td>
-                        <td class="align-middle">
-                            <p><strong><%= element.nom_produit %>:</strong> Taille <%= element.taille %></p>
-                        </td>
-                        <td class="align-middle"><%= element.quantity %></td>
-                        <td class="align-middle"><%= element.prix * element.quantity %> €</td>
-                        <td class="align-middle">
-                            <button class="btn btn-danger delete-basket-btn">Supprimer</button>
-                        </td>
-                    </tr>
-                <% }
-                }
-                } %>
-            </table>
-            <a href="#" class="w-25 text-center btn btn-primary">Payer</a>
-        </div>
-        -->
         <div class="container">
             <% if(elements.length === 0) { %>
                 <div class="row">

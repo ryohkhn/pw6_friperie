@@ -49,7 +49,8 @@ function fullLetter(text){
     var letters = /^[A-Za-z]+$/;
     if(text.value.match(letters)){
         return true;
-    }else{
+    }
+    else{
         alert('Username must have alphabet characters only');
         text.focus();
         return false;
@@ -148,7 +149,8 @@ router.post('/verify_register', (req, res) => {
             if (err) {
                 console.log(err);
                 res.render('error.ejs',{errorCode: err});
-            }else if (result2.rows.length > 0) {
+            }
+            else if (result2.rows.length > 0) {
                 errors.emailExists = "L'adresse mail entrée n'est pas disponible.";
             }
             if(Object.keys(errors).length === 0){
@@ -160,16 +162,19 @@ router.post('/verify_register', (req, res) => {
                     if (err) {
                         console.log(err);
                         res.render('error.ejs',{errorCode: err});
-                    }else{
+                    }
+                    else{
                         res.render('login_page.ejs', {
                             failed: false,
                             login_type_val:'clients',
                             prixTotal: getPrixTotalCookie(req),
-                            activeSession: isAuthentificated(req),                        });
+                            activeSession: isAuthentificated(req),
+                        });
                     }
                 });
 
-            }else{
+            }
+            else{
                 res.render('register_page.ejs',{
                     erreurs:errors,
                     activeSession: isAuthentificated(req),
@@ -255,7 +260,8 @@ router.post('/verify_payment', async (req, res) => {
                     VALUES ('${resultProdCommande.rows[0].id_produit_commande}','${commandeId}','${element.quantity}');`;
                     const resultProdUnique = await db.query(reqProdUnique);
 
-                } else if (element.type === 'combinaison') {
+                }
+                else if (element.type === 'combinaison') {
                     const resultProdCommande1 = await insertProduitCommande(element.produits[0]);
                     const resultProdCommande2 = await insertProduitCommande(element.produits[1]);
                     const resultProdCommande3 = await insertProduitCommande(element.produits[2]);
@@ -267,12 +273,14 @@ router.post('/verify_payment', async (req, res) => {
             }
             res.clearCookie('panier');
             res.clearCookie('prixTotal');
+            console.log(req.cookies.prixTotal);
             res.render('confirmation.ejs',{
                 prixTotal: getPrixTotalCookie(req),
                 activeSession: isAuthentificated(req),
                 user: isAuthentificated(req) ? req.session.user : {}
             });
-        }else{
+        }
+        else{
             res.render('paiement.ejs',{
                 erreurs:errors,
                 prixTotal: getPrixTotalCookie(req),
@@ -319,7 +327,8 @@ router.post('/verify_login', async (req, res) => {
                         ville: result.rows[0].ville,
                         code: result.rows[0].code
                     };
-                }else{
+                }
+                else{
                     req.session.user = {
                         loginType: login_type,
                         userId: result.rows[0].id,
