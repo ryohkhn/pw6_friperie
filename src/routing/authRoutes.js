@@ -253,13 +253,15 @@ router.post('/verify_payment', async (req, res) => {
                 if (element.type === 'produit') {
                     
                     const resultProdCommande = await insertProduitCommande(element);
+                    const id_produit_commande = resultProdCommande.rows[0].id_produit_commande;
+                    console.log("id_prod_com " + id_produit_commande);
 
                     const reqProdUnique = `INSERT INTO produits_uniques_commandes (id_produit_commande, id_commande, quantite)
-                    VALUES ('${resultProdCommande.rows[0].id_produit_commande}','${commandeId}','${element.quantity}');`;
+                    VALUES ('${id_produit_commande}','${commandeId}','${element.quantity}');`;
                     const resultProdUnique = await db.query(reqProdUnique);
 
                     const reqStock = `UPDATE dispo_tailles SET quantite = 2
-                    WHERE id_produit = '${resultProdCommande.rows[0].id_produit_commande}' AND taille = '${element.taille}';`;
+                    WHERE id_produit = '${element.produitId}' AND taille = '${element.taille}';`;
                     const resStock = await db.query(reqStock);
                 }
                 else if (element.type === 'combinaison') {
