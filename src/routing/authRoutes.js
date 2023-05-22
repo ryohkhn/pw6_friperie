@@ -205,6 +205,11 @@ router.post('/verify_payment', async (req, res) => {
 
 
     let errors = {};
+    const panier = req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
+    if(panier.length===0){
+        res.redirect('/');
+        return;
+    }
 
     if (!prenom.match(alphaRegex)) {
         errors.prenom ="Le prénom doit être composé de lettres uniquement.";
@@ -249,8 +254,6 @@ router.post('/verify_payment', async (req, res) => {
             const result3 = await db.query(reqInsert);
             const commandeId = result3.rows[0].id_commande;
 
-            const panier = req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
-
             for (const element of panier) {
                 if (element.type === 'produit') {
                     
@@ -279,6 +282,7 @@ router.post('/verify_payment', async (req, res) => {
                 activeSession: isAuthentificated(req),
                 user: isAuthentificated(req) ? req.session.user : {}
             });
+            return;
         }
         else{
             res.render('paiement.ejs',{
@@ -287,6 +291,7 @@ router.post('/verify_payment', async (req, res) => {
                 activeSession: isAuthentificated(req),
                 user: isAuthentificated(req) ? req.session.user : {}
             });
+            return;
         }
     } catch (err) {
         console.log(err);
