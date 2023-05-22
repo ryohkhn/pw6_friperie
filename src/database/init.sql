@@ -93,9 +93,11 @@ CREATE TABLE commandes(
     adresse2 VARCHAR(255) NOT NULL,
     ville VARCHAR(255) NOT NULL,
     code VARCHAR(10) NOT NULL,
+    archived BOOLEAN DEFAULT FALSE,
     PRIMARY KEY (id_commande)
 );
 
+-- Table qui lie à une commande un produit ainsi que son accessoire et sa taille
 CREATE TABLE produit_commande(
     id_produit_commande SERIAL,
     id_produit INT NOT NULL,
@@ -107,6 +109,7 @@ CREATE TABLE produit_commande(
     FOREIGN KEY (id_produit, taille) REFERENCES dispo_tailles(id_produit, taille)
 );
 
+-- Tablie qui lie à une commande un produit et une quantité
 CREATE TABLE produits_uniques_commandes(
     id_produit_unique SERIAL,
     id_produit_commande INT NOT NULL,
@@ -117,6 +120,7 @@ CREATE TABLE produits_uniques_commandes(
     FOREIGN KEY (id_commande) REFERENCES commandes(id_commande)
 );
 
+-- Table qui lie les combinaisons à une commande
 CREATE TABLE combinaisons_commandes(
     id_combinaison_commande SERIAL,
     id_combinaison INT NOT NULL,

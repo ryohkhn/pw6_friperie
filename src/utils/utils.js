@@ -1,3 +1,5 @@
+const db = require("../database_pool.local");
+
 /**
  * Fonction qui retourne la valeur du total du panier
  * @param req
@@ -109,6 +111,30 @@ function combineCombinaisons(rows) {
     return Object.values(combinaisons);
 }
 
+async function getCombinaison(combiId){
+     const request = `SELECT *
+                     FROM combinaisons 
+                     WHERE id_combinaison = $1`;
+    const result = await db.query(request, [combiId]);
+    return result.rows;
+}
+
+async function getProduit(productId) {
+    const request = `SELECT *
+                     FROM produits
+                     WHERE id_produit = $1`;
+    const result = await db.query(request, [productId]);
+    return result.rows;
+}
+
+async function getSpecificAccessoires(accessoireId) {
+    const accessoiresReq = `SELECT *
+                            FROM accessoires
+                            WHERE id_accessoire = $1`;
+    const result = await db.query(accessoiresReq, [accessoireId]);
+    return result.rows;
+}
+
 module.exports = {
     getPrixTotalCookie,
     getCookiePanierIndex,
@@ -117,4 +143,7 @@ module.exports = {
     updatePanierCombinaisons,
     deleteProduit,
     combineCombinaisons,
+    getCombinaison,
+    getProduit,
+    getSpecificAccessoires,
 };

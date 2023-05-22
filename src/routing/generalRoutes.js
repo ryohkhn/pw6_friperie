@@ -12,30 +12,6 @@ async function getAccessoires() {
     return result.rows;
 }
 
-async function getSpecificAccessoires(accessoireId) {
-    const accessoiresReq = `SELECT *
-                            FROM accessoires
-                            WHERE id_accessoire = $1`;
-    const result = await db.query(accessoiresReq, [accessoireId]);
-    return result.rows;
-}
-
-async function getProduit(productId) {
-    const request = `SELECT *
-                     FROM produits
-                     WHERE id_produit = $1`;
-    const result = await db.query(request, [productId]);
-    return result.rows;
-}
-
-async function getCombinaison(combiId){
-     const request = `SELECT *
-                     FROM combinaisons 
-                     WHERE id_combinaison = $1`;
-    const result = await db.query(request, [combiId]);
-    return result.rows;
-}
-
 async function getCombinaisonAll(combiId) {
     const request = `SELECT c.id_combinaison,
                             c.type,
@@ -73,11 +49,11 @@ async function getAccessoireLie(productId) {
 }
 
 async function processCookieProduit(produit) {
-    const resultatProduit = await getProduit(produit.produitId);
+    const resultatProduit = await utils.getProduit(produit.produitId);
 
     let resultatAccessoire;
     if (produit.accessoireId !== '') {
-        resultatAccessoire = await getSpecificAccessoires(produit.accessoireId);
+        resultatAccessoire = await utils.getSpecificAccessoires(produit.accessoireId);
     }
     else {
         resultatAccessoire = [{ id_accessoire: '' }];
@@ -129,7 +105,8 @@ router.get('/panier', async (req, res) => {
                 activeSession: middlewares.isAuthentificated(req),
                 user: middlewares.isAuthentificated(req) ? req.session.user : {}
             });
-        } else {
+        }
+        else {
             const tab = [];
             console.log(panier);
             const verifPanier = await middlewares.verifStocks(panier);
@@ -150,7 +127,7 @@ router.get('/panier', async (req, res) => {
                 }
                 else if (element.type === 'combinaison') {
                     const produits = [];
-                    const combi = await getCombinaison(element.combinaisonId);
+                    const combi = await utils.getCombinaison(element.combinaisonId);
                     element.nom = combi[0].type;
                     element.image = combi[0].image;
                     element.prix = combi[0].prix;
@@ -190,7 +167,7 @@ router.get('/produit/:num', async (req, res) => {
     try {
         const productId = req.params.num;
 
-        const result = await getProduit(productId);
+        const result = await utils.getProduit(productId);
         const result2 = await getAccessoires();
         const result3 = await getTaillesProduit(productId);
         const result4 = await getAccessoireLie(productId);
@@ -218,7 +195,7 @@ router.get('/combinaison/:num', async (req, res) => {
             const accLie = await getAccessoireLie(produit.id_produit);
             let acc = [];
             if(accLie.length>0){
-                acc = await getSpecificAccessoires(accLie[0].id_accessoire);
+                acc = await utils.getSpecificAccessoires(accLie[0].id_accessoire);
             }
             produit.accessoire = acc;
         }

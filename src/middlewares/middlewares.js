@@ -1,24 +1,6 @@
 const db = require("../database_pool.local");
 const utils = require('../utils/utils');
-
-function combineCommandes(data) {
-    return data.reduce((acc, item) => {
-        const existing = acc.find(x => x.id_commande === item.id_commande);
-
-        if (existing) {
-            existing.produits.push({nom_produit: item.nom_produit, quantite: item.quantite});
-        }
-        else {
-            acc.push({
-                id_client: item.id_client,
-                id_commande: item.id_commande,
-                produits: [{nom_produit: item.nom_produit, quantite: item.quantite}]
-            });
-        }
-
-        return acc;
-    }, []);
-}
+const {getCombinaison, getProduit} = require("../utils/utils");
 
 /**
  * Fonction qui effectue la requête `queryString` avec les paramètres `params`
@@ -101,6 +83,67 @@ async function getStockItems(limit, offset) {
     return { totalResult, itemsResult };
 }
 
+async function getProduitCommande(idProduitCommande) {
+    const produitCommande = `SELECT * FROM produit_commande pc
+                                 WHERE pc.id_produit_commande = $1`;
+    const produitCommandeRes = await queryItems(produitCommande, [idProduitCommande]);
+    const produitId = produitCommandeRes[0].id_produit;
+    const accessoireId = produitCommandeRes[0].id_accessoire;
+
+    // on récupère seulement un élément car on attend un seul produit
+    const produitRes = (await utils.getProduit(produitId))[0];
+    let accessoireRes;
+    if(accessoireId !== null){
+        // on récupère seulement un élément car on attend un seul accessoire
+        accessoireRes = (await utils.getSpecificAccessoires(accessoireId))[0];
+    }
+    return {
+        id_produit_commande: produitCommandeRes[0].id_produit_commande,
+        produit: produitRes,
+        accessoire: accessoireRes,
+        taille: produitCommandeRes[0].taille
+    };
+}
+
+async function getCommandeItems(id_commande) {
+    const commandeQuery = `SELECT *
+                           FROM commandes c
+                           WHERE c.id_commande = $1`;
+    const combinaisonCommande = `SELECT id_combinaison,
+                                        id_produit_commande1,
+                                        id_produit_commande2,
+                                        id_produit_commande3,
+                                        quantite
+                                 FROM combinaisons_commandes
+                                 WHERE id_commande = $1`;
+    const produitsCommande = `SELECT quantite, id_produit_commande
+                              FROM produits_uniques_commandes
+                              WHERE id_commande = $1`;
+    const commandeResult = await queryItems(commandeQuery,[id_commande]);
+    const combinaisonsResult = await queryItems(combinaisonCommande, [id_commande]);
+    const produitsResult = await queryItems(produitsCommande, [id_commande]);
+    commandeResult.combis = [];
+    commandeResult.produits = [];
+
+    // If there are combinaisonResults, fetch the products and add them to the array
+    for (const combi of combinaisonsResult) {
+        const produit1 = await getProduitCommande(combi.id_produit_commande1);
+        const produit2 = await getProduitCommande(combi.id_produit_commande2);
+        const produit3 = await getProduitCommande(combi.id_produit_commande3);
+        const quantite = combi.quantite;
+        commandeResult.combis.push({produit1,produit2,produit3,quantite});
+    }
+    // If there are produitsResults, add them to the array
+    for (const prod of produitsResult) {
+        const produit = await getProduitCommande(prod.id_produit_commande);
+        const quantite = prod.quantite;
+        commandeResult.produits.push({produit,quantite})
+    }
+    // console.log(commandeResult.produits);
+
+    return commandeResult;
+}
+
 /**
  * Fonction qui génère la requête pour la gestion des commandes
  * @param limit le nombre d'éléments à récupérer pour la pagination
@@ -108,20 +151,19 @@ async function getStockItems(limit, offset) {
  * @returns {Promise<{totalResult: *, itemsResult: *}>} résultat de la requête
  */
 async function getCommandesItems(limit, offset) {
-    const countQuery = `SELECT c.id_commande, p.nom_produit, pc.quantite
-                        FROM commandes c
-                                 JOIN produits_commandes pc ON c.id_commande = pc.id_commande
-                                 JOIN produits p ON pc.id_produit = p.id_produit
-                        ORDER BY c.id_commande;`;
-    const itemsQuery = `SELECT c.nom, c.prenom, c.id_commande, p.nom_produit, pc.quantite
-                        FROM commandes c
-                                 JOIN produits_commandes pc ON c.id_commande = pc.id_commande
-                                 JOIN produits p ON pc.id_produit = p.id_produit
-                        ORDER BY c.id_commande
+    const countQuery = `SELECT COUNT(DISTINCT id_commande) FROM commandes WHERE NOT archived`;
+    const commandesQuery = `SELECT id_commande FROM commandes c
+                        WHERE NOT archived ORDER BY c.id_commande DESC
                         LIMIT $1 OFFSET $2`;
 
     const totalResult = await queryItems(countQuery, []);
-    const itemsResult = await queryItems(itemsQuery, [limit, offset]);
+    const commandesResult = await queryItems(commandesQuery, [limit, offset]);
+
+    let itemsResult = [];
+    for (let commande of commandesResult) {
+        let tempRes = await getCommandeItems(commande.id_commande);
+        itemsResult.push(tempRes);
+    }
 
     return { totalResult, itemsResult };
 }
@@ -150,7 +192,9 @@ async function getCombinaisonsItems(limit, offset) {
                         ORDER BY c.id_combinaison, cp.id_partie`;
 
     const totalResult = await queryItems(countQuery, []);
-    const itemsResult = await queryItems(itemsQuery, []);
+    let itemsResult = await queryItems(itemsQuery, []);
+
+    itemsResult = utils.combineCombinaisons(itemsResult);
 
     return { totalResult, itemsResult };
 }
@@ -184,7 +228,7 @@ async function getDefaultItems(type, limit, offset) {
  * @param currentPage la page courante
  * @param searchTerm le terme cherché s'il s'agit du type recherche
  * @param limit le nombre de produits demandés, 10 initialement
- * @returns {Promise<{totalPages: number, items: *[]}>} les données récupérées
+ * @returns {Promise<{totalPages: number, itemsResult}>} les données récupérées
  */
 async function getPaginatedItems(type, currentPage, searchTerm, limit = 10) {
     // on calcule le décalage en fonction de la page courante et
@@ -209,7 +253,6 @@ async function getPaginatedItems(type, currentPage, searchTerm, limit = 10) {
                 break;
             case 'stock':
                 ({totalResult, itemsResult} = await getStockItems(limit, offset));
-                console.log(itemsResult);
                 break;
             default:
                 ({totalResult, itemsResult} = await getDefaultItems(type, limit, offset));
@@ -220,19 +263,8 @@ async function getPaginatedItems(type, currentPage, searchTerm, limit = 10) {
         const totalLength = totalResult.length;
         const totalPages = Math.ceil(totalLength / limit);
 
-        let items;
-        if (type === 'commandes') {
-            items = combineCommandes(itemsResult);
-        }
-        else if (type === 'combinaisons') {
-            items = utils.combineCombinaisons(itemsResult);
-        }
-        else {
-            items = itemsResult;
-        }
-
         return {
-            items,
+            itemsResult,
             totalPages,
         };
     } catch (err) {
@@ -252,7 +284,7 @@ function getRedirectUrl(routeName, search_input, page) {
     if (routeName === 'search') {
         return `/search?recherche=${encodeURIComponent(search_input)}&page=${page}`;
     }
-    else if(routeName === 'accueil'){
+    else{
         return `/${routeName}?page=${page}`;
     }
 }
@@ -262,14 +294,14 @@ function getRedirectUrl(routeName, search_input, page) {
  * @param req
  * @param res
  * @param routeName le path d'origine
- * @param items les données récupérées
+ * @param itemsResult les données récupérées
  * @param totalPages le nombre total de pages
  * @param currentPage la page courante
  * @returns {Promise<void>}
  */
-async function setResLocals(req, res, routeName, items, totalPages, currentPage) {
+async function setResLocals(req, res, routeName, itemsResult, totalPages, currentPage) {
     res.locals = {
-        elements: items,
+        elements: itemsResult,
         totalPages: totalPages,
         currentPage: currentPage,
         activeSession: isAuthentificated(req),
@@ -308,12 +340,12 @@ async function handleRendering(req, res, next) {
         }
 
         // on récupère une partie des données en fonction de la page courage
-        const {items, totalPages} = await getPaginatedItems(routeName, currentPage, search_input);
-        if (currentPage > totalPages && items.length !== 0) {
+        const {itemsResult, totalPages} = await getPaginatedItems(routeName, currentPage, search_input);
+        if (currentPage > totalPages && totalPages !== 0) {
             return res.redirect(getRedirectUrl(routeName, search_input, totalPages));
         }
 
-        await setResLocals(req, res, routeName, items, totalPages, currentPage);
+        await setResLocals(req, res, routeName, itemsResult, totalPages, currentPage);
 
         next();
     } catch (err) {

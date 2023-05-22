@@ -76,49 +76,223 @@
             </nav>
         </div>
     </div>
+    <!--
     <div class="container-fluid main-frame">
         <h2>Commandes récentes</h2>
-        <table class="table table-striped">
-            <thead>
-            <tr>
-                <th>Commande n°</th>
-                <th>Prénom</th>
-                <th>Nom</th>
-                <th>Produits</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <% elements.forEach(commande => { %>
-                <tr data-order-id="<%= commande.id_commande %>">
-                    <td><%= commande.id_commande %></td>
-                    <td><%= commande.prenom %></td>
-                    <td><%= commande.nom %></td>
-                    <td>
-                        <table class="table table-bordered">
-                            <thead>
-                            <tr>
-                                <th>ID du produit</th>
-                                <th>Quantité</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <% commande.produits.forEach(produit => { %>
-                                <tr>
-                                    <td><%= produit.nom_produit %></td>
-                                    <td><%= produit.quantite %></td>
-                                </tr>
-                            <% }); %>
-                            </tbody>
-                        </table>
-                    </td>
-                    <td>
-                        <button class="btn btn-danger delete-order-btn">Supprimer</button>
-                    </td>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>Commande n°</th>
+                    <th>Prénom</th>
+                    <th>Nom</th>
+                    <th>Produits</th>
+                    <th></th>
                 </tr>
-            <% }); %>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                <% elements.forEach(element => { %>
+                    <% let commande = element;
+                    let commande_info = commande[0];
+                    %>
+                    <tr data-order-id="<%= commande_info.id_commande %>">
+                        <td><%= commande_info.id_commande %></td>
+                        <td><%= commande_info.prenom %></td>
+                        <td><%= commande_info.nom %></td>
+                        <td>
+                            <% if(commande.produits) { %>
+                                <div>
+                                    <% commande.produits.forEach(produit => { %>
+                                        <div>
+                                            <span><%= produit.produit.nom_produit %> (Quantité: <%= produit.quantite %>, Taille: <%= produit.produit.taille %>, Accessoire: <%= produit.produit.accessoire ? produit.produit.accessoire.nom_accessoire : 'N/A' %>)</span>
+                                        </div>
+                                    <% }); %>
+                                </div>
+                            <% } %>
+
+                            <% if(element.combis) { %>
+                                <div>
+                                    <h5>Combis</h5>
+                                    <% element.combis.forEach(combi => { %>
+                                        <div>
+                                            <span>Quantité: <%= combi.quantite %></span>
+                                            <ul>
+                                                <li><%= combi.produit1.nom_produit %>
+                                                    (Taille: <%= combi.produit1.taille %>
+                                                    ,
+                                                    Accessoire: <%= combi.produit1.accessoire ? combi.produit1.accessoire.nom_accessoire : 'N/A' %>
+                                                    )
+                                                </li>
+                                                <li><%= combi.produit2.nom_produit %>
+                                                    (Taille: <%= combi.produit2.taille %>
+                                                    ,
+                                                    Accessoire: <%= combi.produit2.accessoire ? combi.produit2.accessoire.nom_accessoire : 'N/A' %>
+                                                    )
+                                                </li>
+                                                <li><%= combi.produit3.nom_produit %>
+                                                    (Taille: <%= combi.produit3.taille %>
+                                                    ,
+                                                    Accessoire: <%= combi.produit3.accessoire ? combi.produit3.accessoire.nom_accessoire : 'N/A' %>
+                                                    )
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    <% }); %>
+                                </div>
+                            <% } %>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger delete-order-btn">
+                                Supprimer
+                            </button>
+                        </td>
+                    </tr>
+                <% }); %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="container-fluid main-frame">
+        <h2>Commandes récentes</h2>
+        <div class="row bg-light text-dark mb-2">
+            <div class="col-md-2">Commande n°</div>
+            <div class="col-md-2">Prénom</div>
+            <div class="col-md-2">Nom</div>
+            <div class="col-md-5">Contenu</div>
+            <div class="col-md-1"></div>
+        </div>
+        <% elements.forEach(element => { %>
+            <% let commande_info = element[0]; %>
+            <div class="row mb-2"
+                 data-order-id="<%= commande_info.id_commande %>">
+                <div class="col-md-2"><%= commande_info.id_commande %></div>
+                <div class="col-md-2"><%= commande_info.prenom %></div>
+                <div class="col-md-2"><%= commande_info.nom %></div>
+                <div class="col-md-5">
+                    <% if(element.produits && element.produits.length > 0) { %>
+                        <div>
+                            <h6 class="font-weight-bold">Produits:</h6>
+                            <% element.produits.forEach(produit => { %>
+                                <div>
+                                    <span><%= produit.produit.produit.nom_produit %> (Quantité: <%= produit.quantite %>, Taille: <%= produit.produit.taille %>, Accessoire: <%= produit.produit.accessoire ? produit.produit.accessoire.nom_accessoire : 'N/A' %>)</span>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } %>
+                    <% if(element.combis && element.combis.length > 0) { %>
+                        <div>
+                            <h6 class="font-weight-bold">Combinaisons:</h6>
+                            <% element.combis.forEach(combi => { %>
+                                <div>
+                                    <span>Quantité: <%= combi.quantite %></span>
+                                    <ul>
+                                        <li><%= combi.produit1.produit.nom_produit %>
+                                            (Taille: <%= combi.produit1.produit.taille %>
+                                            ,
+                                            Accessoire: <%= combi.produit1.accessoire ? combi.produit1.accessoire.nom_accessoire : 'N/A' %>
+                                            )
+                                        </li>
+                                        <li><%= combi.produit2.produit.nom_produit %>
+                                            (Taille: <%= combi.produit2.taille %>
+                                            ,
+                                            Accessoire: <%= combi.produit2.accessoire ? combi.produit2.accessoire.nom_accessoire : 'N/A' %>
+                                            )
+                                        </li>
+                                        <li><%= combi.produit3.produit.nom_produit %>
+                                            (Taille: <%= combi.produit3.taille %>
+                                            ,
+                                            Accessoire: <%= combi.produit3.accessoire ? combi.produit3.accessoire.nom_accessoire : 'N/A' %>
+                                            )
+                                        </li>
+                                    </ul>
+                                </div>
+                            <% }); %>
+                        </div>
+                    <% } %>
+                </div>
+                <div class="col-md-1">
+                    <button class="btn btn-danger delete-order-btn">
+                        Supprimer
+                    </button>
+                </div>
+            </div>
+        <% }); %>
+    </div>
+    -->
+    <div class="container-fluid main-frame">
+        <h2>Commandes récentes</h2>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Commande n°</th>
+                        <th>Prénom</th>
+                        <th>Nom</th>
+                        <th>Contenu</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                <% elements.forEach(element => { %>
+                    <% let commande_info = element[0]; %>
+                    <tr data-order-id="<%= commande_info.id_commande %>">
+                        <td><%= commande_info.id_commande %></td>
+                        <td><%= commande_info.prenom %></td>
+                        <td><%= commande_info.nom %></td>
+                        <td>
+                            <% if(element.produits && element.produits.length > 0) { %>
+                                <div>
+                                    <h6 class="font-weight-bold">Produits:</h6>
+                                    <% element.produits.forEach(produit => { %>
+                                        <div>
+                                            <span><%= produit.produit.produit.nom_produit %> (Quantité: <%= produit.quantite %>, Taille: <%= produit.produit.taille %>
+                                                <% if(produit.produit.accessoire){%> , Accessoire: <%= produit.produit.accessoire.nom_accessoire %> )<%}else{%>)<%}%></span>
+                                        </div>
+                                    <% }); %>
+                                </div>
+                            <% } %>
+                            <% if(element.combis && element.combis.length > 0) { %>
+                                <div>
+                                    <h6 class="font-weight-bold">
+                                        Combinaisons:</h6>
+                                    <% element.combis.forEach(combi => { %>
+                                        <div>
+                                            <span>Quantité: <%= combi.quantite %></span>
+                                            <ul>
+                                                <li><%= combi.produit1.produit.nom_produit %>
+                                                    (Taille: <%= combi.produit1.taille %>
+                                                    ,
+                                                    Accessoire: <%= combi.produit1.accessoire ? combi.produit1.accessoire.nom_accessoire : 'N/A' %>
+                                                    )
+                                                </li>
+                                                <li><%= combi.produit2.produit.nom_produit %>
+                                                    (Taille: <%= combi.produit2.taille %>
+                                                    ,
+                                                    Accessoire: <%= combi.produit2.accessoire ? combi.produit2.accessoire.nom_accessoire : 'N/A' %>
+                                                    )
+                                                </li>
+                                                <li><%= combi.produit3.produit.nom_produit %>
+                                                    (Taille: <%= combi.produit3.taille %>
+                                                    ,
+                                                    Accessoire: <%= combi.produit3.accessoire ? combi.produit3.accessoire.nom_accessoire : 'N/A' %>
+                                                    )
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    <% }); %>
+                                </div>
+                            <% } %>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger delete-order-btn">
+                                Supprimer
+                            </button>
+                        </td>
+                    </tr>
+                <% }); %>
+                </tbody>
+            </table>
+        </div>
     </div>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
