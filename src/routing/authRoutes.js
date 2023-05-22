@@ -260,7 +260,7 @@ router.post('/verify_payment', async (req, res) => {
                     VALUES ('${id_produit_commande}','${commandeId}','${element.quantity}');`;
                     const resultProdUnique = await db.query(reqProdUnique);
 
-                    const reqStock = `UPDATE dispo_tailles SET quantite = 2
+                    const reqStock = `UPDATE dispo_tailles SET quantite = (quantite - ${element.quantity})
                     WHERE id_produit = '${element.produitId}' AND taille = '${element.taille}';`;
                     const resStock = await db.query(reqStock);
                 }
@@ -274,15 +274,15 @@ router.post('/verify_payment', async (req, res) => {
                     const resultCombi = await db.query(reqCombi);
                     
                     const reqStock1 = `UPDATE dispo_tailles SET quantite = (quantite - ${element.quantity})
-                    WHERE id_produit = ${resultProdCommande1.rows[0].id_produit_commande} AND taille = '${element.produits[0].taille}';`;
+                    WHERE id_produit = ${element.produits[0].produitId} AND taille = '${element.produits[0].taille}';`;
                     const resStock1 = await db.query(reqStock1);
 
                     const reqStock2 = `UPDATE dispo_tailles SET quantite = (quantite - ${element.quantity})
-                    WHERE id_produit = ${resultProdCommande2.rows[0].id_produit_commande} AND taille = '${element.produits[1].taille}';`;
+                    WHERE id_produit = ${element.produits[1].produitId} AND taille = '${element.produits[1].taille}';`;
                     const resStock2 = await db.query(reqStock2);
 
                     const reqStock3 = `UPDATE dispo_tailles SET quantite = (quantite - ${element.quantity})
-                    WHERE id_produit = ${resultProdCommande3.rows[0].id_produit_commande} AND taille = '${element.produits[2].taille}';`;
+                    WHERE id_produit = ${element.produits[2].produitId} AND taille = '${element.produits[2].taille}';`;
                     const resStock3 = await db.query(reqStock3);
 
                 }
