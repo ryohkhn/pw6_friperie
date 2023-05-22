@@ -119,10 +119,11 @@ router.get('/stock', middlewares.handleRendering, (req, res) => {
 
 router.get('/panier', async (req, res) => {
     try {
-        const panier = req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
+        const panier = req.cookies.panier ? JSON.parse(req.cookies.panier) : {};
 
         if (panier.length === 0) {
             res.render('panier.ejs', {
+                pbStock:false,
                 elements: [],
                 prixTotal: utils.getPrixTotalCookie(req),
                 activeSession: middlewares.isAuthentificated(req),
@@ -130,8 +131,19 @@ router.get('/panier', async (req, res) => {
             });
         } else {
             const tab = [];
+            console.log(panier);
+            const verifPanier = await middlewares.verifStocks(panier);
+            const stock=false;
+            if(panier.length!==verifPanier.length){
+                res.cookie('panier', JSON.stringify(verifPanier), {maxAge: 86400000 });
+                // Calcul du nouveau prix total
+                //const currentPrixTotal = utils.getPrixTotalCookie(req);
+                //const newPrixTotal = currentPrixTotal - parseFloat(prix);
+                //res.cookie('prixTotal', newPrixTotal, {maxAge: 86400000, sameSite: 'lax'});
+                stock=true;
+            }
 
-            for (const element of panier) {
+            for (const element of verifPanier) {
                 if (element.type === 'produit') {
                     const processedProduit = await processCookieProduit(element);
                     tab.push(processedProduit);
@@ -152,6 +164,7 @@ router.get('/panier', async (req, res) => {
                 }
             }
             res.render('panier.ejs', {
+                pbStock:stock,
                 elements: tab,
                 prixTotal: utils.getPrixTotalCookie(req),
                 activeSession: middlewares.isAuthentificated(req),

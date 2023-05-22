@@ -1,6 +1,8 @@
 const { server, express } = require('../express_config');
 const db = require("../database_pool.local");
 const crypto = require("crypto");
+const utils = require('../utils/utils');
+const middlewares = require("../middlewares/middlewares");
 
 const router = express.Router();
 
@@ -45,18 +47,6 @@ router.get('/disconnect',(req, res) => {
 
 });
 
-function fullLetter(text){
-    var letters = /^[A-Za-z]+$/;
-    if(text.value.match(letters)){
-        return true;
-    }
-    else{
-        alert('Username must have alphabet characters only');
-        text.focus();
-        return false;
-    }
-}
-
 function getPrixTotalCookie(req){
     return (req.cookies ? (req.cookies.prixTotal ? parseFloat(req.cookies.prixTotal) : 0) : 0);
 }
@@ -73,7 +63,7 @@ async function insertProduitCommande(element) {
     const resultProdCommande = await db.query(reqProdCommande);
     return resultProdCommande;
 }
-  
+
 
 router.post('/verify_register', (req, res) => {
     const prenom = (req.body.inputPrenom);
@@ -209,6 +199,17 @@ router.post('/verify_payment', async (req, res) => {
     if(panier.length===0){
         res.redirect('/');
         return;
+    }
+
+    try{
+        const verifPanier = await middlewares.verifStocks(panier);
+        if(panier.length!==verifPanier.length){
+            res.redirect('/panier');
+            return;
+        }
+    }catch (err) {
+        console.log(err);
+        res.render('error.ejs',{errorCode: err});
     }
 
     if (!prenom.match(alphaRegex)) {

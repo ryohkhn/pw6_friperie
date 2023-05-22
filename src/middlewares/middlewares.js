@@ -350,6 +350,66 @@ function isAuthentificated(req){
     return((req.session && req.session.user));
 }
 
+async function verifStocks(panier) {
+        const stockDisponible = {};
+        const panierFinal = [];
+
+        for (const element of panier) {
+            if (element.type === 'produit') {
+                const key = `${element.produitId}_${element.taille}`;
+
+                if (!stockDisponible[key]) {
+                    const reqDispo = `SELECT quantite FROM dispo_tailles WHERE id_produit = ${element.produitId} AND taille = '${element.taille}'`;
+                    const resultDispo = await db.query(reqDispo);
+
+                    if (resultDispo.rows.length > 0) {
+                        stockDisponible[key] = resultDispo.rows[0].quantite;
+                    } else {
+                        stockDisponible[key] = 0;
+                    }
+                }
+
+                if (element.quantity <= stockDisponible[key]) {
+                    stockDisponible[key] -= element.quantity;
+                    panierFinal.push(element);
+                }
+            } else if (element.type === 'combinaison') {
+                let isAvailable = true;
+
+                for (const produit of element.produits) {
+                    const key = `${produit.produitId}_${produit.taille}`;
+
+                    if (!stockDisponible[key]) {
+                        const reqDispo = `SELECT quantite FROM dispo_tailles WHERE id_produit = ${produit.produitId} AND taille = '${produit.taille}'`;
+                        const resultDispo = await db.query(reqDispo);
+
+                        if (resultDispo.rows.length > 0) {
+                            stockDisponible[key] = resultDispo.rows[0].quantite;
+                        } else {
+                            stockDisponible[key] = 0;
+                        }
+                    }
+
+                    if (element.quantity > stockDisponible[key]) {
+                        isAvailable = false;
+                        break;
+                    }
+                }
+
+                if (isAvailable) {
+                    for (const produit of element.produits) {
+                        const key = `${produit.produitId}_${produit.taille}`;
+                        stockDisponible[key] -= element.quantity;
+                    }
+
+                    panierFinal.push(element);
+                }
+            }
+        }
+
+        return panierFinal;
+}
+
 function hasRole(requiredRole) {
 
 }
@@ -357,6 +417,7 @@ function hasRole(requiredRole) {
 module.exports = {
     validateCategory,
     isAuthentificated,
+    verifStocks,
     hasRole,
     handleRendering,
 };
