@@ -110,8 +110,8 @@ router.get('/panier', async (req, res) => {
             const tab = [];
             console.log(panier);
             const verifPanier = await middlewares.verifStocks(panier);
-            const stock=false;
-            if(panier.length!==verifPanier.length){
+            let stock=false;
+            if(panier.length !== verifPanier.length){
                 res.cookie('panier', JSON.stringify(verifPanier), {maxAge: 86400000 });
                 // Calcul du nouveau prix total
                 //const currentPrixTotal = utils.getPrixTotalCookie(req);
