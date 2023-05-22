@@ -9,12 +9,26 @@ function getPrixTotalCookie(req){
     return req.cookies.prixTotal ? parseFloat(req.cookies.prixTotal) : 0;
 }
 
+/**
+ * Fonction qui retourne l'index du cookie du panier
+ * si un produit en fait partie
+ * @param panier le cookie du panier
+ * @param produit le produit à chercher
+ * @returns {*} le cookie à jour
+ */
 function getCookiePanierIndex(panier, produit) {
     // on vérifie qu'il s'agit bien du même produit dans le panier
     return panier.findIndex(produitPanier => produitPanier.type === 'produit' && produitPanier.produitId === produit.produitId
         && produitPanier.taille === produit.taille && produitPanier.accessoireId === produit.accessoireId);
 }
 
+/**
+ * Fonction qui retourne l'index du cookie du panier
+ * si une combinaison en fait partie
+ * @param panier le cookie du panier
+ * @param newCombinaison la combinaison à chercher
+ * @returns {*} le cookie à jour
+ */
 function getCookiePanierCombinaisonIndex(panier, newCombinaison) {
     // on retourne l'index de l'élément qui correspondant à la règle
     return panier.findIndex(combinaison => {
@@ -37,6 +51,12 @@ function getCookiePanierCombinaisonIndex(panier, newCombinaison) {
     });
 }
 
+/**
+ * Fonction pour mettre à jour le cookie du panier par l'ajout d'un produit
+ * @param panier le cookie du panier courant
+ * @param newProduit le produit à ajouter
+ * @returns {*} le cookie à jour
+ */
 function updatePanier(panier, newProduit) {
     newProduit.type = 'produit';
     const index = getCookiePanierIndex(panier, newProduit);
@@ -53,6 +73,12 @@ function updatePanier(panier, newProduit) {
     return panier;
 }
 
+/**
+ * Fonction pour mettre à jour le cookie du panier par l'ajout d'une combinaison
+ * @param panier le cookie du panier courant
+ * @param newCombinaison la combinaison à ajouter
+ * @returns {*} le cookie à jour
+ */
 function updatePanierCombinaisons(panier, newCombinaison) {
     newCombinaison.type = 'combinaison';
     const index = getCookiePanierCombinaisonIndex(panier, newCombinaison);
@@ -111,6 +137,11 @@ function combineCombinaisons(rows) {
     return Object.values(combinaisons);
 }
 
+/**
+ * Fonction qui récupère les données d'une combinaison dans la base de données
+ * @param combiId
+ * @returns {Promise<*>}
+ */
 async function getCombinaison(combiId){
      const request = `SELECT *
                      FROM combinaisons 
@@ -119,6 +150,11 @@ async function getCombinaison(combiId){
     return result.rows;
 }
 
+/**
+ * Fonction qui récupère les données d'un produit dans la base de données
+ * @param productId l'id du produit
+ * @returns {Promise<*>}
+ */
 async function getProduit(productId) {
     const request = `SELECT *
                      FROM produits
@@ -127,6 +163,11 @@ async function getProduit(productId) {
     return result.rows;
 }
 
+/**
+ * Fonction qui récupère les données d'un accessoire dans la base de données
+ * @param accessoireId l'id de l'accessoire
+ * @returns {Promise<*>}
+ */
 async function getSpecificAccessoires(accessoireId) {
     const accessoiresReq = `SELECT *
                             FROM accessoires

@@ -18,7 +18,8 @@ async function queryItems(queryString, params) {
  * @param searchTerm le pattern à chercher
  * @param limit le nombre d'éléments à récupérer pour la pagination
  * @param offset le décalage en fonction de la page courante
- * @returns {Promise<{totalResult: *, itemsResult: *}>} résultat de la requête
+ * @returns {Promise<{totalResult: *, itemsResult: *}>} les éléments ainsi que
+ * le nombre d'éléments pour la pagination
  */
 async function getSearchItems(searchTerm, limit, offset) {
     const commonQuery = `FROM produits p
@@ -42,7 +43,8 @@ async function getSearchItems(searchTerm, limit, offset) {
  * Fonction qui génère la requête pour la page d'accueil
  * @param limit le nombre d'éléments à récupérer pour la pagination
  * @param offset le décalage en fonction de la page courante
- * @returns {Promise<{totalResult: *, itemsResult: *}>} résultat de la requête
+ * @returns {Promise<{totalResult: *, itemsResult: *}>} les éléments ainsi que
+ * le nombre d'éléments pour la pagination
  */
 async function getAccueilItems(limit, offset) {
     const commonQuery = `FROM produits p
@@ -63,7 +65,8 @@ async function getAccueilItems(limit, offset) {
  * Fonction qui génère la requête pour la gestion du stock
  * @param limit le nombre d'éléments à récupérer pour la pagination
  * @param offset le décalage en fonction de la page courante
- * @returns {Promise<{totalResult: *, itemsResult: *}>} résultat de la requête
+ * @returns {Promise<{totalResult: *, itemsResult: *}>} les éléments ainsi que
+ * le nombre d'éléments pour la pagination
  */
 async function getStockItems(limit, offset) {
     const commonQuery = `FROM produits p`;
@@ -82,6 +85,14 @@ async function getStockItems(limit, offset) {
     return { totalResult, itemsResult };
 }
 
+/**
+ * Fonction qui génère la requête pour récupérer les éléments
+ * de la table produit_commande. Cette table contient l'id du produit,
+ * l'id de l'accessoire si présent ainsi que la taille.
+ * @param idProduitCommande l'id du produit dans la table
+ * @returns {Promise<{id_produit_commande: *, taille: *, produit: *, accessoire}>}
+ * un table composé de l'id, du produit
+ */
 async function getProduitCommande(idProduitCommande) {
     const produitCommande = `SELECT * FROM produit_commande pc
                                  WHERE pc.id_produit_commande = $1`;
@@ -89,11 +100,13 @@ async function getProduitCommande(idProduitCommande) {
     const produitId = produitCommandeRes[0].id_produit;
     const accessoireId = produitCommandeRes[0].id_accessoire;
 
-    // on récupère seulement un élément car on attend un seul produit
+    // on récupère le produit lié à l'id
+    // (seulement un élément car on attend un seul produit)
     const produitRes = (await utils.getProduit(produitId))[0];
     let accessoireRes;
     if(accessoireId !== null){
-        // on récupère seulement un élément car on attend un seul accessoire
+        // on récupère l'accessoire lié au produit
+        // (seulement un élément car on attend un seul accessoire)
         accessoireRes = (await utils.getSpecificAccessoires(accessoireId))[0];
     }
     return {
@@ -104,6 +117,13 @@ async function getProduitCommande(idProduitCommande) {
     };
 }
 
+/**
+ * Fonction qui récupère tous les objets d'une commande. Cette commande
+ * peut être composée de produits et de combinaisons.
+ * @param id_commande l'id de la commande
+ * @returns {Promise<*>} un tableau contenant les combinaisons et
+ * produits de la commande
+ */
 async function getCommandeItems(id_commande) {
     const commandeQuery = `SELECT *
                            FROM commandes c
@@ -124,7 +144,8 @@ async function getCommandeItems(id_commande) {
     commandeResult.combis = [];
     commandeResult.produits = [];
 
-    // If there are combinaisonResults, fetch the products and add them to the array
+    // s'il y a des combinaisons on récupère chaque produit et
+    // on les ajoute au tableau résultat
     for (const combi of combinaisonsResult) {
         const produit1 = await getProduitCommande(combi.id_produit_commande1);
         const produit2 = await getProduitCommande(combi.id_produit_commande2);
@@ -132,13 +153,12 @@ async function getCommandeItems(id_commande) {
         const quantite = combi.quantite;
         commandeResult.combis.push({produit1,produit2,produit3,quantite});
     }
-    // If there are produitsResults, add them to the array
+    // s'il y a des produits on récupère les infos du produit
     for (const prod of produitsResult) {
         const produit = await getProduitCommande(prod.id_produit_commande);
         const quantite = prod.quantite;
         commandeResult.produits.push({produit,quantite})
     }
-    // console.log(commandeResult.produits);
 
     return commandeResult;
 }
@@ -147,7 +167,8 @@ async function getCommandeItems(id_commande) {
  * Fonction qui génère la requête pour la gestion des commandes
  * @param limit le nombre d'éléments à récupérer pour la pagination
  * @param offset le décalage en fonction de la page courante
- * @returns {Promise<{totalResult: *, itemsResult: *}>} résultat de la requête
+ * @returns {Promise<{totalResult: *, itemsResult: *}>} les éléments ainsi que
+ * le nombre d'éléments pour la pagination
  */
 async function getCommandesItems(limit, offset) {
     const countQuery = `SELECT DISTINCT id_commande FROM commandes WHERE NOT archived`;
@@ -168,10 +189,11 @@ async function getCommandesItems(limit, offset) {
 }
 
 /**
- * Fonction qui génère la requête pour la page de la combinaison
+ * Fonction qui récupère toutes les combinaisons
  * @param limit le nombre d'éléments à récupérer pour la pagination
  * @param offset le décalage en fonction de la page courante
- * @returns {Promise<{totalResult: *, itemsResult: *}>} résultat de la requête
+ * @returns {Promise<{totalResult: *, itemsResult: *}>} les éléments ainsi que
+ * le nombre d'éléments pour la pagination
  */
 async function getCombinaisonsItems(limit, offset) {
     const countQuery = `SELECT *
@@ -203,7 +225,8 @@ async function getCombinaisonsItems(limit, offset) {
  * @param type type de produit
  * @param limit le nombre d'éléments à récupérer pour la pagination
  * @param offset le décalage en fonction de la page courante
- * @returns {Promise<{totalResult: *, itemsResult: *}>} résultat de la requête
+ * @returns {Promise<{totalResult: *, itemsResult: *}>} les éléments ainsi que
+ * le nombre d'éléments pour la pagination
  */
 async function getDefaultItems(type, limit, offset) {
     const commonQuery = `FROM produits p
@@ -222,8 +245,8 @@ async function getDefaultItems(type, limit, offset) {
 }
 
 /**
- * Fonction qui retourne les données en fonction de la page courante
- * @param type type de données demandées
+ * Fonction qui retourne les données demandées en fonction de la page courante
+ * @param type type de données
  * @param currentPage la page courante
  * @param searchTerm le terme cherché s'il s'agit du type recherche
  * @param limit le nombre de produits demandés, 10 initialement
@@ -319,7 +342,7 @@ async function setResLocals(req, res, routeName, itemsResult, totalPages, curren
 }
 
 /**
- * Fonction qui gère le render des fichiers EJS couplé à la pagination
+ * Fonction qui gère le rendering des fichiers EJS couplé à la pagination
  * @param req
  * @param res
  * @param next
@@ -372,6 +395,12 @@ function validateCategory(req, res, next) {
     }
 }
 
+/**
+ * Fonction qui vérifie d'un utilisateur est bien connecté en tant que gérant
+ * @param req
+ * @param res
+ * @param next
+ */
 function isGerant(req, res, next){
     if(utils.isAuthentificated(req) && req.session.user.loginType === 'gerants'){
         next();
