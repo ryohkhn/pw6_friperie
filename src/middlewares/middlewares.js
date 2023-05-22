@@ -151,7 +151,7 @@ async function getCommandeItems(id_commande) {
  * @returns {Promise<{totalResult: *, itemsResult: *}>} résultat de la requête
  */
 async function getCommandesItems(limit, offset) {
-    const countQuery = `SELECT COUNT(DISTINCT id_commande) FROM commandes WHERE NOT archived`;
+    const countQuery = `SELECT DISTINCT id_commande FROM commandes WHERE NOT archived`;
     const commandesQuery = `SELECT id_commande FROM commandes c
                         WHERE NOT archived ORDER BY c.id_commande DESC
                         LIMIT $1 OFFSET $2`;

@@ -112,7 +112,7 @@ $(document).ready(function () {
                 prix: prixProduit
             },
             success: function (response) {
-                $('#total-panier').text(response.newTotal.toFixed(2) + ' €');
+                $('#total-panier').text(response.newTotal.toFixed(0) + '€');
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.error('Erreur update du prix total:', errorThrown);

@@ -60,8 +60,7 @@ async function insertProduitCommande(element) {
     const reqProdCommande = `INSERT INTO produit_commande (id_produit, id_accessoire, taille)
                       VALUES ('${element.produitId}',${id_access},'${element.taille}')
                       RETURNING id_produit_commande`;
-    const resultProdCommande = await db.query(reqProdCommande);
-    return resultProdCommande;
+    return await db.query(reqProdCommande);
 }
 
 

@@ -225,11 +225,7 @@ router.post('/delete-order', async (req, res) => {
     const id_commande = req.body.id_commande;
 
     const requete = `
-        WITH deleted_commandes AS (
-            DELETE FROM commandes WHERE id_commande = $1 RETURNING id_commande)
-        DELETE
-        FROM produits_commandes
-        WHERE id_commande IN (SELECT id_commande FROM deleted_commandes);
+        UPDATE commandes SET archived = True WHERE id_commande = $1
     `;
 
     try {

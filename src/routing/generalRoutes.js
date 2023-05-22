@@ -95,7 +95,7 @@ router.get('/stock', middlewares.handleRendering, (req, res) => {
 
 router.get('/panier', async (req, res) => {
     try {
-        const panier = req.cookies.panier ? JSON.parse(req.cookies.panier) : {};
+        const panier = req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
 
         if (panier.length === 0) {
             res.render('panier.ejs', {
