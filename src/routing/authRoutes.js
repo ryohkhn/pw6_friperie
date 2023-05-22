@@ -48,7 +48,6 @@ router.get('/disconnect',(req, res) => {
         });
     }
     res.redirect('/');
-
 });
 
 async function insertProduitCommande(element) {

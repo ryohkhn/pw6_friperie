@@ -35,14 +35,16 @@
                                 <i class="fa-solid fa-user fa-xl logos m-md-2 m-1"></i>
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="userMenu">
-                                <%if(activeSession){%>
-                                     <a class="dropdown-item" href="/stock">Gérer</a>
-                                     <a class="dropdown-item" href="/commandes">Commandes</a>
-                                     <a class="dropdown-item" href="/disconnect">Déconnexion</a>
-                                 <%}else{%>
-                                     <a class="dropdown-item" href="/login">Connexion</a>
-                                     <a class="dropdown-item" href="/register">S'enregistrer</a>
-                                 <%}%>
+                                <%if(activeSession){
+                                        if(user.loginType === 'gerants'){ %>
+                                         <a class="dropdown-item" href="/stock">Gérer</a>
+                                         <a class="dropdown-item" href="/commandes">Commandes</a>
+                                        <%}%>
+                                         <a class="dropdown-item" href="/disconnect">Déconnexion</a>
+                                     <%}else{%>
+                                         <a class="dropdown-item" href="/login">Connexion</a>
+                                         <a class="dropdown-item" href="/register">S'enregistrer</a>
+                                     <%}%>
                              </div>
                         </div>
                         <a href="/panier">
