@@ -115,12 +115,12 @@ router.get('/panier', async (req, res) => {
                 res.cookie('panier', JSON.stringify(verifPanier), {maxAge: 86400000 });
                 stock=true;
             }
-            const newPrixTotal=0;
+            var newPrixTotal=0;
             for (const element of verifPanier) {
                 if (element.type === 'produit') {
                     const processedProduit = await processCookieProduit(element);
                     tab.push(processedProduit);
-                    newPrixTotal+=processedProduit.prix;
+                    newPrixTotal+=(processedProduit.prix*processedProduit.quantity);
                 }
                 else if (element.type === 'combinaison') {
                     const produits = [];
@@ -128,7 +128,7 @@ router.get('/panier', async (req, res) => {
                     element.nom = combi[0].type;
                     element.image = combi[0].image;
                     element.prix = combi[0].prix;
-                    newPrixTotal+=combi[0].prix;
+                    newPrixTotal+=(combi[0].prix * element.quantity);
 
                     for (const produit of element.produits) {
                         const processedProduit = await processCookieProduit(produit);

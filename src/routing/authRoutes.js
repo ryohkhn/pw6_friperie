@@ -264,6 +264,9 @@ router.post('/verify_payment', async (req, res) => {
                     VALUES ('${resultProdCommande.rows[0].id_produit_commande}','${commandeId}','${element.quantity}');`;
                     const resultProdUnique = await db.query(reqProdUnique);
 
+                    const reqStock = `UPDATE dispo_tailles SET quantite = 2
+                    WHERE id_produit = '${resultProdCommande.rows[0].id_produit_commande}' AND taille = '${element.taille}';`;
+                    const resStock = await db.query(reqStock);
                 }
                 else if (element.type === 'combinaison') {
                     const resultProdCommande1 = await insertProduitCommande(element.produits[0]);
@@ -273,6 +276,19 @@ router.post('/verify_payment', async (req, res) => {
                     const reqCombi = `INSERT INTO combinaisons_commandes (id_combinaison, id_commande, id_produit_commande1, id_produit_commande2, id_produit_commande3, quantite)
                     VALUES ('${element.combinaisonId}','${commandeId}', '${resultProdCommande1.rows[0].id_produit_commande}', '${resultProdCommande2.rows[0].id_produit_commande}', '${resultProdCommande3.rows[0].id_produit_commande}', '${element.quantity}')`;
                     const resultCombi = await db.query(reqCombi);
+                    
+                    const reqStock1 = `UPDATE dispo_tailles SET quantite = (quantite - ${element.quantity})
+                    WHERE id_produit = ${resultProdCommande1.rows[0].id_produit_commande} AND taille = '${element.produits[0].taille}';`;
+                    const resStock1 = await db.query(reqStock1);
+
+                    const reqStock2 = `UPDATE dispo_tailles SET quantite = (quantite - ${element.quantity})
+                    WHERE id_produit = ${resultProdCommande2.rows[0].id_produit_commande} AND taille = '${element.produits[1].taille}';`;
+                    const resStock2 = await db.query(reqStock2);
+
+                    const reqStock3 = `UPDATE dispo_tailles SET quantite = (quantite - ${element.quantity})
+                    WHERE id_produit = ${resultProdCommande3.rows[0].id_produit_commande} AND taille = '${element.produits[2].taille}';`;
+                    const resStock3 = await db.query(reqStock3);
+
                 }
             }
             res.clearCookie('panier');
