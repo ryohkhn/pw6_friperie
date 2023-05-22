@@ -113,17 +113,14 @@ router.get('/panier', async (req, res) => {
             let stock=false;
             if(panier.length !== verifPanier.length){
                 res.cookie('panier', JSON.stringify(verifPanier), {maxAge: 86400000 });
-                // Calcul du nouveau prix total
-                //const currentPrixTotal = utils.getPrixTotalCookie(req);
-                //const newPrixTotal = currentPrixTotal - parseFloat(prix);
-                //res.cookie('prixTotal', newPrixTotal, {maxAge: 86400000, sameSite: 'lax'});
                 stock=true;
             }
-
+            const newPrixTotal=0;
             for (const element of verifPanier) {
                 if (element.type === 'produit') {
                     const processedProduit = await processCookieProduit(element);
                     tab.push(processedProduit);
+                    newPrixTotal+=processedProduit.prix;
                 }
                 else if (element.type === 'combinaison') {
                     const produits = [];
@@ -131,6 +128,7 @@ router.get('/panier', async (req, res) => {
                     element.nom = combi[0].type;
                     element.image = combi[0].image;
                     element.prix = combi[0].prix;
+                    newPrixTotal+=combi[0].prix;
 
                     for (const produit of element.produits) {
                         const processedProduit = await processCookieProduit(produit);
@@ -140,6 +138,8 @@ router.get('/panier', async (req, res) => {
                     tab.push(combinaisonElement);
                 }
             }
+            res.cookie('prixTotal', newPrixTotal, {maxAge: 86400000, sameSite: 'lax'});
+
             res.render('panier.ejs', {
                 pbStock:stock,
                 elements: tab,
