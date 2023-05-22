@@ -7,36 +7,40 @@ const middlewares = require("../middlewares/middlewares");
 const router = express.Router();
 
 router.get('/login', (req, res) => {
-    if(isAuthentificated(req)){
+    if(utils.isAuthentificated(req)){
         res.redirect('/');
     }
     res.render('login_page.ejs', {
         failed: false,
-        activeSession: isAuthentificated(req),
+        activeSession: utils.isAuthentificated(req),
         login_type_val: "clients",
-        prixTotal: getPrixTotalCookie(req)});
+        prixTotal: utils.getPrixTotalCookie(req)});
 });
 
 router.get('/register', (req, res) => {
-    if(isAuthentificated(req)){
+    if(utils.isAuthentificated(req)){
         res.redirect('/');
     }
-    res.render('register_page.ejs', {erreurs:{},activeSession: isAuthentificated(req), prixTotal: getPrixTotalCookie(req)});
+    res.render('register_page.ejs', {
+        erreurs: {},
+        activeSession: utils.isAuthentificated(req),
+        prixTotal: utils.getPrixTotalCookie(req)
+    });
 });
 
 router.get('/gerant', (req, res) => {
-    if(isAuthentificated(req)){
+    if(utils.isAuthentificated(req)){
         res.redirect('/');
     }
     res.render('login_page.ejs', {
         failed: false,
         login_type_val: "gerants",
-        activeSession: isAuthentificated(req),
-        prixTotal: getPrixTotalCookie(req)});
+        activeSession: utils.isAuthentificated(req),
+        prixTotal: utils.getPrixTotalCookie(req)});
 });
 
 router.get('/disconnect',(req, res) => {
-    if(isAuthentificated(req)){
+    if(utils.isAuthentificated(req)){
         req.session.destroy(function(err) {
             if (err) {
               console.log(err);
@@ -46,14 +50,6 @@ router.get('/disconnect',(req, res) => {
     res.redirect('/');
 
 });
-
-function getPrixTotalCookie(req){
-    return (req.cookies ? (req.cookies.prixTotal ? parseFloat(req.cookies.prixTotal) : 0) : 0);
-}
-
-function isAuthentificated(req){
-    return((req.session && req.session.user));
-}
 
 async function insertProduitCommande(element) {
     const id_access = (element.accessoireId.length === 0) ? 'NULL' : element.accessoireId;
@@ -156,8 +152,8 @@ router.post('/verify_register', (req, res) => {
                         res.render('login_page.ejs', {
                             failed: false,
                             login_type_val:'clients',
-                            prixTotal: getPrixTotalCookie(req),
-                            activeSession: isAuthentificated(req),
+                            prixTotal: utils.getPrixTotalCookie(req),
+                            activeSession: utils.isAuthentificated(req),
                         });
                     }
                 });
@@ -166,8 +162,8 @@ router.post('/verify_register', (req, res) => {
             else{
                 res.render('register_page.ejs',{
                     erreurs:errors,
-                    activeSession: isAuthentificated(req),
-                    user: isAuthentificated(req) ? req.session.user : {}
+                    activeSession: utils.isAuthentificated(req),
+                    user: utils.isAuthentificated(req) ? req.session.user : {}
                 });
             }
         });
@@ -239,7 +235,7 @@ router.post('/verify_payment', async (req, res) => {
     }
 
     let emailReq = `SELECT * FROM clients WHERE email = '${email}'`;
-    if(isAuthentificated(req)){
+    if(utils.isAuthentificated(req) && req.session.user.loginType === 'clients'){
         emailReq += ` AND id_client != '${req.session.user.id_client}'`
     }
     try {
@@ -294,18 +290,18 @@ router.post('/verify_payment', async (req, res) => {
             res.clearCookie('prixTotal');
             console.log(req.cookies.prixTotal);
             res.render('confirmation.ejs',{
-                prixTotal: getPrixTotalCookie(req),
-                activeSession: isAuthentificated(req),
-                user: isAuthentificated(req) ? req.session.user : {}
+                prixTotal: utils.getPrixTotalCookie(req),
+                activeSession: utils.isAuthentificated(req),
+                user: utils.isAuthentificated(req) ? req.session.user : {}
             });
             return;
         }
         else{
             res.render('paiement.ejs',{
                 erreurs:errors,
-                prixTotal: getPrixTotalCookie(req),
-                activeSession: isAuthentificated(req),
-                user: isAuthentificated(req) ? req.session.user : {}
+                prixTotal: utils.getPrixTotalCookie(req),
+                activeSession: utils.isAuthentificated(req),
+                user: utils.isAuthentificated(req) ? req.session.user : {}
             });
             return;
         }
@@ -361,8 +357,8 @@ router.post('/verify_login', async (req, res) => {
                 res.render('login_page.ejs', {
                     failed: true,
                     login_type_val: login_type,
-                    prixTotal: getPrixTotalCookie(req),
-                    activeSession: isAuthentificated(req),
+                    prixTotal: utils.getPrixTotalCookie(req),
+                    activeSession: utils.isAuthentificated(req),
                 });
             }
         }
@@ -370,8 +366,8 @@ router.post('/verify_login', async (req, res) => {
             res.render('login_page.ejs', {
                 failed: true,
                 login_type_val: login_type,
-                prixTotal: getPrixTotalCookie(req),
-                activeSession: isAuthentificated(req),
+                prixTotal: utils.getPrixTotalCookie(req),
+                activeSession: utils.isAuthentificated(req),
             });
         }
     } catch (err) {

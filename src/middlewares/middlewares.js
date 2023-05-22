@@ -1,6 +1,5 @@
 const db = require("../database_pool.local");
 const utils = require('../utils/utils');
-const {getCombinaison, getProduit} = require("../utils/utils");
 
 /**
  * Fonction qui effectue la requête `queryString` avec les paramètres `params`
@@ -304,8 +303,8 @@ async function setResLocals(req, res, routeName, itemsResult, totalPages, curren
         elements: itemsResult,
         totalPages: totalPages,
         currentPage: currentPage,
-        activeSession: isAuthentificated(req),
-        user: isAuthentificated(req) ? req.session.user : {},
+        activeSession: utils.isAuthentificated(req),
+        user: utils.isAuthentificated(req) ? req.session.user : {},
         prixTotal: utils.getPrixTotalCookie(req),
         lieu: routeName
     };
@@ -373,13 +372,13 @@ function validateCategory(req, res, next) {
     }
 }
 
-/**
- * Fonction qui vérifie dans la session que l'utilisateur est connecté
- * @param req
- * @returns {*} un booléen
- */
-function isAuthentificated(req){
-    return((req.session && req.session.user));
+function isGerant(req, res, next){
+    if(utils.isAuthentificated(req) && req.session.user.loginType === 'gerants'){
+        next();
+    }
+    else{
+        res.redirect('/');
+    }
 }
 
 async function verifStocks(panier) {
@@ -442,14 +441,9 @@ async function verifStocks(panier) {
         return panierFinal;
 }
 
-function hasRole(requiredRole) {
-
-}
-
 module.exports = {
     validateCategory,
-    isAuthentificated,
     verifStocks,
-    hasRole,
     handleRendering,
+    isGerant,
 };

@@ -81,7 +81,7 @@ router.get('/combinaisons', middlewares.handleRendering, (req, res) => {
     res.render(`${res.locals.viewName}.ejs`, res.locals);
 });
 
-router.get('/commandes', middlewares.handleRendering, (req, res) => {
+router.get('/commandes', middlewares.isGerant,middlewares.handleRendering, (req, res) => {
     res.render(`${res.locals.viewName}.ejs`, res.locals);
 });
 
@@ -89,7 +89,7 @@ router.get('/search', middlewares.handleRendering, (req, res) => {
     res.render(`${res.locals.viewName}.ejs`, res.locals);
 });
 
-router.get('/stock', middlewares.handleRendering, (req, res) => {
+router.get('/stock', middlewares.isGerant,middlewares.handleRendering, (req, res) => {
     res.render(`${res.locals.viewName}.ejs`, res.locals);
 });
 
@@ -102,8 +102,8 @@ router.get('/panier', async (req, res) => {
                 pbStock:false,
                 elements: [],
                 prixTotal: utils.getPrixTotalCookie(req),
-                activeSession: middlewares.isAuthentificated(req),
-                user: middlewares.isAuthentificated(req) ? req.session.user : {}
+                activeSession: utils.isAuthentificated(req),
+                user: utils.isAuthentificated(req) ? req.session.user : {}
             });
         }
         else {
@@ -144,8 +144,8 @@ router.get('/panier', async (req, res) => {
                 pbStock:stock,
                 elements: tab,
                 prixTotal: utils.getPrixTotalCookie(req),
-                activeSession: middlewares.isAuthentificated(req),
-                user: middlewares.isAuthentificated(req) ? req.session.user : {}
+                activeSession: utils.isAuthentificated(req),
+                user: utils.isAuthentificated(req) ? req.session.user : {}
             });
         }
     } catch (err) {
@@ -156,8 +156,8 @@ router.get('/panier', async (req, res) => {
 
 router.get('/paiement', async (req, res) => {
     res.render("paiement.ejs",{
-        activeSession: middlewares.isAuthentificated(req),
-        user: middlewares.isAuthentificated(req) ? req.session.user : {},
+        activeSession: utils.isAuthentificated(req),
+        user: utils.isAuthentificated(req) ? req.session.user : {},
         prixTotal: utils.getPrixTotalCookie(req),
         erreurs:{}
     });
@@ -176,8 +176,8 @@ router.get('/produit/:num', async (req, res) => {
             elements: result, accessoires: result2,
             tailles:result3, accLie:result4,
             prixTotal: utils.getPrixTotalCookie(req),
-            activeSession: middlewares.isAuthentificated(req),
-            user: middlewares.isAuthentificated(req) ? req.session.user : {}});
+            activeSession: utils.isAuthentificated(req),
+            user: utils.isAuthentificated(req) ? req.session.user : {}});
     } catch (err) {
         console.error(err);
         res.status(500).send('Internal server error');
@@ -202,8 +202,8 @@ router.get('/combinaison/:num', async (req, res) => {
         res.render('combinaisons_produits.ejs', {
             combinedCombinaison: combinedCombinaison[0],
             prixTotal: utils.getPrixTotalCookie(req),
-            activeSession: middlewares.isAuthentificated(req),
-            user: middlewares.isAuthentificated(req) ? req.session.user : {}
+            activeSession: utils.isAuthentificated(req),
+            user: utils.isAuthentificated(req) ? req.session.user : {}
         });
     } catch (err) {
         console.error(err);

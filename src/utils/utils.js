@@ -135,10 +135,18 @@ async function getSpecificAccessoires(accessoireId) {
     return result.rows;
 }
 
+/**
+ * Fonction qui vérifie dans la session que l'utilisateur est connecté
+ * @param req
+ * @returns {*} un booléen
+ */
+function isAuthentificated(req){
+    return((req.session && req.session.user));
+}
+
+
 module.exports = {
     getPrixTotalCookie,
-    getCookiePanierIndex,
-    getCookiePanierCombinaisonIndex,
     updatePanier,
     updatePanierCombinaisons,
     deleteProduit,
@@ -146,4 +154,5 @@ module.exports = {
     getCombinaison,
     getProduit,
     getSpecificAccessoires,
+    isAuthentificated,
 };
