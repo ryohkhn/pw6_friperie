@@ -100,12 +100,12 @@ async function getProduitCommande(idProduitCommande) {
     const produitId = produitCommandeRes[0].id_produit;
     const accessoireId = produitCommandeRes[0].id_accessoire;
 
-    // on récupère le produit lié à l'id
+    // On récupère le produit lié à l'id
     // (seulement un élément car on attend un seul produit)
     const produitRes = (await utils.getProduit(produitId))[0];
     let accessoireRes;
     if(accessoireId !== null){
-        // on récupère l'accessoire lié au produit
+        // On récupère l'accessoire lié au produit
         // (seulement un élément car on attend un seul accessoire)
         accessoireRes = (await utils.getSpecificAccessoires(accessoireId))[0];
     }
@@ -144,7 +144,7 @@ async function getCommandeItems(id_commande) {
     commandeResult.combis = [];
     commandeResult.produits = [];
 
-    // s'il y a des combinaisons on récupère chaque produit et
+    // S'il y a des combinaisons on récupère chaque produit et
     // on les ajoute au tableau résultat
     for (const combi of combinaisonsResult) {
         const produit1 = await getProduitCommande(combi.id_produit_commande1);
@@ -153,7 +153,7 @@ async function getCommandeItems(id_commande) {
         const quantite = combi.quantite;
         commandeResult.combis.push({produit1,produit2,produit3,quantite});
     }
-    // s'il y a des produits on récupère les infos du produit
+    // S'il y a des produits on récupère les infos du produit
     for (const prod of produitsResult) {
         const produit = await getProduitCommande(prod.id_produit_commande);
         const quantite = prod.quantite;
@@ -253,7 +253,7 @@ async function getDefaultItems(type, limit, offset) {
  * @returns {Promise<{totalPages: number, itemsResult}>} les données récupérées
  */
 async function getPaginatedItems(type, currentPage, searchTerm, limit = 10) {
-    // on calcule le décalage en fonction de la page courante et
+    // On calcule le décalage en fonction de la page courante et
     // le nombre d'éléments à afficher
     const offset = (currentPage - 1) * limit;
     let totalResult;
@@ -280,7 +280,7 @@ async function getPaginatedItems(type, currentPage, searchTerm, limit = 10) {
                 ({totalResult, itemsResult} = await getDefaultItems(type, limit, offset));
         }
 
-        // on calcule le nombre d'éléments dans la requête pour connaître
+        // On calcule le nombre d'éléments dans la requête pour connaître
         // le nombre total de pages
         const totalLength = totalResult.length;
         const totalPages = Math.ceil(totalLength / limit);
@@ -332,7 +332,7 @@ async function setResLocals(req, res, routeName, itemsResult, totalPages, curren
         lieu: routeName
     };
 
-    // on change le routeName pour afficher le bon fichier EJS
+    // On change le routeName pour afficher le bon fichier EJS
     if (routeName === 'accueil' || routeName === 'search' || req.params.type) {
         res.locals.viewName = 'page';
     }
@@ -350,18 +350,18 @@ async function setResLocals(req, res, routeName, itemsResult, totalPages, curren
  */
 async function handleRendering(req, res, next) {
     try {
-        // on récupère le nom de routage sans le '/'
+        // On récupère le nom de routage sans le '/'
         const routeName = req.params.type || req.route.path.slice(1);
-        // on récupère le getter de recherche si présent
+        // On récupère le getter de recherche si présent
         const search_input = req.query.recherche || '';
 
-        // on récupère la page courante
+        // On récupère la page courante
         const currentPage = parseInt(req.query.page) || 1;
         if (currentPage < 1) {
             return res.redirect(getRedirectUrl(routeName, search_input, 1));
         }
 
-        // on récupère une partie des données en fonction de la page courage
+        // On récupère une partie des données en fonction de la page courage
         const {itemsResult, totalPages} = await getPaginatedItems(routeName, currentPage, search_input);
         if (currentPage > totalPages && totalPages !== 0) {
             return res.redirect(getRedirectUrl(routeName, search_input, totalPages));
@@ -377,7 +377,7 @@ async function handleRendering(req, res, next) {
 }
 
 /**
- * Fonction qui vérifie que le path demandé correspond à une des catégories
+ * Fonction qui vérifie que le routage demandé correspond à une des catégories
  * et redirige vers la page principale sinon
  * @param req
  * @param res
@@ -396,7 +396,7 @@ function validateCategory(req, res, next) {
 }
 
 /**
- * Fonction qui vérifie d'un utilisateur est bien connecté en tant que gérant
+ * Fonction qui vérifie qu'un utilisateur est bien connecté en tant que gérant
  * @param req
  * @param res
  * @param next

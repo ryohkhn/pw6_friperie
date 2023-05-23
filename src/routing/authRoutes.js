@@ -98,7 +98,8 @@ async function insertProduitCommande(element) {
 
 /**
  * Vérifie et traite les données du formulaire d'inscription.
- * Effectue différentes validations sur les champs du formulaire et effectue l'insertion en base de données si les données sont valides.
+ * Effectue différentes validations sur les champs du formulaire et
+ * effectue l'insertion en base de données si les données sont valides.
  * Affiche les erreurs ou redirige vers la page de connexion en cas de succès.
  *
  * @param {Object} req - Objet de requête.
@@ -303,9 +304,14 @@ router.post('/verify_payment', async (req, res) => {
 
         // S'il n'y a pas d'erreurs de validation, on commence l'enregistrement de la commande.
         if (Object.keys(errors).length === 0) {
-            const reqInsert = `INSERT INTO commandes (nom, prenom, heureLivraison, tel, email, adresse, adresse2, ville, code)
-            VALUES ('${nom}', '${prenom}', '${heure}', '${num}', '${email}', '${adresse}', '${adresse2}', '${ville}', '${code}')
-            RETURNING id_commande`;
+            const reqInsert = `INSERT INTO commandes (nom, prenom,
+                                                      heureLivraison, tel,
+                                                      email, adresse, adresse2,
+                                                      ville, code)
+                               VALUES ('${nom}', '${prenom}', '${heure}',
+                                       '${num}', '${email}', '${adresse}',
+                                       '${adresse2}', '${ville}', '${code}')
+                               RETURNING id_commande`;
             const result3 = await db.query(reqInsert);
             const commandeId = result3.rows[0].id_commande;
 
@@ -317,22 +323,41 @@ router.post('/verify_payment', async (req, res) => {
                     const id_produit_commande = resultProdCommande.rows[0].id_produit_commande;
 
                     const reqProdUnique = `INSERT INTO produits_uniques_commandes (id_produit_commande, id_commande, quantite)
-                    VALUES ('${id_produit_commande}','${commandeId}','${element.quantity}');`;
+                                           VALUES ('${id_produit_commande}',
+                                                   '${commandeId}',
+                                                   '${element.quantity}');`;
                     const resultProdUnique = await db.query(reqProdUnique);
 
                     // Puis on met à jour les stocks du produit
-                    const reqStock = `UPDATE dispo_tailles SET quantite = (quantite - ${element.quantity})
-                    WHERE id_produit = '${element.produitId}' AND taille = '${element.taille}';`;
+                    const reqStock = `UPDATE dispo_tailles
+                                      SET quantite = (quantite - ${element.quantity})
+                                      WHERE id_produit = '${element.produitId}'
+                                        AND taille = '${element.taille}';`;
                     const resStock = await db.query(reqStock);
                 } else if (element.type === 'combinaison') {
                     // On insère les produits de la combinaison dans la table combinaisons_commandes
-                    const resultProdCommande1 = await insertProduitCommande(element.produits[0]);
-                    const resultProdCommande2 = await insertProduitCommande(element.produits[1]);
-                    const resultProdCommande3 = await insertProduitCommande(element.produits[2]);
+                    const resultProdCommande1 =
+                        await insertProduitCommande(element.produits[0]);
+                    const resultProdCommande2 =
+                        await insertProduitCommande(element.produits[1]);
+                    const resultProdCommande3 =
+                        await insertProduitCommande(element.produits[2]);
 
                     // Et on ajoute la combinaison dans la base de données.
-                    const reqCombi = `INSERT INTO combinaisons_commandes (id_combinaison, id_commande, id_produit_commande1, id_produit_commande2, id_produit_commande3, quantite)
-                    VALUES ('${element.combinaisonId}','${commandeId}', '${resultProdCommande1.rows[0].id_produit_commande}', '${resultProdCommande2.rows[0].id_produit_commande}', '${resultProdCommande3.rows[0].id_produit_commande}', '${element.quantity}')`;
+                    const reqCombi = `INSERT INTO combinaisons_commandes (id_combinaison,
+                                                                          id_commande,
+                                                                          id_produit_commande1,
+                                                                          id_produit_commande2,
+                                                                          id_produit_commande3,
+                                                                          quantite)
+                                      VALUES ('${element.combinaisonId}',
+                                              '${commandeId}',
+                                              '${resultProdCommande1.rows[0].id_produit_commande}
+                                              ',
+                                              '${resultProdCommande2.rows[0].id_produit_commande}
+                                              ',
+                                              '${resultProdCommande3.rows[0].id_produit_commande}
+                                              ', '${element.quantity}')`;
                     const resultCombi = await db.query(reqCombi);
 
                     // On met ensuite à jour les stocks des produits de la combinaison.

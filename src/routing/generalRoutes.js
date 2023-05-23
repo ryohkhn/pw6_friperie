@@ -5,6 +5,10 @@ const utils = require("../utils/utils");
 
 const router = express.Router();
 
+/**
+ * Fonction qui retourne tous les accessoires de la base de données.
+ * @returns {Promise<*>} les colonnes résultats de la requête
+ */
 async function getAccessoires() {
     const accessoiresReq = `SELECT *
                             FROM accessoires`;
@@ -12,6 +16,11 @@ async function getAccessoires() {
     return result.rows;
 }
 
+/**
+ * Fonction qui retourne tous les éléments d'une combinaison.
+ * @param combiId l'id de la combinaison
+ * @returns {Promise<*>} les colonnes résultats de la requête
+ */
 async function getCombinaisonAll(combiId) {
     const request = `SELECT c.id_combinaison,
                             c.type,
@@ -32,6 +41,11 @@ async function getCombinaisonAll(combiId) {
     return result.rows;
 }
 
+/**
+ * Fonction qui retourne toutes les tailles d'un produit.
+ * @param productId l'id du produit
+ * @returns {Promise<*>} les colonnes résultats de la requête
+ */
 async function getTaillesProduit(productId) {
     const disposReq = `SELECT *
                        FROM dispo_tailles
@@ -40,6 +54,11 @@ async function getTaillesProduit(productId) {
     return result.rows;
 }
 
+/**
+ * Fonction qui retourne l'accessoire lié à un produit.
+ * @param productId l'id du produit
+ * @returns {Promise<*>} les colonnes résultats de la requête
+ */
 async function getAccessoireLie(productId) {
     const accLieReq = `SELECT *
                        FROM produits_accessoires
@@ -48,9 +67,17 @@ async function getAccessoireLie(productId) {
     return result.rows;
 }
 
+/**
+ * Fonction qui ajoute un produit au cookie du panier
+ * @param produit le produit à ajouter
+ * @returns {Promise<*&{taille: *, quantity: (number|*), type: string, id_accessoire: string}>}
+ * Un objet composé du produit, son accessoire, son type, sa taille et quantité
+ */
 async function processCookieProduit(produit) {
     const resultatProduit = await utils.getProduit(produit.produitId);
 
+    // Ajoute les informations d'un accessoire si le produit est ajouté
+    // au panier avec un accessoire
     let resultatAccessoire;
     if (produit.accessoireId !== '') {
         resultatAccessoire = await utils.getSpecificAccessoires(produit.accessoireId);
@@ -59,7 +86,8 @@ async function processCookieProduit(produit) {
         resultatAccessoire = [{ id_accessoire: '' }];
     }
 
-    // Combine the elements of the first array with those of the second as well as the rest of the elements
+    // Combine les éléments du premier tableau avec ceux du deuxième, le type
+    // la taille et la quantité
     return {
         ...resultatProduit[0],
         ...resultatAccessoire[0],
@@ -69,32 +97,55 @@ async function processCookieProduit(produit) {
     };
 }
 
+/**
+ * Routage de `/` qui redirige vers celui de l'accueil
+ */
 router.get('/',(req, res) => {
     res.redirect('/accueil');
 });
 
+/**
+ * Routage de l'accueil qui affiche tous les produits de la base de données
+ */
 router.get('/accueil', middlewares.handleRendering, (req, res) => {
     res.render(`${res.locals.viewName}.ejs`, res.locals);
 });
 
+/**
+ * Routage des combinaisons qui affiche chaque combinaisons de la base de données
+ */
 router.get('/combinaisons', middlewares.handleRendering, (req, res) => {
     res.render(`${res.locals.viewName}.ejs`, res.locals);
 });
 
+/**
+ * Routage des commandes qui affiche chaque commande pour le gérant
+ */
 router.get('/commandes', middlewares.isGerant,middlewares.handleRendering, (req, res) => {
     res.render(`${res.locals.viewName}.ejs`, res.locals);
 });
 
+/**
+ * Routage de la barre de recherche qui affiche les produits qui contiennent
+ * le mot recherché
+ */
 router.get('/search', middlewares.handleRendering, (req, res) => {
     res.render(`${res.locals.viewName}.ejs`, res.locals);
 });
 
+/**
+ * Routage de la gestion du stock des produits pour le gérant
+ */
 router.get('/stock', middlewares.isGerant,middlewares.handleRendering, (req, res) => {
     res.render(`${res.locals.viewName}.ejs`, res.locals);
 });
 
+/**
+ * Routage du panier qui affiche tous éléments du cookie panier
+ */
 router.get('/panier', async (req, res) => {
     try {
+        // On récupère les éléments du panier courant
         const panier = req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
 
         if (panier.length === 0) {
@@ -162,10 +213,16 @@ router.get('/paiement', async (req, res) => {
     });
 });
 
+/**
+ * Routage sur chaque produit de paramètre `num`.
+ * Num correspond à l'id du produit dans la base de données.
+ */
 router.get('/produit/:num', async (req, res) => {
     try {
         const productId = req.params.num;
 
+        // On récupère le produit, l'accessoire choisi ou lié ainsi que
+        // les tailles disponibles
         const result = await utils.getProduit(productId);
         const result2 = await getAccessoires();
         const result3 = await getTaillesProduit(productId);
@@ -183,12 +240,20 @@ router.get('/produit/:num', async (req, res) => {
     }
 });
 
+/**
+ * Routage sur chaque combinaison de paramètre `num`.
+ * Num correspond à l'id de la combinaison dans la base de données.
+ */
 router.get('/combinaison/:num', async (req, res) => {
     try {
         const combiId = req.params.num;
 
+        // On récupère tous les éléments qui composent la combinaison
         const result = await getCombinaisonAll(combiId);
+        // On formate les résultats de la requête
         const combinedCombinaison = utils.combineCombinaisons(result);
+        // Pour chaque produit on ajoute les tailles disponibles
+        // ainsi l'accessoire lié si présent
         for (const produit of combinedCombinaison[0].products) {
             produit.tailles = await getTaillesProduit(produit.id_produit);
             const accLie = await getAccessoireLie(produit.id_produit);
@@ -210,7 +275,10 @@ router.get('/combinaison/:num', async (req, res) => {
     }
 });
 
-// routage sur les catégories de vêtements
+/**
+ * Routage sur les catégories de vêtements, le middleware `validateCategory`
+ * redirige vers l'accueil s'il ne s'agit pas d'une catégorie connnue
+ */
 router.get('/:type', middlewares.validateCategory, middlewares.handleRendering, (req, res) => {
     res.render(`${res.locals.viewName}.ejs`, res.locals);
 });

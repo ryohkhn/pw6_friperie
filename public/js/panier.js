@@ -27,7 +27,7 @@ $(document).ready(function () {
                 accessoire.push($(this).data('panier-accessoire'));
             });
         }
-        // envoie de la requête Ajax au serveur
+        // Envoi de la requête Ajax au serveur
         $.ajax({
             url: '/deletePanierAjax',
             method: 'POST',
@@ -50,7 +50,7 @@ $(document).ready(function () {
      * Event handler sur l'envoi du formulaire de la page produit
      */
     $('#add-to-panier-form').on('submit', function (event) {
-        // éviter la redirection par défaut du formulaire
+        // Éviter la redirection par défaut du formulaire
         event.preventDefault();
 
         $.ajax({
@@ -70,10 +70,10 @@ $(document).ready(function () {
      * Event handler sur l'envoi du formulaire de la page des combinaisons
      */
     $('#add-to-panier-combinaison-form').on('submit', function (event) {
-        // éviter la redirection par défaut du formulaire
+        // Éviter la redirection par défaut du formulaire
         event.preventDefault();
 
-        // récupération de l'id de la combinaison et des informations
+        // Récupération de l'id de la combinaison et des informations
         // de chaque produit (id,taille,accessoire)
         const combinaisonId = $('input[name="id_combi"]').val();
         const produitsData = [];
@@ -84,6 +84,7 @@ $(document).ready(function () {
             produitsData.push({produitId, taille, accessoireId});
         });
 
+        // Envoi de la requête Ajax au serveur
         $.ajax({
             url: '/ajoutePanierCombiAjax',
             type: 'POST',
@@ -105,6 +106,7 @@ $(document).ready(function () {
         const prixProduitElem = document.getElementById('prix_produit');
         const prixProduit = parseFloat(prixProduitElem.textContent);
 
+        // Envoi de la requête Ajax au serveur
         $.ajax({
             url: '/update-total-Ajax',
             method: 'POST',

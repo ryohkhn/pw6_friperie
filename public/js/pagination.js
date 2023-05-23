@@ -15,7 +15,7 @@ function getQueryParam(name) {
  */
 function navigateToPage(page){
     const currentPath = window.location.pathname;
-    // on récupère la valeur de la recherche si il y en a une
+    // On récupère la valeur de la recherche si il y en a une
     const searchTerm=getQueryParam("recherche");
     if(searchTerm){
         window.location.href = currentPath + '?recherche=' +

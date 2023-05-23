@@ -63,20 +63,20 @@ router.post('/ajouterStockAjax', async (req, res) => {
         const taille = req.body.taille;
         const quantite = req.body.quantite;
 
-        // on récupère les informations sur les tailles disponibles
+        // On récupère les informations sur les tailles disponibles
         // avec cet id et cette taille
         const tailles_dispos = await getQuantiteTailleProduit(id,taille);
-        // s'il existe déjà une quantité pour la taille on l'incrémente,
+        // S'il existe déjà une quantité pour la taille on l'incrémente,
         // sinon on insère la valeur
         if(tailles_dispos.length>0){
             await addQuantiteToTaille(id,taille,quantite);
-            // on retourne la valeur au client pour mettre à jour la valeur
+            // On retourne la valeur au client pour mettre à jour la valeur
             res.json({ nouveauStock: tailles_dispos[0].quantite
                     + parseInt(quantite, 10)});
         }
         else{
             await insertQuantiteToTaille(id,taille,quantite);
-            // on retourne la valeur au client pour mettre à jour la valeur
+            // On retourne la valeur au client pour mettre à jour la valeur
             res.json({ nouveauStock: quantite});
         }
     } catch (error) {
@@ -96,10 +96,10 @@ router.post('/ajoutePanierAjax', function(req, res) {
     const valTaille = req.body.taille;
     const accessoireId = req.body.accessoire;
 
-    // on récupère le panier courant
+    // On récupère le panier courant
     const currentPanier= req.cookies.panier ? JSON.parse(req.cookies.panier):[];
 
-    // on crée l'objet pour le comparer à ceux des cookies
+    // On crée l'objet pour le comparer à ceux des cookies
     const produit = {
         produitId: id,
         taille: valTaille,
@@ -107,13 +107,12 @@ router.post('/ajoutePanierAjax', function(req, res) {
         accessoireId: accessoireId,
     };
 
-    // on ajoute le nouveau produit au cookie
+    // On ajoute le nouveau produit au cookie
     const updatedPanier = utils.updatePanier(currentPanier, produit);
 
-    // on remplace l'ancien cookie par le nouveau
+    // On remplace l'ancien cookie par le nouveau
     res.cookie('panier', JSON.stringify(updatedPanier), {maxAge: 86400000});
 
-    // on retourne success
     res.sendStatus(200);
 });
 
@@ -127,13 +126,13 @@ router.post('/ajoutePanierCombiAjax', function(req, res) {
     const combinaisonData = req.body;
     combinaisonData.quantity = 1;
 
-    // on récupère le panier courant
+    // On récupère le panier courant
     const currentPanier = req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
 
-    // on ajoute le nouveau produit au cookie
+    // On ajoute le nouveau produit au cookie
     const updatedPanier = utils.updatePanierCombinaisons(currentPanier, combinaisonData);
 
-    // on remplace l'ancien cookie par le nouveau
+    // On remplace l'ancien cookie par le nouveau
     res.cookie('panier', JSON.stringify(updatedPanier), {maxAge: 86400000 });
 
     res.sendStatus(200);
@@ -149,7 +148,7 @@ router.post('/ajoutePanierCombiAjax', function(req, res) {
 function sameProduits(prod1, prod2) {
     if (prod1.length !== prod2.length) return false;
 
-    // on compare les id des produits, des tailles et de l'accessoire
+    // On compare les id des produits, des tailles et de l'accessoire
     for (let i = 0; i < prod1.length; i++) {
         const p1 = prod1[i];
         const p2 = prod2.find(p => p.produitId === p1.produitId && p.taille === p1.taille && p.accessoireId === p1.accessoireId);
@@ -207,6 +206,7 @@ router.post('/deletePanierAjax', function(req, res) {
 
     let element = {};
 
+    // On reproduit comment l'élément est stocké dans le cookie
     if (type === 'produit') {
         element = {
             type: type,
@@ -242,41 +242,6 @@ router.post('/deletePanierAjax', function(req, res) {
 });
 
 /**
- * Supprime un produit du panier via une requête Ajax.
- *
- * @param {Object} req - Requête HTTP contenant les informations du produit à supprimer.
- * @param {Object} res - Réponse HTTP renvoyée au client.
- */
-router.post('/delete-basket', function(req, res) {
-    const id_produit = req.body.id_produit;
-    const valTaille = req.body.size;
-    const accessoireId = req.body.id_accessoire;
-    const prix = req.body.prix;
-
-     // on récupère le panier courant
-     const currentPanier= req.cookies.panier ? JSON.parse(req.cookies.panier):[];
-
-     const produit = {
-         produitId: id_produit,
-         size: valTaille,
-         quantity: 1,
-         accessoireId: accessoireId,
-     };
-
-     // on ajoute le nouveau produit au cookie
-    const updatedPanier = utils.deleteProduit(currentPanier, produit);
-     // on remplace l'ancien cookie par le nouveau
-    res.cookie('panier', JSON.stringify(updatedPanier), {maxAge: 86400000 });
-
-    const currentPrixTotal = utils.getPrixTotalCookie(req);
-    const newPrixTotal = currentPrixTotal - parseFloat(prix);
-    res.cookie('prixTotal', newPrixTotal, {maxAge: 86400000, sameSite: 'lax'});
-
-    const productPrice = 0;
-    res.json({ price: productPrice });
-});
-
-/**
  * Met à jour le prix total du panier via une requête Ajax.
  * @param {Object} req - Requête HTTP contenant les informations sur le prix à ajouter.
  * @param {Object} res - Réponse HTTP renvoyée au client.
@@ -285,13 +250,13 @@ router.post('/update-total-Ajax', function (req, res) {
     const prix = parseFloat(req.body.prix);
 
     const currentPrixTotal = utils.getPrixTotalCookie(req);
-    //  on récupère le prix total du panier courrant
+    //  On récupère le prix total du panier courant
     const newPrixTotal = currentPrixTotal + prix;
 
-    // on met à jour le cookie
+    // On met à jour le cookie
     res.cookie('prixTotal', newPrixTotal, {maxAge: 86400000, sameSite: 'lax'});
 
-    // on retourne au client le nouveau prix total pour le mettre à jour sur la page
+    // On retourne au client le nouveau prix total pour le mettre à jour sur la page
     res.json({newTotal: newPrixTotal});
 });
 
