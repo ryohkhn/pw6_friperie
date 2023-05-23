@@ -35,7 +35,7 @@ async function getCombinaisonAll(combiId) {
 async function getTaillesProduit(productId) {
     const disposReq = `SELECT *
                        FROM dispo_tailles
-                       WHERE id_produit = $1`;
+                       WHERE id_produit = $1 AND quantite <> 0`;
     const result = await db.query(disposReq, [productId]);
     return result.rows;
 }
