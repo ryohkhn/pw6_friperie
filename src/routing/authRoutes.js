@@ -169,16 +169,16 @@ router.post('/verify_register', (req, res) => {
     let request = `SELECT * FROM gerants,clients WHERE gerants.login = '${login}' OR clients.login = '${login}' `;
     db.query(request, (err, result) => {
         if (err) {
-            console.log(err);
-            res.render('error.ejs', { errorCode: err });
+            console.error(err);
+            res.status(500).send('Erreur interne du serveur');
         } else if (result.rows.length > 0) {
             errors.loginExists = "Le pseudo entré n'est pas disponible.";
         }
         let emailReq = `SELECT * FROM clients WHERE email = '${email}'`;
         db.query(emailReq, (err, result2) => {
             if (err) {
-                console.log(err);
-                res.render('error.ejs', { errorCode: err });
+                console.error(err);
+                res.status(500).send('Erreur interne du serveur');
             } else if (result2.rows.length > 0) {
                 errors.emailExists = "L'adresse mail entrée n'est pas disponible.";
             }
@@ -191,8 +191,8 @@ router.post('/verify_register', (req, res) => {
 
                 db.query(reqInsert, (err, result3) => {
                     if (err) {
-                        console.log(err);
-                        res.render('error.ejs', { errorCode: err });
+                        console.error(err);
+                        res.status(500).send('Erreur interne du serveur');
                     } else {
                         // Redirection vers la page de connexion en cas de succès
                         res.render('login_page.ejs', {
@@ -257,9 +257,8 @@ router.post('/verify_payment', async (req, res) => {
             return;
         }
     } catch (err) {
-        console.log(err);
-        res.render('error.ejs', { errorCode: err });
-        return;
+        console.error(err);
+        res.status(500).send('Erreur interne du serveur');
     }
 
     // On regarde si les champs du formulaire sont bien valides.
@@ -397,8 +396,8 @@ router.post('/verify_payment', async (req, res) => {
             return;
         }
     } catch (err) {
-        console.log(err);
-        res.render('error.ejs', { errorCode: err });
+        console.error(err);
+        res.status(500).send('Erreur interne du serveur');
     }
 });
 

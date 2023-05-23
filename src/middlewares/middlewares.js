@@ -416,7 +416,7 @@ function isGerant(req, res, next){
  * @returns {Promise<Array>} renvoie le panier mis à jour.
  */
 async function verifStocks(panier) {
-        const stockDisponible = {};
+        var stockDisponible = {};
         const panierFinal = [];
         // Pour chaque élément, on vérifie si il est en stock disponible à la taille demandée,
         // et on stocke avec une clé contenant l'id et la taille, le stock disponible pour ce produit dans le 
@@ -425,7 +425,7 @@ async function verifStocks(panier) {
             if (element.type === 'produit') {
                 const key = `${element.produitId}_${element.taille}`;
                 // Si la quantité disponible pour ce produit n'est pas définie, on vérifie dans la base de données, et on l'ajoute.
-                if (!stockDisponible[key]) {
+                if (stockDisponible[key]===undefined) {
                     const reqDispo = `SELECT quantite FROM dispo_tailles WHERE id_produit = ${element.produitId} AND taille = '${element.taille}'`;
                     const resultDispo = await db.query(reqDispo);
 
@@ -456,7 +456,7 @@ async function verifStocks(panier) {
                 // Si l'élément est une combinaison, on vérifie le stock de chaque produit de la combinaison,
                 for (const produit of element.produits) {
                     const key = `${produit.produitId}_${produit.taille}`;
-                    if (!stockDisponible[key]) {
+                    if (stockDisponible[key]===undefined) {
                         const reqDispo = `SELECT quantite FROM dispo_tailles WHERE id_produit = ${produit.produitId} AND taille = '${produit.taille}'`;
                         const resultDispo = await db.query(reqDispo);
 
@@ -466,10 +466,6 @@ async function verifStocks(panier) {
                             stockDisponible[key] = 0;
                         }
                     }
-                    console.log(key);
-                    console.log(stockDisponible);
-                    console.log(stockDisponible[key]);
-                    console.log(produit);
                     if (stockDisponible[key]===0) {
                         isAvailable = false;
                         break;
@@ -499,7 +495,7 @@ async function verifStocks(panier) {
                 }
             }
         }
-        console.log(panierFinal);
+        //console.log(panierFinal);
         return panierFinal;
 }
 
