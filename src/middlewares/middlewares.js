@@ -456,7 +456,6 @@ async function verifStocks(panier) {
                 // Si l'élément est une combinaison, on vérifie le stock de chaque produit de la combinaison,
                 for (const produit of element.produits) {
                     const key = `${produit.produitId}_${produit.taille}`;
-
                     if (!stockDisponible[key]) {
                         const reqDispo = `SELECT quantite FROM dispo_tailles WHERE id_produit = ${produit.produitId} AND taille = '${produit.taille}'`;
                         const resultDispo = await db.query(reqDispo);
@@ -467,10 +466,15 @@ async function verifStocks(panier) {
                             stockDisponible[key] = 0;
                         }
                     }
-
-                    if (element.quantity > stockDisponible[key]) {
+                    console.log(key);
+                    console.log(stockDisponible);
+                    console.log(stockDisponible[key]);
+                    console.log(produit);
+                    if (stockDisponible[key]===0) {
                         isAvailable = false;
                         break;
+                    }else if(element.quantity > stockDisponible[key] && stockDisponible[key] < quantitemax){
+                        quantitemax = stockDisponible[key];
                     }
                 }
                 // Si tous les produits de la combi sont disponibles à la bonne taille, on ajoute la combi au panier final,
@@ -478,10 +482,20 @@ async function verifStocks(panier) {
                 if (isAvailable) {
                     for (const produit of element.produits) {
                         const key = `${produit.produitId}_${produit.taille}`;
-                        stockDisponible[key] -= element.quantity;
+                        stockDisponible[key] -= quantitemax;
                     }
 
-                    panierFinal.push(element);
+                    if(quantitemax!==element.quantity){
+                        var newCombi = {
+                            combinaisonId:element.combinaisonId,
+                            produits:element.produits,
+                            quantity:quantitemax,
+                            type:element.type                
+                        }
+                        panierFinal.push(newCombi);
+                    }else{
+                        panierFinal.push(element);
+                    }
                 }
             }
         }
