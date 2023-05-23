@@ -410,14 +410,21 @@ function isGerant(req, res, next){
     }
 }
 
+/**
+ * Fonction qui vérifie le stock, crée un nouveau tableau contenant seulement les éléments disponibles.
+ * @param panier tableau contenant tous les éléments du panier actuel.
+ * @returns {Promise<Array>} renvoie le panier mis à jour.
+ */
 async function verifStocks(panier) {
         const stockDisponible = {};
         const panierFinal = [];
-
+        // Pour chaque élément, on vérifie si il est en stock disponible à la taille demandée,
+        // et on stocke avec une clé contenant l'id et la taille, le stock disponible pour ce produit dans le 
+        // tableau stockDisponible.
         for (const element of panier) {
             if (element.type === 'produit') {
                 const key = `${element.produitId}_${element.taille}`;
-
+                // Si la quantité disponible pour ce produit n'est pas définie, on vérifie dans la base de données, et on l'ajoute.
                 if (!stockDisponible[key]) {
                     const reqDispo = `SELECT quantite FROM dispo_tailles WHERE id_produit = ${element.produitId} AND taille = '${element.taille}'`;
                     const resultDispo = await db.query(reqDispo);
@@ -428,14 +435,25 @@ async function verifStocks(panier) {
                         stockDisponible[key] = 0;
                     }
                 }
-
+                // On vérifie que la quantité du produit voulue est correcte, sinon on la corrige et on l'ajoute au nouveau panier en fonction.
                 if (element.quantity <= stockDisponible[key]) {
                     stockDisponible[key] -= element.quantity;
                     panierFinal.push(element);
+                }else if(stockDisponible[key]>0){
+                    const newProd={
+                        produitId:element.produitId,
+                        taille:element.taille,
+                        quantity:stockDisponible[key],
+                        accessoireId:element.accessoireId,
+                        type:element.type
+                    }
+                    stockDisponible[key]=0;
+                    panierFinal.push(newProd);
                 }
             } else if (element.type === 'combinaison') {
                 let isAvailable = true;
-
+                let quantitemax = element.quantity;
+                // Si l'élément est une combinaison, on vérifie le stock de chaque produit de la combinaison,
                 for (const produit of element.produits) {
                     const key = `${produit.produitId}_${produit.taille}`;
 
@@ -455,7 +473,8 @@ async function verifStocks(panier) {
                         break;
                     }
                 }
-
+                // Si tous les produits de la combi sont disponibles à la bonne taille, on ajoute la combi au panier final,
+                // et on modifie le tableau des stocks disponibles.
                 if (isAvailable) {
                     for (const produit of element.produits) {
                         const key = `${produit.produitId}_${produit.taille}`;
@@ -466,7 +485,7 @@ async function verifStocks(panier) {
                 }
             }
         }
-
+        console.log(panierFinal);
         return panierFinal;
 }
 

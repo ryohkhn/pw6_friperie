@@ -4,6 +4,12 @@ const db = require("../database_pool.local");
 
 const router = express.Router();
 
+/**
+ * Récupère la quantité disponible pour une taille spécifique d'un produit donné.
+ * @param {number} productId - L'ID du produit.
+ * @param {string} taille - La taille du produit.
+ * @returns {Promise<Array>} - Un tableau contenant les résultats de la requête.
+ */
 async function getQuantiteTailleProduit(productId,taille) {
     const disposReq = `SELECT *
                        FROM dispo_tailles
@@ -12,6 +18,13 @@ async function getQuantiteTailleProduit(productId,taille) {
     return result.rows;
 }
 
+/**
+ * Ajoute une quantité spécifiée à la taille d'un produit donné dans la table de disponibilité des tailles.
+ * @param {number} productId - L'ID du produit.
+ * @param {string} taille - La taille du produit.
+ * @param {number} quantite - La quantité à ajouter.
+ * @returns {Promise<Array>} - Un tableau contenant les résultats de la requête.
+ */
 async function addQuantiteToTaille(productId,taille,quantite){
     const disposReq = `UPDATE dispo_tailles SET
                        quantite = quantite + $1 
@@ -20,6 +33,13 @@ async function addQuantiteToTaille(productId,taille,quantite){
     return result.rows;
 }
 
+/**
+ * Insère une quantité spécifiée pour une taille d'un produit donné dans la table de disponibilité des tailles.
+ * @param {number} productId - L'ID du produit.
+ * @param {string} taille - La taille du produit.
+ * @param {number} quantite - La quantité à insérer.
+ * @returns {Promise<Array>} - Un tableau contenant les résultats de la requête.
+ */
 async function insertQuantiteToTaille(productId,taille,quantite){
     const disposReq = `INSERT INTO dispo_tailles VALUES ($1,$2,$3)`;
     const result = await db.query(disposReq, [productId,taille,quantite]);
@@ -28,7 +48,11 @@ async function insertQuantiteToTaille(productId,taille,quantite){
 
 /**
  * Routage pour les requêtes POST d'ajout de stock à la base de données
- * Le serveur reçoit l'id du produit, la taille ainsi que la quantité demandée
+ * Le serveur reçoit l'id du produit, la taille ainsi que la quantité demandée *
+ *  @param {Object} req - Requête HTTP reçue.
+ * @param {Object} res - Réponse HTTP à renvoyer.
+ * @returns {Object} - Objet JSON contenant la nouvelle valeur du stock ({ nouveauStock: quantite }).
+ *                    En cas d'erreur, renvoie une réponse d'erreur avec le statut 500 et un objet JSON ({ error: 'Internal server error' }).
  */
 router.post('/ajouterStockAjax', async (req, res) => {
     try {
@@ -55,6 +79,12 @@ router.post('/ajouterStockAjax', async (req, res) => {
     }
 });
 
+/**
+ * Route pour ajouter un produit au panier.
+ * @param {Object} req - Requête HTTP reçue.
+ * @param {Object} res - Réponse HTTP à renvoyer.
+ * @returns {number} - Statut de succès (200) en cas de réussite.
+ */
 router.post('/ajoutePanierAjax', function(req, res) {
     const id = req.body.id_produit;
     const valTaille = req.body.taille;
@@ -81,6 +111,12 @@ router.post('/ajoutePanierAjax', function(req, res) {
     res.sendStatus(200);
 });
 
+/**
+ * Route pour ajouter une combinaison au panier.
+ * @param {Object} req - Requête HTTP reçue.
+ * @param {Object} res - Réponse HTTP à renvoyer.
+ * @returns {number} - Statut de succès (200) en cas de réussite.
+ */
 router.post('/ajoutePanierCombiAjax', function(req, res) {
     const combinaisonData = req.body;
     combinaisonData.quantity = 1;
@@ -97,7 +133,12 @@ router.post('/ajoutePanierCombiAjax', function(req, res) {
     res.sendStatus(200);
 });
 
-// Vérifier si deux tableaux de produits sont les mêmes
+/**
+ * Vérifie si deux tableaux de produits sont identiques.
+ * @param {Array} prod1 - Premier tableau de produits.
+ * @param {Array} prod2 - Deuxième tableau de produits.
+ * @returns {boolean} - True si les tableaux de produits sont identiques, sinon False.
+ */
 function sameProduits(prod1, prod2) {
     if (prod1.length !== prod2.length) return false;
 
@@ -110,6 +151,12 @@ function sameProduits(prod1, prod2) {
     return true;
 }
 
+/**
+ * Supprime un élément du panier en ajustant la quantité ou en le supprimant complètement.
+ * @param {Array} panier - Le panier contenant les éléments.
+ * @param {Object} element - L'élément à supprimer.
+ * @returns {Array} Le panier mis à jour.
+ */
 function deleteElement(panier, element) {
     const index = panier.findIndex((p) => {
         if (p.type === 'produit') {
@@ -132,6 +179,11 @@ function deleteElement(panier, element) {
     return panier;
 }
 
+/**
+ * Supprime un élément du panier via une requête Ajax.
+ * @param {Object} req - Requête HTTP contenant les informations de l'élément à supprimer.
+ * @param {Object} res - Réponse HTTP renvoyée au client.
+ */
 router.post('/deletePanierAjax', function(req, res) {
     const type = req.body.type;
     const id = req.body.id;
@@ -177,6 +229,12 @@ router.post('/deletePanierAjax', function(req, res) {
     res.json({ status: "success" });
 });
 
+/**
+ * Supprime un produit du panier via une requête Ajax.
+ *
+ * @param {Object} req - Requête HTTP contenant les informations du produit à supprimer.
+ * @param {Object} res - Réponse HTTP renvoyée au client.
+ */
 router.post('/delete-basket', function(req, res) {
     const id_produit = req.body.id_produit;
     const valTaille = req.body.size;
@@ -206,6 +264,11 @@ router.post('/delete-basket', function(req, res) {
     res.json({ price: productPrice });
 });
 
+/**
+ * Met à jour le prix total du panier via une requête Ajax.
+ * @param {Object} req - Requête HTTP contenant les informations sur le prix à ajouter.
+ * @param {Object} res - Réponse HTTP renvoyée au client.
+ */
 router.post('/update-total-Ajax', function (req, res) {
     const prix = parseFloat(req.body.prix);
 
@@ -220,7 +283,11 @@ router.post('/update-total-Ajax', function (req, res) {
     res.json({newTotal: newPrixTotal});
 });
 
-
+/**
+ * Supprime une commande via une requête Ajax.
+ * @param {Object} req - Requête HTTP contenant l'ID de la commande à supprimer.
+ * @param {Object} res - Réponse HTTP renvoyée au client.
+ */
 router.post('/delete-order', async (req, res) => {
     const id_commande = req.body.id_commande;
 

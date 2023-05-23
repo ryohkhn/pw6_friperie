@@ -108,11 +108,10 @@ router.get('/panier', async (req, res) => {
         }
         else {
             const tab = [];
-            console.log(panier);
             const verifPanier = await middlewares.verifStocks(panier);
             let stock=false;
+            res.cookie('panier', JSON.stringify(verifPanier), {maxAge: 86400000 });
             if(panier.length !== verifPanier.length){
-                res.cookie('panier', JSON.stringify(verifPanier), {maxAge: 86400000 });
                 stock=true;
             }
             var newPrixTotal=0;
@@ -143,7 +142,7 @@ router.get('/panier', async (req, res) => {
             res.render('panier.ejs', {
                 pbStock:stock,
                 elements: tab,
-                prixTotal: utils.getPrixTotalCookie(req),
+                prixTotal: newPrixTotal,
                 activeSession: utils.isAuthentificated(req),
                 user: utils.isAuthentificated(req) ? req.session.user : {}
             });
