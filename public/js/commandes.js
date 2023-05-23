@@ -3,6 +3,7 @@ $(document).ready(function () {
      * Event handler sur le bouton de suppression des commades
      */
     $('.delete-order-btn').on('click', function () {
+        // on récupère l'id de commande dans l'attribut data-order-id
         const id_commande = $(this).closest('tr').data('order-id');
         console.log('Deleting Order ID:', id_commande);
 

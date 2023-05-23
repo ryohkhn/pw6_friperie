@@ -34,7 +34,8 @@ async function addQuantiteToTaille(productId,taille,quantite){
 }
 
 /**
- * Insère une quantité spécifiée pour une taille d'un produit donné dans la table de disponibilité des tailles.
+ * Insère une quantité spécifiée pour une taille d'un produit donné dans
+ * la table de disponibilité des tailles.
  * @param {number} productId - L'ID du produit.
  * @param {string} taille - La taille du produit.
  * @param {number} quantite - La quantité à insérer.
@@ -48,11 +49,13 @@ async function insertQuantiteToTaille(productId,taille,quantite){
 
 /**
  * Routage pour les requêtes POST d'ajout de stock à la base de données
- * Le serveur reçoit l'id du produit, la taille ainsi que la quantité demandée *
- *  @param {Object} req - Requête HTTP reçue.
+ * Le serveur reçoit l'id du produit, la taille ainsi que la quantité demandée
+ * @param {Object} req - Requête HTTP reçue.
  * @param {Object} res - Réponse HTTP à renvoyer.
- * @returns {Object} - Objet JSON contenant la nouvelle valeur du stock ({ nouveauStock: quantite }).
- *                    En cas d'erreur, renvoie une réponse d'erreur avec le statut 500 et un objet JSON ({ error: 'Internal server error' }).
+ * @returns {Object} - Objet JSON contenant la nouvelle valeur du
+ * stock ({ nouveauStock: quantite }).
+ * En cas d'erreur, renvoie une réponse d'erreur avec le statut 500 et
+ * un objet JSON ({ error: 'Internal server error' }).
  */
 router.post('/ajouterStockAjax', async (req, res) => {
     try {
@@ -60,13 +63,16 @@ router.post('/ajouterStockAjax', async (req, res) => {
         const taille = req.body.taille;
         const quantite = req.body.quantite;
 
-        // on récupère les informations sur les tailles disponibles avec cet id et cette taille
+        // on récupère les informations sur les tailles disponibles
+        // avec cet id et cette taille
         const tailles_dispos = await getQuantiteTailleProduit(id,taille);
-        // s'il existe déjà une quantité pour la taille on l'incrémente, sinon on insère la valeur
+        // s'il existe déjà une quantité pour la taille on l'incrémente,
+        // sinon on insère la valeur
         if(tailles_dispos.length>0){
             await addQuantiteToTaille(id,taille,quantite);
             // on retourne la valeur au client pour mettre à jour la valeur
-            res.json({ nouveauStock: tailles_dispos[0].quantite + parseInt(quantite, 10)});
+            res.json({ nouveauStock: tailles_dispos[0].quantite
+                    + parseInt(quantite, 10)});
         }
         else{
             await insertQuantiteToTaille(id,taille,quantite);
@@ -80,7 +86,7 @@ router.post('/ajouterStockAjax', async (req, res) => {
 });
 
 /**
- * Route pour ajouter un produit au panier.
+ * Route ajax pour ajouter un produit au panier et mettre à jour le cookie.
  * @param {Object} req - Requête HTTP reçue.
  * @param {Object} res - Réponse HTTP à renvoyer.
  * @returns {number} - Statut de succès (200) en cas de réussite.
@@ -91,7 +97,7 @@ router.post('/ajoutePanierAjax', function(req, res) {
     const accessoireId = req.body.accessoire;
 
     // on récupère le panier courant
-    const currentPanier= req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
+    const currentPanier= req.cookies.panier ? JSON.parse(req.cookies.panier):[];
 
     // on crée l'objet pour le comparer à ceux des cookies
     const produit = {
@@ -105,14 +111,14 @@ router.post('/ajoutePanierAjax', function(req, res) {
     const updatedPanier = utils.updatePanier(currentPanier, produit);
 
     // on remplace l'ancien cookie par le nouveau
-    res.cookie('panier', JSON.stringify(updatedPanier), {maxAge: 86400000 });
+    res.cookie('panier', JSON.stringify(updatedPanier), {maxAge: 86400000});
 
     // on retourne success
     res.sendStatus(200);
 });
 
 /**
- * Route pour ajouter une combinaison au panier.
+ * Route pour ajouter une combinaison au panier et mettre à jour le cookie.
  * @param {Object} req - Requête HTTP reçue.
  * @param {Object} res - Réponse HTTP à renvoyer.
  * @returns {number} - Statut de succès (200) en cas de réussite.
@@ -137,11 +143,13 @@ router.post('/ajoutePanierCombiAjax', function(req, res) {
  * Vérifie si deux tableaux de produits sont identiques.
  * @param {Array} prod1 - Premier tableau de produits.
  * @param {Array} prod2 - Deuxième tableau de produits.
- * @returns {boolean} - True si les tableaux de produits sont identiques, sinon False.
+ * @returns {boolean} - True si les tableaux de produits sont identiques,
+ * False sinon.
  */
 function sameProduits(prod1, prod2) {
     if (prod1.length !== prod2.length) return false;
 
+    // on compare les id des produits, des tailles et de l'accessoire
     for (let i = 0; i < prod1.length; i++) {
         const p1 = prod1[i];
         const p2 = prod2.find(p => p.produitId === p1.produitId && p.taille === p1.taille && p.accessoireId === p1.accessoireId);
@@ -152,7 +160,8 @@ function sameProduits(prod1, prod2) {
 }
 
 /**
- * Supprime un élément du panier en ajustant la quantité ou en le supprimant complètement.
+ * Supprime un élément du panier en ajustant la quantité ou en
+ * le supprimant complètement.
  * @param {Array} panier - Le panier contenant les éléments.
  * @param {Object} element - L'élément à supprimer.
  * @returns {Array} Le panier mis à jour.
@@ -160,11 +169,13 @@ function sameProduits(prod1, prod2) {
 function deleteElement(panier, element) {
     const index = panier.findIndex((p) => {
         if (p.type === 'produit') {
-            return p.produitId === element.produitId && p.taille === element.taille && p.accessoireId === element.accessoireId;
+            return p.produitId === element.produitId && p.taille ===
+                element.taille && p.accessoireId === element.accessoireId;
         }
         else if (p.type === 'combinaison') {
             // Vérifier si la combinaison a le même id et les mêmes produits
-            return p.combinaisonId === element.combinaisonId && sameProduits(p.produits, element.produits);
+            return p.combinaisonId === element.combinaisonId
+                && sameProduits(p.produits, element.produits);
         }
         return false;
     });
@@ -210,7 +221,8 @@ router.post('/deletePanierAjax', function(req, res) {
         element = {
             type: type,
             combinaisonId: id,
-            produits: taille.map((val, index) => ({produitId: produitsId[index], taille: val, accessoireId: accessoire[index]})),
+            produits: taille.map((val, index) => ({produitId: produitsId[index],
+                taille: val, accessoireId: accessoire[index]})),
             quantity: 1,
         };
     }
@@ -242,7 +254,7 @@ router.post('/delete-basket', function(req, res) {
     const prix = req.body.prix;
 
      // on récupère le panier courant
-     const currentPanier= req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
+     const currentPanier= req.cookies.panier ? JSON.parse(req.cookies.panier):[];
 
      const produit = {
          produitId: id_produit,
