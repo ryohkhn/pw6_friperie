@@ -214,6 +214,7 @@ router.post('/verify_register', (req, res) => {
                 // Affichage des erreurs sur la page d'inscription
                 res.render('register_page.ejs', {
                     erreurs: errors,
+                    prixTotal: utils.getPrixTotalCookie(req),
                     activeSession: utils.isAuthentificated(req),
                     user: utils.isAuthentificated(req) ? req.session.user : {}
                 });

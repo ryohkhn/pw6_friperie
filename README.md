@@ -35,15 +35,9 @@ Avant de commencer à utiliser le site, vous devez configurer votre base de donn
 
 1. Assurez-vous d'avoir PostgreSQL installé sur votre machine. Si vous ne l'avez pas encore installé, vous pouvez le télécharger à partir du site officiel de PostgreSQL (https://www.postgresql.org/).
 
-2. Ouvrez le fichier database_pool.js situé à la racine du projet.
+2. Ouvrez le fichier database_pool.js situé à la racine du projet et modifiez les valeurs des propriétés user, host, database, password et port en fonction de votre configuration PostgreSQL.
 
-3. Copiez le fichier database_pool.js dans un nouveau fichier : database_pool.local.js, et modifiez les valeurs des propriétés user, host, database, password et port en fonction de votre configuration PostgreSQL.
-
-4. Une fois les modifications effectuées, enregistrez le fichier.
-
-5. Créez la base PW6 puis entrez la commande : `\i database/init.sql` dans le dossier `src`.
-
-6. Votre base de données PostgreSQL est maintenant correctement configurée pour fonctionner avec le site.
+3. Créez la base PW6 puis entrez la commande : `\i database/init.sql` dans le dossier `src`.
 
 ## Installation et déploiement
 
