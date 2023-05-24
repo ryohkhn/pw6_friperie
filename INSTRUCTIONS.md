@@ -36,6 +36,10 @@ cd src/database
 Lancez le serveur en exécutant la commande `node app.js` dans le dossier `src`.  
 Accédez au site en visitant l'URL [http://localhost:8080](http://localhost:8080).
 
+### Utilisateurs existants
+Utilisateur: `login: test, mdp:123456789`  
+Gérant: `login:admin, mdp:admin`
+
 ### Membres
 
 | Nom       | Prénom  | Numéro étudiant | Pseudo GitLab |
