@@ -148,6 +148,7 @@ router.get('/panier', async (req, res) => {
         // On récupère les éléments du panier courant
         const panier = req.cookies.panier ? JSON.parse(req.cookies.panier) : [];
 
+        // Si le panier est vide, on affiche la page panier avec un tableau vide.
         if (panier.length === 0) {
             res.render('panier.ejs', {
                 pbStock:false,
@@ -159,6 +160,7 @@ router.get('/panier', async (req, res) => {
         }
         else {
             const tab = [];
+            // On vérifie le stock disponible et modifie le panier en fonction.
             const verifPanier = await middlewares.verifStocks(panier);
             let stock=false;
             res.cookie('panier', JSON.stringify(verifPanier), {maxAge: 86400000 });
@@ -166,6 +168,9 @@ router.get('/panier', async (req, res) => {
                 stock=true;
             }
             var newPrixTotal=0;
+            // Pour chaque élément du cookie panier, on va chercher les
+            // valeurs dont on a besoin dans la base de données et ajouter
+            // chaque produit et chaque combi au tableau.
             for (const element of verifPanier) {
                 if (element.type === 'produit') {
                     const processedProduit = await processCookieProduit(element);
@@ -189,7 +194,7 @@ router.get('/panier', async (req, res) => {
                 }
             }
             res.cookie('prixTotal', newPrixTotal, {maxAge: 86400000, sameSite: 'lax'});
-
+            // On affiche le panier avec les bonnes informations 
             res.render('panier.ejs', {
                 pbStock:stock,
                 elements: tab,
@@ -204,7 +209,16 @@ router.get('/panier', async (req, res) => {
     }
 });
 
+/**
+ * Routage pour le formulaire de paiement.
+ */
 router.get('/paiement', async (req, res) => {
+    const panier = utils.getPrixTotalCookie(req);
+
+    if (panier === 0) {
+        res.redirect('/');
+        return;
+    }
     res.render("paiement.ejs",{
         activeSession: utils.isAuthentificated(req),
         user: utils.isAuthentificated(req) ? req.session.user : {},
@@ -279,7 +293,8 @@ router.get('/combinaison/:num', async (req, res) => {
  * Routage sur les catégories de vêtements, le middleware `validateCategory`
  * redirige vers l'accueil s'il ne s'agit pas d'une catégorie connnue
  */
-router.get('/:type', middlewares.validateCategory, middlewares.handleRendering, (req, res) => {
+router.get('/:type', middlewares.validateCategory, middlewares.handleRendering,
+ (req, res) => {
     res.render(`${res.locals.viewName}.ejs`, res.locals);
 });
 

@@ -16,6 +16,7 @@ const router = express.Router();
 router.get('/login', (req, res) => {
     if(utils.isAuthentificated(req)){
         res.redirect('/');
+        return;
     }
     res.render('login_page.ejs', {
         failed: false,
@@ -34,6 +35,7 @@ router.get('/login', (req, res) => {
 router.get('/register', (req, res) => {
     if(utils.isAuthentificated(req)){
         res.redirect('/');
+        return;
     }
     res.render('register_page.ejs', {
         erreurs: {},
@@ -52,6 +54,7 @@ router.get('/register', (req, res) => {
 router.get('/gerant', (req, res) => {
     if(utils.isAuthentificated(req)){
         res.redirect('/');
+        return;
     }
     res.render('login_page.ejs', {
         failed: false,
@@ -77,6 +80,7 @@ router.get('/disconnect',(req, res) => {
         });
     }
     res.redirect('/');
+    return;
 });
 
 /**
@@ -155,7 +159,7 @@ router.post('/verify_register', (req, res) => {
     }
     if (adresse2) {
         if (!adresse2.match(adresseRegex)) {
-            errors.adresse2 = "Les informations complémentaires contiennent des caractères invalides.";
+            errors.adresse2 = "Les informations contiennent des caractères invalides.";
         }
     }
     if (!ville.match(adresseRegex)) {
@@ -166,7 +170,8 @@ router.post('/verify_register', (req, res) => {
     }
 
     // Vérification de l'unicité du pseudo et de l'adresse e-mail
-    let request = `SELECT * FROM gerants,clients WHERE gerants.login = '${login}' OR clients.login = '${login}' `;
+    let request = `SELECT * FROM gerants,clients WHERE gerants.login = '${login}'
+    OR clients.login = '${login}' `;
     db.query(request, (err, result) => {
         if (err) {
             console.error(err);
@@ -186,8 +191,10 @@ router.post('/verify_register', (req, res) => {
             if (Object.keys(errors).length === 0) {
                 // Insertion des données en base de données
                 const hashed_mdp = crypto.createHash('sha256').update(password).digest('hex');
-                const reqInsert = `INSERT INTO clients (nom, prenom, tel, email, adresse, adresse2, ville, code, login, mdp)
-                VALUES ('${nom}', '${prenom}', '${num}', '${email}', '${adresse}', '${adresse2}', '${ville}', '${code}', '${login}', '${hashed_mdp}');`
+                const reqInsert = `INSERT INTO clients
+                (nom, prenom, tel, email, adresse, adresse2, ville, code, login, mdp)
+                VALUES ('${nom}', '${prenom}', '${num}', '${email}', '${adresse}',
+                 '${adresse2}', '${ville}', '${code}', '${login}', '${hashed_mdp}');`
 
                 db.query(reqInsert, (err, result3) => {
                     if (err) {
@@ -279,7 +286,7 @@ router.post('/verify_payment', async (req, res) => {
     }
     if (adresse2) {
         if (!adresse2.match(adresseRegex)) {
-            errors.adresse2 = "Les informations complémentaires contiennent des caractères invalides.";
+            errors.adresse2 = "Les informations contiennent des caractères invalides.";
         }
     }
     if (!ville.match(adresseRegex)) {
@@ -361,15 +368,18 @@ router.post('/verify_payment', async (req, res) => {
 
                     // On met ensuite à jour les stocks des produits de la combinaison.
                     const reqStock1 = `UPDATE dispo_tailles SET quantite = (quantite - ${element.quantity})
-                    WHERE id_produit = ${element.produits[0].produitId} AND taille = '${element.produits[0].taille}';`;
+                    WHERE id_produit = ${element.produits[0].produitId}
+                    AND taille = '${element.produits[0].taille}';`;
                     const resStock1 = await db.query(reqStock1);
 
                     const reqStock2 = `UPDATE dispo_tailles SET quantite = (quantite - ${element.quantity})
-                    WHERE id_produit = ${element.produits[1].produitId} AND taille = '${element.produits[1].taille}';`;
+                    WHERE id_produit = ${element.produits[1].produitId}
+                    AND taille = '${element.produits[1].taille}';`;
                     const resStock2 = await db.query(reqStock2);
 
                     const reqStock3 = `UPDATE dispo_tailles SET quantite = (quantite - ${element.quantity})
-                    WHERE id_produit = ${element.produits[2].produitId} AND taille = '${element.produits[2].taille}';`;
+                    WHERE id_produit = ${element.produits[2].produitId} AND
+                    taille = '${element.produits[2].taille}';`;
                     const resStock3 = await db.query(reqStock3);
                 }
             }
@@ -429,7 +439,8 @@ router.post('/verify_login', async (req, res) => {
             // On vérifie si le mot de passe correspond à celui stocké dans la base de données
             if (hashed_mdp === hashed_db_mdp) {
                 if (login_type === 'clients') {
-                    // Puis on stocke les informations de l'utilisateur dans la session en tant qu'utilisateur client
+                    // Puis on stocke les informations de l'utilisateur 
+                    // dans la session en tant qu'utilisateur client
                     req.session.user = {
                         loginType: login_type,
                         id_client: result.rows[0].id_client,
@@ -451,7 +462,8 @@ router.post('/verify_login', async (req, res) => {
                 }
                 res.redirect('/');
             } else {
-                // Le mot de passe ne correspond pas, on affiche la page de connexion avec un échec de connexion
+                // Le mot de passe ne correspond pas, on affiche la page
+                // de connexion avec un échec de connexion
                 res.render('login_page.ejs', {
                     failed: true,
                     login_type_val: login_type,
@@ -460,7 +472,8 @@ router.post('/verify_login', async (req, res) => {
                 });
             }
         } else {
-            // L'utilisateur n'existe pas, on affiche la page de connexion avec un échec de connexion
+            // L'utilisateur n'existe pas, on affiche la page
+            // de connexion avec un échec de connexion
             res.render('login_page.ejs', {
                 failed: true,
                 login_type_val: login_type,
