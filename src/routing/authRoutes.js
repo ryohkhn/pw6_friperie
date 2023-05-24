@@ -1,5 +1,5 @@
 const { server, express } = require('../express_config');
-const db = require("../database_pool.local");
+const db = require("../database_pool");
 const crypto = require("crypto");
 const utils = require('../utils/utils');
 const middlewares = require("../middlewares/middlewares");

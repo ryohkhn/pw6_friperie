@@ -1,6 +1,6 @@
 const { server, express } = require('../express_config');
 const utils = require("../utils/utils");
-const db = require("../database_pool.local");
+const db = require("../database_pool");
 
 const router = express.Router();
 

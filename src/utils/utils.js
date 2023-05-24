@@ -1,4 +1,4 @@
-const db = require("../database_pool.local");
+const db = require("../database_pool");
 
 /**
  * Fonction qui retourne la valeur du total du panier
