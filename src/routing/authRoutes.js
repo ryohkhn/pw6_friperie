@@ -190,7 +190,8 @@ router.post('/verify_register', (req, res) => {
 
             if (Object.keys(errors).length === 0) {
                 // Insertion des données en base de données
-                const hashed_mdp = crypto.createHash('sha256').update(password).digest('hex');
+                let hashed_mdp = crypto.createHash('sha256').update(password).digest('hex');
+                hashed_mdp = '\\x' + hashed_mdp;
                 const reqInsert = `INSERT INTO clients
                 (nom, prenom, tel, email, adresse, adresse2, ville, code, login, mdp)
                 VALUES ('${nom}', '${prenom}', '${num}', '${email}', '${adresse}',

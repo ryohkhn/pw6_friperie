@@ -330,4 +330,4 @@ INSERT INTO combinaisons_parts (id_combi, id_produit) VALUES
 
 
 INSERT INTO gerants(login,mdp) VALUES('admin',sha256('admin'));
-INSERT INTO clients(nom,prenom,tel,email,adresse,adresse2,ville,code,login,mdp) VALUES('RODRIGUEZ','Lucas','0102030405','lucas@gmail.com','1 rue des pigeons','','Paris','75017','lucasrdz',sha256('lucas'));
+INSERT INTO clients(nom,prenom,tel,email,adresse,adresse2,ville,code,login,mdp) VALUES('nomTest','test','0102030405','test@gmail.com','1 rue du test','','Paris','75013','test',sha256('123456789'));
